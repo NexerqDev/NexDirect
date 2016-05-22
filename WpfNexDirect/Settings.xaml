@@ -19,7 +19,7 @@
         <Label x:Name="label4" Content="For custom URLs, use %s to indicate the beatmap set ID." HorizontalAlignment="Left" Height="27" Margin="98,282,0,0" VerticalAlignment="Top" Width="308"/>
         <Button x:Name="setCustomBgButton" Content="Set custom UI background" HorizontalAlignment="Left" Height="21" Margin="35,185,0,0" VerticalAlignment="Top" Width="209" Click="setCustomBgButton_Click"/>
         <Button x:Name="clearBgButton" Content="Clear UI background" HorizontalAlignment="Left" Height="21" Margin="249,185,0,0" VerticalAlignment="Top" Width="209" Click="clearBgButton_Click"/>
-        <CheckBox x:Name="launchOsuCheckbox" Content="Move beatmaps to songs folder instead of launching osu! with params (Advanced)" HorizontalAlignment="Left" Height="23" Margin="26,325,0,0" VerticalAlignment="Top" Width="457" Checked="launchOsuCheckbox_Toggled" Unchecked="launchOsuCheckbox_Toggled"/>
+        <CheckBox x:Name="launchOsuCheckbox" Content="Launch osu! with params instead of moving to songs folder (Advanced)" HorizontalAlignment="Left" Height="23" Margin="58,325,0,0" VerticalAlignment="Top" Width="400" Checked="launchOsuCheckbox_Toggled" Unchecked="launchOsuCheckbox_Toggled"/>
 
     </Grid>
 </Window>
