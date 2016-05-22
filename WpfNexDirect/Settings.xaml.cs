@@ -32,6 +32,7 @@ namespace NexDirect
             overlayModeCheckbox.IsChecked = parent.overlayMode;
             audioPreviewsCheckbox.IsChecked = parent.audioPreviews;
             mirrorTextBox.Text = parent.beatmapMirror;
+            launchOsuCheckbox.IsChecked = parent.launchOsu;
             loaded = true;
         }
 
@@ -98,6 +99,14 @@ namespace NexDirect
             Properties.Settings.Default.Save();
             MessageBox.Show("Custom background cleared.", "NexDirect - Updated");
             parent.setCustomBackground(null);
+        }
+
+        private void launchOsuCheckbox_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (!loaded) return;
+            parent.launchOsu = (bool)launchOsuCheckbox.IsChecked;
+            Properties.Settings.Default.launchOsu = parent.launchOsu;
+            Properties.Settings.Default.Save();
         }
     }
 }

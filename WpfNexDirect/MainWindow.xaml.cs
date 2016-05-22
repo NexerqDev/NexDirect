@@ -18,6 +18,7 @@ using System.Runtime.InteropServices;
 using System.Web;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Diagnostics;
 
 // TODO
 // Multiple same beatmap d/l -- DONE
@@ -62,6 +63,7 @@ namespace NexDirect
         public bool audioPreviews = Properties.Settings.Default.audioPreviews;
         public string beatmapMirror = Properties.Settings.Default.beatmapMirror;
         public string uiBackground = Properties.Settings.Default.customBgPath;
+        public bool launchOsu = Properties.Settings.Default.launchOsu;
 
         public MainWindow()
         {
@@ -99,7 +101,7 @@ namespace NexDirect
             public string Title { get; set; }
             public string Mapper { get; set; }
             public string RankingStatus { get; set; }
-            public Boolean AlreadyHave { get; set; }
+            public bool AlreadyHave { get; set; }
             public Uri PreviewImage { get; set; }
             public JObject BloodcatData { get; set; }
         }
@@ -115,7 +117,7 @@ namespace NexDirect
 
             protected void Notify(string propName)
             {
-                if (this.PropertyChanged != null)
+                if (PropertyChanged != null)
                 {
                     PropertyChanged(this, new PropertyChangedEventArgs(propName));
                 }
@@ -130,7 +132,7 @@ namespace NexDirect
                 get { return _percent; }
                 set
                 {
-                    this._percent = value;
+                    _percent = value;
                     Notify("ProgressPercent");
                 }
             }
@@ -376,7 +378,7 @@ namespace NexDirect
             progressObj.BeatmapSetId = set.Id;
             progressObj.BeatmapSetName = string.Format("{0} ({1})", set.Title, set.Mapper);
             progressObj.ProgressPercent = "0";
-            progressObj.TempDownloadPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename + ".nexd");
+            progressObj.TempDownloadPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename + ".nexd");
             downloadProgress.Add(progressObj);
 
             using (var client = new WebClient())
@@ -393,7 +395,17 @@ namespace NexDirect
                         return;
                     }
 
-                    File.Move(progressObj.TempDownloadPath, System.IO.Path.Combine(osuSongsFolder, filename));
+                    if (launchOsu && Process.GetProcessesByName("osu!").Length > 0) // https://stackoverflow.com/questions/262280/how-can-i-know-if-a-process-is-running - ensure osu! is running dont want to just launch the game lol
+                    {
+                        string newPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
+                        File.Move(progressObj.TempDownloadPath, newPath); // rename to .osz
+                        Process.Start(Path.Combine(Directory.GetParent(osuSongsFolder).ToString(), "osu!.exe"), newPath);
+                    }
+                    else
+                    {
+                        File.Move(progressObj.TempDownloadPath, Path.Combine(osuSongsFolder, filename));
+                    }
+                    
                     audioDoong.Play();
                 };
                 progressObj.DownloadClient = client;

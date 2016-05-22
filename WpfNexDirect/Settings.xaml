@@ -5,20 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NexDirect"
         mc:Ignorable="d"
-        Title="Settings - NexDirect" Height="367.411" Width="508.001" ResizeMode="NoResize" WindowStyle="ToolWindow" Topmost="True">
+        Title="Settings - NexDirect" Height="392.411" Width="517.001" ResizeMode="NoResize" WindowStyle="ToolWindow" Topmost="True">
     <Grid>
         <Label x:Name="label" Content="Settings" Margin="152,10,0,0" FontSize="48" Height="76" VerticalAlignment="Top" HorizontalAlignment="Left" Width="182"/>
         <Button x:Name="changeFolderButton" Content="Update osu! folder location" HorizontalAlignment="Left" Height="21" Margin="118,113,0,0" VerticalAlignment="Top" Width="243" Click="changeFolderButton_Click"/>
         <CheckBox x:Name="overlayModeCheckbox" Content="Use overlay mode (requires osu! to be in windowed or borderless mode)" HorizontalAlignment="Left" Height="17" Margin="39,141,0,0" VerticalAlignment="Top" Width="406" Checked="overlayModeCheckbox_Checked" Unchecked="overlayModeCheckbox_Unchecked"/>
         <CheckBox x:Name="audioPreviewsCheckbox" Content="Play beatmap audio previews on click (buggy)" HorizontalAlignment="Left" Height="17" Margin="108,163,0,0" VerticalAlignment="Top" Width="265" Checked="audioPreviewsCheckbox_Toggled" Unchecked="audioPreviewsCheckbox_Toggled"/>
-        <Label x:Name="label1" Content="Mirror:" HorizontalAlignment="Left" Height="25" Margin="19,262,0,0" VerticalAlignment="Top" Width="46"/>
-        <TextBox x:Name="mirrorTextBox" HorizontalAlignment="Left" Height="22" Margin="65,265,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="317"/>
-        <Button x:Name="mirrorSaveButton" Content="Save Mirror" HorizontalAlignment="Left" Height="22" Margin="387,265,0,0" VerticalAlignment="Top" Width="91" Click="mirrorSaveButton_Click"/>
+        <Label x:Name="label1" Content="Mirror:" HorizontalAlignment="Left" Height="25" Margin="23,238,0,0" VerticalAlignment="Top" Width="46"/>
+        <TextBox x:Name="mirrorTextBox" HorizontalAlignment="Left" Height="22" Margin="69,241,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="317"/>
+        <Button x:Name="mirrorSaveButton" Content="Save Mirror" HorizontalAlignment="Left" Height="22" Margin="391,241,0,0" VerticalAlignment="Top" Width="91" Click="mirrorSaveButton_Click"/>
         <Label x:Name="label2" Content="Changes are saved immediately for almost all settings." HorizontalAlignment="Left" Height="29" Margin="96,77,0,0" VerticalAlignment="Top" Width="296" FontStyle="Italic"/>
-        <Label x:Name="label3" Content="Leave the mirror field blank to default to Bloodcat." HorizontalAlignment="Left" Height="24" Margin="113,289,0,0" VerticalAlignment="Top" Width="281"/>
-        <Label x:Name="label4" Content="For custom URLs, use %s to indicate the beatmap set ID." HorizontalAlignment="Left" Height="27" Margin="94,306,0,0" VerticalAlignment="Top" Width="308"/>
+        <Label x:Name="label3" Content="Leave the mirror field blank to default to Bloodcat." HorizontalAlignment="Left" Height="24" Margin="117,265,0,0" VerticalAlignment="Top" Width="281"/>
+        <Label x:Name="label4" Content="For custom URLs, use %s to indicate the beatmap set ID." HorizontalAlignment="Left" Height="27" Margin="98,282,0,0" VerticalAlignment="Top" Width="308"/>
         <Button x:Name="setCustomBgButton" Content="Set custom UI background" HorizontalAlignment="Left" Height="21" Margin="35,185,0,0" VerticalAlignment="Top" Width="209" Click="setCustomBgButton_Click"/>
         <Button x:Name="clearBgButton" Content="Clear UI background" HorizontalAlignment="Left" Height="21" Margin="249,185,0,0" VerticalAlignment="Top" Width="209" Click="clearBgButton_Click"/>
+        <CheckBox x:Name="launchOsuCheckbox" Content="Launch osu! with params instead of move to songs folder (advanced)" HorizontalAlignment="Left" Height="23" Margin="54,330,0,0" VerticalAlignment="Top" Width="384" Checked="launchOsuCheckbox_Toggled" Unchecked="launchOsuCheckbox_Toggled"/>
 
     </Grid>
 </Window>
