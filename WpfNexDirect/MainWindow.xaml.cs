@@ -16,6 +16,8 @@ using NAudio.Wave;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
 using System.Web;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 // TODO
 // Multiple same beatmap d/l -- DONE
@@ -59,6 +61,7 @@ namespace NexDirect
         public bool overlayMode = Properties.Settings.Default.overlayMode;
         public bool audioPreviews = Properties.Settings.Default.audioPreviews;
         public string beatmapMirror = Properties.Settings.Default.beatmapMirror;
+        public string uiBackground = Properties.Settings.Default.customBgPath;
 
         public MainWindow()
         {
@@ -143,6 +146,11 @@ namespace NexDirect
             checkOrPromptSongsDir();
             loadDoong(); // load into memory ready to play
             loadAlreadyDownloadedMaps();
+
+            if (!string.IsNullOrEmpty(uiBackground))
+            {
+                setCustomBackground(uiBackground);
+            }
 
             if (overlayMode)
             {
@@ -446,6 +454,38 @@ namespace NexDirect
                 }
                 catch { } // meh audio previews arent that important, and sometimes they dont exist
             }
+        }
+        
+        public void setCustomBackground(string inPath)
+        {
+            dynamic[] changedElements = { searchBox, searchButton, popularLoadButton, rankedStatusBox, modeSelectBox, progressGrid, dataGrid };
+
+            if (inPath == null)
+            {
+                SolidColorBrush myBrush = new SolidColorBrush();
+                myBrush.Color = Color.FromRgb(255, 255, 255);
+                Background = myBrush;
+                foreach (var element in changedElements)
+                {
+                    element.Opacity = 1;
+                }
+                return;
+            }
+
+            try
+            {
+                Uri file = new Uri(inPath);
+                // https://stackoverflow.com/questions/4009775/change-wpf-window-background-image-in-c-sharp-code
+                ImageBrush myBrush = new ImageBrush();
+                myBrush.ImageSource = new BitmapImage(file);
+                myBrush.Stretch = Stretch.UniformToFill;
+                Background = myBrush;
+                foreach (var element in changedElements)
+                {
+                    element.Opacity = 0.85;
+                }
+            }
+            catch { } // meh doesnt exist
         }
 
         private void HotkeyPressed()

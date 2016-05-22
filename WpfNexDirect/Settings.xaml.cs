@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.WindowsAPICodePack.Dialogs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -70,6 +71,33 @@ namespace NexDirect
             Properties.Settings.Default.beatmapMirror = parent.beatmapMirror;
             Properties.Settings.Default.Save();
             MessageBox.Show("New mirror has been saved.", "NexDirect - Updated");
+        }
+
+        private void setCustomBgButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new CommonOpenFileDialog();
+            CommonFileDialogResult result = dialog.ShowDialog();
+
+            if (string.IsNullOrEmpty(dialog.FileName))
+            {
+                MessageBox.Show("No file selected. Please try again.", "NexDirect - Error");
+                return;
+            }
+
+            parent.uiBackground = dialog.FileName;
+            Properties.Settings.Default.customBgPath = parent.uiBackground;
+            Properties.Settings.Default.Save();
+            MessageBox.Show("New custom background saved.", "NexDirect - Updated");
+            parent.setCustomBackground(parent.uiBackground);
+        }
+
+        private void clearBgButton_Click(object sender, RoutedEventArgs e)
+        {
+            parent.uiBackground = "";
+            Properties.Settings.Default.customBgPath = parent.uiBackground;
+            Properties.Settings.Default.Save();
+            MessageBox.Show("Custom background cleared.", "NexDirect - Updated");
+            parent.setCustomBackground(null);
         }
     }
 }

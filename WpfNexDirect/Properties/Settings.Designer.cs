@@ -70,5 +70,17 @@ namespace NexDirect.Properties {
                 this["beatmapMirror"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string customBgPath {
+            get {
+                return ((string)(this["customBgPath"]));
+            }
+            set {
+                this["customBgPath"] = value;
+            }
+        }
     }
 }
