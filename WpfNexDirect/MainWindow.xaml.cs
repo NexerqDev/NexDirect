@@ -280,16 +280,17 @@ namespace NexDirect
         public void checkOrPromptSongsDir()
         {
             bool newSetup = true;
-            if (!string.IsNullOrEmpty(osuSongsFolder))
+            if (osuSongsFolder == "forced_update")
+            {
+                newSetup = false;
+                osuSongsFolder = "";
+            }
+            else if (!string.IsNullOrEmpty(osuSongsFolder))
             {
                 // just verify this folder actually still exists
                 if (Directory.Exists(osuSongsFolder)) return;
                 newSetup = false;
                 MessageBox.Show("Your osu! songs folder seems to have moved... please reselect the new one!", "NexDirect - Folder Update");
-            }
-            else if (osuSongsFolder == "forced_update")
-            {
-                newSetup = false;
             }
             else
             {
