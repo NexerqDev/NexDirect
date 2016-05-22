@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NexDirect"
         mc:Ignorable="d"
-        Title="Settings - NexDirect" Height="392.411" Width="517.001" ResizeMode="NoResize" WindowStyle="ToolWindow" Topmost="True">
+        Title="Settings - NexDirect" Height="386.411" Width="513.001" ResizeMode="NoResize" WindowStyle="ToolWindow" Topmost="True">
     <Grid>
         <Label x:Name="label" Content="Settings" Margin="152,10,0,0" FontSize="48" Height="76" VerticalAlignment="Top" HorizontalAlignment="Left" Width="182"/>
         <Button x:Name="changeFolderButton" Content="Update osu! folder location" HorizontalAlignment="Left" Height="21" Margin="118,113,0,0" VerticalAlignment="Top" Width="243" Click="changeFolderButton_Click"/>
@@ -19,7 +19,7 @@
         <Label x:Name="label4" Content="For custom URLs, use %s to indicate the beatmap set ID." HorizontalAlignment="Left" Height="27" Margin="98,282,0,0" VerticalAlignment="Top" Width="308"/>
         <Button x:Name="setCustomBgButton" Content="Set custom UI background" HorizontalAlignment="Left" Height="21" Margin="35,185,0,0" VerticalAlignment="Top" Width="209" Click="setCustomBgButton_Click"/>
         <Button x:Name="clearBgButton" Content="Clear UI background" HorizontalAlignment="Left" Height="21" Margin="249,185,0,0" VerticalAlignment="Top" Width="209" Click="clearBgButton_Click"/>
-        <CheckBox x:Name="launchOsuCheckbox" Content="Launch osu! with params instead of move to songs folder (advanced)" HorizontalAlignment="Left" Height="23" Margin="54,330,0,0" VerticalAlignment="Top" Width="384" Checked="launchOsuCheckbox_Toggled" Unchecked="launchOsuCheckbox_Toggled"/>
+        <CheckBox x:Name="launchOsuCheckbox" Content="Move beatmaps to songs folder instead of launching osu! with params (Advanced)" HorizontalAlignment="Left" Height="23" Margin="26,325,0,0" VerticalAlignment="Top" Width="457" Checked="launchOsuCheckbox_Toggled" Unchecked="launchOsuCheckbox_Toggled"/>
 
     </Grid>
 </Window>

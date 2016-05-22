@@ -387,7 +387,7 @@ namespace NexDirect
                 {
                     progressObj.ProgressPercent = e.ProgressPercentage.ToString();
                 };
-                client.DownloadFileCompleted += (o, e) =>
+                client.DownloadFileCompleted += async (o, e) =>
                 {
                     if (e.Cancelled)
                     {
@@ -407,6 +407,10 @@ namespace NexDirect
                     }
                     
                     audioDoong.Play();
+
+                    // wait for a tiny while then reload, osu! needs to extract etc
+                    await Task.Delay(2500);
+                    loadAlreadyDownloadedMaps();
                 };
                 progressObj.DownloadClient = client;
 
