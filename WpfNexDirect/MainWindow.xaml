@@ -1,0 +1,58 @@
+﻿<Window x:Class="NexDirect.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NexDirect"
+        mc:Ignorable="d"
+        Title="NexDirect" Height="600.5" Width="1128" Icon="Resources/logo.ico" Loaded="MainWindow_Loaded" Background="White">
+    <Grid Margin="0,0,2,0">
+        <DataGrid x:Name="dataGrid" Margin="10,101,200,26" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="dataGrid_DoubleClick" HeadersVisibility="Column" RowHeight="35" PreviewMouseDown="dataGrid_MouseDown" MouseLeave="dataGrid_MouseLeave" BorderBrush="#FF688CAF" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#BF6A6A6A">
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Binding="{Binding AlreadyHave}" Width="15"/>
+                <DataGridTemplateColumn Width="150">
+                    <!-- https://stackoverflow.com/questions/15683314/wpf-add-datagrid-image-column-possible -->
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image Source="{Binding PreviewImage}" Stretch="UniformToFill" VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Binding="{Binding RankingStatus}" Width="100" Header="Status"/>
+                <DataGridTextColumn Binding="{Binding Artist}" Width="150" Header="Artist"/>
+                <DataGridTextColumn Binding="{Binding Title}" Width="300" Header="Title"/>
+                <DataGridTextColumn Binding="{Binding Mapper}" Width="150" Header="Mapper"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <TextBox x:Name="searchBox" Height="44" Margin="10,23,377,0" TextWrapping="Wrap" VerticalAlignment="Top" BorderThickness="3" BorderBrush="#FFCD8721" Background="#FFE0DDDD" FontSize="26.667"/>
+        <Button x:Name="searchButton" Content="Search" Margin="0,23,200,0" BorderBrush="#FF5294A2" BorderThickness="3" FontSize="26.667" Click="searchButton_Click" IsDefault="True" Height="44" VerticalAlignment="Top" HorizontalAlignment="Right" Width="172"/>
+        <DataGrid x:Name="progressGrid" Margin="0,23,10,26" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="progressGrid_DoubleClick" HeadersVisibility="Column" HorizontalAlignment="Right" Width="185">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding BeatmapSetName}" Header="Beatmap Set" Width="160"/>
+                <DataGridTextColumn Binding="{Binding ProgressPercent}" Header="%" Width="20"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Image x:Name="logoImage" Margin="0,0,10,26" Source="Resources/logo.png" Opacity="0.5" Height="110" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="110" ToolTip="Click to enter settings menu..." Cursor="Hand" MouseUp="logoImage_MouseUp"/>
+        <ProgressBar x:Name="searchingLoading" Margin="328,278,530,0" IsIndeterminate="True" ToolTip="Loading..." Height="22" VerticalAlignment="Top" Visibility="Hidden"/>
+        <Label x:Name="overlayModeNotice" Content="Overlay mode is active. Use CTRL+SHIFT+HOME to toggle the interface." HorizontalAlignment="Left" Margin="10,0,0,0" Width="393" Height="32" VerticalAlignment="Bottom" Visibility="Hidden"/>
+        <Label x:Name="overlayModeExit" Content="X" Height="23" VerticalAlignment="Top" HorizontalAlignment="Right" Width="19" MouseUp="overlayModeExit_MouseUp" Cursor="Hand" Margin="0,1,0,0" Visibility="Hidden"/>
+        <ComboBox x:Name="rankedStatusBox" HorizontalAlignment="Left" Height="23" Margin="126,73,0,0" VerticalAlignment="Top" Width="161" SelectedIndex="0">
+            <ComboBoxItem Content="All"/>
+            <ComboBoxItem Content="Ranked"/>
+            <ComboBoxItem Content="Qualified"/>
+            <ComboBoxItem Content="Unranked"/>
+        </ComboBox>
+        <ComboBox x:Name="modeSelectBox" HorizontalAlignment="Left" Height="23" Margin="417,73,0,0" VerticalAlignment="Top" Width="161" SelectedIndex="0">
+            <ComboBoxItem Content="All"/>
+            <ComboBoxItem Content="osu!"/>
+            <ComboBoxItem Content="Catch the Beat"/>
+            <ComboBoxItem Content="Taiko"/>
+            <ComboBoxItem Content="osu!mania"/>
+        </ComboBox>
+        <Label x:Name="label" Content="Show:" HorizontalAlignment="Left" Height="23" Margin="80,72,0,0" VerticalAlignment="Top" Width="46"/>
+        <Label x:Name="label1" Content="Mode:" HorizontalAlignment="Left" Height="27" Margin="372,71,0,0" VerticalAlignment="Top" Width="45"/>
+        <Button x:Name="popularLoadButton" Content="Load Popular Maps" HorizontalAlignment="Left" Height="25" Margin="668,72,0,0" VerticalAlignment="Top" Width="159" Click="popularLoadButton_Click"/>
+    </Grid>
+
+
+</Window>
