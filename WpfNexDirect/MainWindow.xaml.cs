@@ -437,21 +437,6 @@ namespace NexDirect
             audioDoong.PlaybackStopped += (o, e) => reader.Position = 0;
         }
 
-        private async Task<System.Drawing.Image> getPreviewImage(string setId)
-        {
-            try
-            {
-                using (var client = new WebClient())
-                {
-                    var response = await client.DownloadDataTaskAsync(string.Format("http://b.ppy.sh/thumb/{0}l.jpg", setId));
-                    return System.Drawing.Image.FromStream(new MemoryStream(response));
-                }
-            }
-            catch { }
-
-            return null;
-        }
-
         private async Task playPreviewAudio(BeatmapSet set)
         {
             audioWaveOut.Stop(); // if already playing something just stop it
