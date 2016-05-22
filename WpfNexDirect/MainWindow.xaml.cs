@@ -290,6 +290,7 @@ namespace NexDirect
                 // just verify this folder actually still exists
                 if (Directory.Exists(osuSongsFolder)) return;
                 newSetup = false;
+                osuSongsFolder = "";
                 MessageBox.Show("Your osu! songs folder seems to have moved... please reselect the new one!", "NexDirect - Folder Update");
             }
             else
