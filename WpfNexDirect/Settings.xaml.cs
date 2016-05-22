@@ -38,7 +38,7 @@ namespace NexDirect
 
         private void changeFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            parent.osuSongsFolder = "forced_update";
+            parent.osuFolder = "forced_update";
             parent.checkOrPromptSongsDir();
         }
 

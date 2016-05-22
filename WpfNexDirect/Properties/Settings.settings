@@ -2,7 +2,7 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="NexDirect.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="songsFolder" Type="System.String" Scope="User">
+    <Setting Name="osuFolder" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="overlayMode" Type="System.Boolean" Scope="User">

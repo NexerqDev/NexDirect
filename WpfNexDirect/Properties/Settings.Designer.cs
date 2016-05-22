@@ -26,12 +26,12 @@ namespace NexDirect.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string songsFolder {
+        public string osuFolder {
             get {
-                return ((string)(this["songsFolder"]));
+                return ((string)(this["osuFolder"]));
             }
             set {
-                this["songsFolder"] = value;
+                this["osuFolder"] = value;
             }
         }
         

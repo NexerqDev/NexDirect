@@ -58,7 +58,7 @@ namespace NexDirect
         private WaveOut audioWaveOut = new WaveOut(); // For playing beatmap previews and stuff
         private WaveOut audioDoong = new WaveOut(); // Specific interface for playing doong, so if previews are playing it doesnt take over
         private string[] alreadyDownloaded;
-        public string osuSongsFolder = Properties.Settings.Default.songsFolder;
+        public string osuFolder = Properties.Settings.Default.osuFolder;
         public bool overlayMode = Properties.Settings.Default.overlayMode;
         public bool audioPreviews = Properties.Settings.Default.audioPreviews;
         public string beatmapMirror = Properties.Settings.Default.beatmapMirror;
@@ -282,17 +282,17 @@ namespace NexDirect
         public void checkOrPromptSongsDir()
         {
             bool newSetup = true;
-            if (osuSongsFolder == "forced_update")
+            if (osuFolder == "forced_update")
             {
                 newSetup = false;
-                osuSongsFolder = "";
+                osuFolder = "";
             }
-            else if (!string.IsNullOrEmpty(osuSongsFolder))
+            else if (!string.IsNullOrEmpty(osuFolder))
             {
                 // just verify this folder actually still exists
-                if (Directory.Exists(osuSongsFolder)) return;
+                if (Directory.Exists(osuFolder)) return;
                 newSetup = false;
-                osuSongsFolder = "";
+                osuFolder = "";
                 MessageBox.Show("Your osu! songs folder seems to have moved... please reselect the new one!", "NexDirect - Folder Update");
             }
             else
@@ -301,7 +301,7 @@ namespace NexDirect
                 MessageBox.Show("It seems like it is your first time here. Please point towards your osu! directory so we can get the beatmap download location set up.", "NexDirect - First Time Setup");
             }
 
-            while (string.IsNullOrEmpty(osuSongsFolder))
+            while (string.IsNullOrEmpty(osuFolder))
             {
                 var dialog = new CommonOpenFileDialog();
                 dialog.IsFolderPicker = true;
@@ -311,7 +311,7 @@ namespace NexDirect
                 {
                     if (File.Exists(Path.Combine(dialog.FileName, "osu!.exe")))
                     {
-                        osuSongsFolder = Path.Combine(dialog.FileName, "Songs");
+                        osuFolder = Path.Combine(dialog.FileName, "Songs");
                     }
                 }
                 else
@@ -320,7 +320,7 @@ namespace NexDirect
                 }
             }
 
-            Properties.Settings.Default.songsFolder = osuSongsFolder;
+            Properties.Settings.Default.osuFolder = osuFolder;
             Properties.Settings.Default.Save();
 
             if (newSetup == true) MessageBox.Show("Welcome to NexDirect! Your folder has been registered and we are ready to go!", "NexDirect - Welcome");
@@ -329,7 +329,7 @@ namespace NexDirect
 
         private void loadAlreadyDownloadedMaps()
         {
-            alreadyDownloaded = Directory.GetDirectories(osuSongsFolder);
+            alreadyDownloaded = Directory.GetDirectories(osuFolder);
         }
 
         private async Task<T> getBloodcatSearch<T>(string query, string selectRanked, string selectMode)
@@ -399,11 +399,11 @@ namespace NexDirect
                     {
                         string newPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
                         File.Move(progressObj.TempDownloadPath, newPath); // rename to .osz
-                        Process.Start(Path.Combine(Directory.GetParent(osuSongsFolder).ToString(), "osu!.exe"), newPath);
+                        Process.Start(Path.Combine(osuFolder, "osu!.exe"), newPath);
                     }
                     else
                     {
-                        File.Move(progressObj.TempDownloadPath, Path.Combine(osuSongsFolder, filename));
+                        File.Move(progressObj.TempDownloadPath, Path.Combine(osuFolder, "Songs", filename));
                     }
                     
                     audioDoong.Play();
