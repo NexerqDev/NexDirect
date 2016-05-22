@@ -387,7 +387,7 @@ namespace NexDirect
                 {
                     progressObj.ProgressPercent = e.ProgressPercentage.ToString();
                 };
-                client.DownloadFileCompleted += async (o, e) =>
+                client.DownloadFileCompleted += (o, e) =>
                 {
                     if (e.Cancelled)
                     {
@@ -407,10 +407,6 @@ namespace NexDirect
                     }
                     
                     audioDoong.Play();
-
-                    // wait for a tiny while then reload, osu! needs to extract etc
-                    await Task.Delay(2500);
-                    loadAlreadyDownloadedMaps();
                 };
                 progressObj.DownloadClient = client;
 
@@ -420,7 +416,11 @@ namespace NexDirect
                     if (progressObj.DownloadCancelled == true) return;
                     MessageBox.Show(string.Format("An error has occured whilst downloading {0} ({1}).\n\n{2}", set.Title, set.Mapper, ex.ToString()));
                 }
-                finally { downloadProgress.Remove(progressObj); }
+                finally
+                {
+                    downloadProgress.Remove(progressObj);
+                    if (downloadProgress.Count < 1) loadAlreadyDownloadedMaps(); // reload only when theres nothing left
+                }
             }
         }
 
