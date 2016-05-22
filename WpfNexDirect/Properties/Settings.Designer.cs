@@ -25,18 +25,6 @@ namespace NexDirect.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string osuFolder {
-            get {
-                return ((string)(this["osuFolder"]));
-            }
-            set {
-                this["osuFolder"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool overlayMode {
             get {
@@ -92,6 +80,18 @@ namespace NexDirect.Properties {
             }
             set {
                 this["launchOsu"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string osuFolder {
+            get {
+                return ((string)(this["osuFolder"]));
+            }
+            set {
+                this["osuFolder"] = value;
             }
         }
     }

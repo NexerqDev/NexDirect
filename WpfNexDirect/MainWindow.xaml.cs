@@ -311,7 +311,7 @@ namespace NexDirect
                 {
                     if (File.Exists(Path.Combine(dialog.FileName, "osu!.exe")))
                     {
-                        osuFolder = Path.Combine(dialog.FileName, "Songs");
+                        osuFolder = dialog.FileName;
                     }
                 }
                 else
