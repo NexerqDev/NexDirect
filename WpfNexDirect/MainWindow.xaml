@@ -24,7 +24,7 @@
                 <DataGridTextColumn Binding="{Binding Mapper}" Width="150" Header="Mapper"/>
             </DataGrid.Columns>
         </DataGrid>
-        <TextBox x:Name="searchBox" Height="44" Margin="10,23,377,0" TextWrapping="Wrap" VerticalAlignment="Top" BorderThickness="3" BorderBrush="#FFCD8721" Background="#FFE0DDDD" FontSize="26.667"/>
+        <TextBox x:Name="searchBox" Height="44" Margin="10,23,377,0" TextWrapping="Wrap" VerticalAlignment="Top" BorderThickness="3" BorderBrush="#FFCD8721" Background="#FFE0DDDD" FontSize="26.667" TextChanged="searchBox_TextChanged"/>
         <Button x:Name="searchButton" Content="Search" Margin="0,23,200,0" BorderBrush="#FF5294A2" BorderThickness="3" FontSize="26.667" Click="searchButton_Click" IsDefault="True" Height="44" VerticalAlignment="Top" HorizontalAlignment="Right" Width="172"/>
         <DataGrid x:Name="progressGrid" Margin="0,23,10,26" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="progressGrid_DoubleClick" HeadersVisibility="Column" HorizontalAlignment="Right" Width="185">
             <DataGrid.Columns>
@@ -36,22 +36,29 @@
         <ProgressBar x:Name="searchingLoading" Margin="328,278,530,0" IsIndeterminate="True" ToolTip="Loading..." Height="22" VerticalAlignment="Top" Visibility="Hidden"/>
         <Label x:Name="overlayModeNotice" Content="Overlay mode is active. Use CTRL+SHIFT+HOME to toggle the interface." HorizontalAlignment="Left" Margin="10,0,0,0" Width="393" Height="32" VerticalAlignment="Bottom" Visibility="Hidden"/>
         <Label x:Name="overlayModeExit" Content="X" Height="23" VerticalAlignment="Top" HorizontalAlignment="Right" Width="19" MouseUp="overlayModeExit_MouseUp" Cursor="Hand" Margin="0,1,0,0" Visibility="Hidden"/>
-        <ComboBox x:Name="rankedStatusBox" Height="23" Margin="0,73,831,0" VerticalAlignment="Top" SelectedIndex="0" HorizontalAlignment="Right" Width="161">
+        <ComboBox x:Name="rankedStatusBox" Height="23" Margin="0,73,889,0" VerticalAlignment="Top" SelectedIndex="0" HorizontalAlignment="Right" Width="161">
             <ComboBoxItem Content="All"/>
             <ComboBoxItem Content="Ranked"/>
             <ComboBoxItem Content="Qualified"/>
             <ComboBoxItem Content="Unranked"/>
         </ComboBox>
-        <ComboBox x:Name="modeSelectBox" Height="23" Margin="0,73,540,0" VerticalAlignment="Top" SelectedIndex="0" HorizontalAlignment="Right" Width="161">
+        <ComboBox x:Name="modeSelectBox" Height="23" Margin="0,73,629,0" VerticalAlignment="Top" SelectedIndex="0" HorizontalAlignment="Right" Width="161">
             <ComboBoxItem Content="All"/>
             <ComboBoxItem Content="osu!"/>
             <ComboBoxItem Content="Catch the Beat"/>
             <ComboBoxItem Content="Taiko"/>
             <ComboBoxItem Content="osu!mania"/>
         </ComboBox>
-        <Label x:Name="label" Content="Show:" Height="23" Margin="0,72,992,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="46"/>
-        <Label x:Name="label1" Content="Mode:" Height="27" Margin="0,71,701,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="45"/>
-        <Button x:Name="popularLoadButton" Content="Load Popular Maps" Height="25" Margin="0,72,291,0" VerticalAlignment="Top" Click="popularLoadButton_Click" HorizontalAlignment="Right" Width="159"/>
+        <Label x:Name="label" Content="Show:" Height="23" Margin="0,73,1050,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="46"/>
+        <Label x:Name="label1" Content="Mode:" Height="27" Margin="0,71,795,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="45"/>
+        <Button x:Name="popularLoadButton" Content="Load Popular Maps" Height="25" Margin="0,71,206,0" VerticalAlignment="Top" Click="popularLoadButton_Click" HorizontalAlignment="Right" Width="159"/>
+        <Label x:Name="searchViaLabel" Content="Search via: " Height="27" Margin="0,71,530,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="68" Visibility="Hidden"/>
+        <ComboBox x:Name="searchViaSelectBox" HorizontalAlignment="Left" Height="22" Margin="593,73,0,0" VerticalAlignment="Top" Width="135" SelectedIndex="1" Visibility="Hidden">
+            <ComboBoxItem Content="Normal (Title/Artist)"/>
+            <ComboBoxItem Content="Beatmap Set ID"/>
+            <ComboBoxItem Content="Beatmap ID"/>
+            <ComboBoxItem Content="Mapper User ID"/>
+        </ComboBox>
     </Grid>
 
 

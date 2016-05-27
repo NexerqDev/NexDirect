@@ -64,6 +64,23 @@ namespace NexDirect
             }
         }
 
+        static public string resolveSearchViaComboBox(string input)
+        {
+            switch (input)
+            {
+                case "Normal (Title/Artist)":
+                    return "o";
+                case "Beatmap Set ID":
+                    return "s";
+                case "Beatmap ID":
+                    return "b";
+                case "Mapper User ID":
+                    return "u";
+                default:
+                    return null;
+            }
+        }
+
         // https://stackoverflow.com/questions/309485/c-sharp-sanitize-file-name sol #2
         static public string sanitizeFilename(string filename)
         {

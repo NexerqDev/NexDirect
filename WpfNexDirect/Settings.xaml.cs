@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
+﻿using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -107,6 +108,38 @@ namespace NexDirect
             parent.launchOsu = (bool)launchOsuCheckbox.IsChecked;
             Properties.Settings.Default.launchOsu = parent.launchOsu;
             Properties.Settings.Default.Save();
+        }
+
+        private const string regUriSubKey = @"Software\Classes\nexdirect";
+        private void registerUriButton_Click(object sender, RoutedEventArgs e)
+        {
+            string appLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+
+            try
+            {
+                // https://msdn.microsoft.com/en-AU/library/h5e7chcf.aspx
+                using (RegistryKey key = Registry.CurrentUser.CreateSubKey(regUriSubKey))
+                {
+                    key.SetValue("", "NexDirect Handling Protocol"); // "" = (default)
+                    key.SetValue("URL Protocol", "");
+
+                    using (RegistryKey iconKey = key.CreateSubKey(@"DefaultIcon"))
+                    {
+                        iconKey.SetValue("", string.Format("{0},1", appLocation));
+                    }
+
+                    using (RegistryKey shellOpenKey = key.CreateSubKey(@"shell\open\command"))
+                    {
+                        shellOpenKey.SetValue("", string.Format("\"{0}\" \"%1\"", appLocation));
+                    }
+                }
+
+                MessageBox.Show("The URI Scheme handler was registered successfully.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("An error occured whilst registering the handler..."), ex.ToString());
+            }
         }
     }
 }

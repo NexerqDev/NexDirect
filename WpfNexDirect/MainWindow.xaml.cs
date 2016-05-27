@@ -19,6 +19,8 @@ using System.Web;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 // TODO
 // Multiple same beatmap d/l -- DONE
@@ -65,7 +67,7 @@ namespace NexDirect
         public string uiBackground = Properties.Settings.Default.customBgPath;
         public bool launchOsu = Properties.Settings.Default.launchOsu;
 
-        public MainWindow()
+        public MainWindow(string[] startupArgs)
         {
             InitializeComponent();
             dataGrid.ItemsSource = beatmaps;
@@ -92,6 +94,8 @@ namespace NexDirect
             //beatmap.RankingStatus = "Ranked";
             //beatmap.AlreadyHave = false;
             //beatmaps.Add(beatmap);
+
+            handleURIArgs(startupArgs);
         }
 
         public class BeatmapSet
@@ -104,6 +108,18 @@ namespace NexDirect
             public bool AlreadyHave { get; set; }
             public Uri PreviewImage { get; set; }
             public JObject BloodcatData { get; set; }
+
+            public BeatmapSet(MainWindow _this, JObject rawData)
+            {
+                Id = rawData["id"].ToString();
+                Artist = rawData["artist"].ToString();
+                Title = rawData["title"].ToString();
+                Mapper = rawData["creator"].ToString();
+                RankingStatus = Tools.resolveRankingStatus(rawData["status"].ToString());
+                PreviewImage = new Uri(string.Format("http://b.ppy.sh/thumb/{0}l.jpg", Id));
+                AlreadyHave = _this.alreadyDownloaded.Any(b => b.Contains(Id + " "));
+                BloodcatData = rawData;
+            }
         }
 
         // i dont even 100% know how this notifypropertychanged works
@@ -166,7 +182,7 @@ namespace NexDirect
             try
             {
                 searchingLoading.Visibility = Visibility.Visible;
-                var beatmapsData = await getBloodcatSearch<JArray>(searchBox.Text, rankedStatusBox.Text.ToString(), modeSelectBox.Text.ToString());
+                var beatmapsData = await getBloodcatSearch<JArray>(searchBox.Text, rankedStatusBox.Text.ToString(), modeSelectBox.Text.ToString(), searchViaSelectBox.Text.ToString(), false);
                 populateBeatmaps(beatmapsData);
             }
             catch (Exception ex) { MessageBox.Show("There was an error searching for beatmaps...\n\n" + ex.ToString()); }
@@ -189,22 +205,31 @@ namespace NexDirect
             finally { searchingLoading.Visibility = Visibility.Hidden; }
         }
 
+        private Regex onlyNumbersReg = new Regex(@"^\d+$");
+        private void searchBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            // if only numbers show the search via, just like the bloodcat website
+            if (onlyNumbersReg.IsMatch(searchBox.Text))
+            {
+                if (searchViaLabel.Visibility == Visibility.Hidden)
+                {
+                    searchViaLabel.Visibility = Visibility.Visible;
+                    searchViaSelectBox.Visibility = Visibility.Visible;
+                }
+            }
+            else if (searchViaLabel.Visibility == Visibility.Visible)
+            {
+                searchViaLabel.Visibility = Visibility.Hidden;
+                searchViaSelectBox.Visibility = Visibility.Hidden;
+            }
+        }
+
         private void populateBeatmaps(JArray beatmapsData)
         {
             beatmaps.Clear();
             foreach (JObject beatmapData in beatmapsData)
             {
-                var beatmapSet = new BeatmapSet();
-                beatmapSet.Id = (string)beatmapData.Property("id").Value;
-                beatmapSet.Artist = (string)beatmapData.Property("artist").Value;
-                beatmapSet.Title = (string)beatmapData.Property("title").Value;
-                beatmapSet.Mapper = (string)beatmapData.Property("creator").Value;
-                beatmapSet.RankingStatus = Tools.resolveRankingStatus((string)beatmapData.Property("status").Value);
-                beatmapSet.PreviewImage = new Uri(string.Format("http://b.ppy.sh/thumb/{0}l.jpg", (string)beatmapData.Property("id").Value));
-                beatmapSet.AlreadyHave = alreadyDownloaded.Any(b => b.Contains(beatmapSet.Id + " ")); // .StartsWith doesnt work as intended for some reason
-                beatmapSet.BloodcatData = beatmapData;
-
-                beatmaps.Add(beatmapSet);
+                beatmaps.Add(new BeatmapSet(this, beatmapData));
             }
         }
 
@@ -219,13 +244,6 @@ namespace NexDirect
             {
                 MessageBox.Show("This beatmap is already being downloaded!");
                 return;
-            }
-
-            // check for already have
-            if (beatmap.AlreadyHave)
-            {
-                MessageBoxResult prompt = MessageBox.Show(string.Format("You already have this beatmap {0} ({1}). Do you wish to redownload it?", beatmap.Title, beatmap.Mapper), "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (prompt == MessageBoxResult.No) return;
             }
 
             // start dl
@@ -343,7 +361,7 @@ namespace NexDirect
             alreadyDownloaded = Directory.GetDirectories(osuFolder);
         }
 
-        private async Task<T> getBloodcatSearch<T>(string query, string selectRanked, string selectMode)
+        private async Task<T> getBloodcatSearch<T>(string query, string selectRanked, string selectMode, string selectSearchVia, bool throughUri)
         {
             // build query string -- https://stackoverflow.com/questions/17096201/build-query-string-for-system-net-httpclient-get
             var qs = HttpUtility.ParseQueryString(string.Empty);
@@ -351,6 +369,7 @@ namespace NexDirect
             qs["q"] = query;
             if (selectRanked != "All") qs["s"] = Tools.resolveRankingComboBox(selectRanked);
             if (selectMode != "All") qs["m"] = Tools.resolveModeComboBox(selectMode);
+            if (throughUri || searchViaLabel.Visibility != Visibility.Hidden) qs["c"] = Tools.resolveSearchViaComboBox(selectSearchVia);
 
             return await getJson<T>("http://bloodcat.com/osu/?" + qs.ToString());
         }
@@ -358,6 +377,29 @@ namespace NexDirect
         private async Task<T> getBloodcatPopular<T>()
         {
             return await getJson<T>("http://bloodcat.com/osu/popular.php?mod=json");
+        }
+
+        public async void resolveSetAndDownload(string beatmapSetId)
+        {
+            try
+            {
+                JArray results = await getBloodcatSearch<JArray>(beatmapSetId, "All", "All", "Beatmap Set ID", true);
+                JObject map = results.Children<JObject>().FirstOrDefault(r => r["id"].ToString() == beatmapSetId);
+                if (map == null)
+                {
+                    MessageBox.Show("Could not find the beatmap on Bloodcat. Cannot proceed to download :(");
+                    return;
+                }
+
+                BeatmapSet set = new BeatmapSet(this, map);
+                MessageBoxResult confirmPrompt = MessageBox.Show(string.Format("Are you sure you wish to download: {0} - {1} (mapped by {2})?", set.Artist, set.Title, set.Mapper), "NexDirect - Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (confirmPrompt == MessageBoxResult.No) return;
+                await downloadBloodcatSet(set);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error has occurred...\n" + ex.ToString());
+            }
         }
 
         private async Task<T> getJson<T>(string url)
@@ -373,6 +415,13 @@ namespace NexDirect
 
         private async Task downloadBloodcatSet(BeatmapSet set)
         {
+            // check for already have
+            if (set.AlreadyHave)
+            {
+                MessageBoxResult prompt = MessageBox.Show(string.Format("You already have this beatmap {0} ({1}). Do you wish to redownload it?", set.Title, set.Mapper), "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (prompt == MessageBoxResult.No) return;
+            }
+
             Uri downloadUri;
             if (string.IsNullOrEmpty(beatmapMirror))
             {
@@ -446,6 +495,16 @@ namespace NexDirect
             var reader = new WaveFileReader(Properties.Resources.doong);
             audioDoong.Init(reader);
             audioDoong.PlaybackStopped += (o, e) => reader.Position = 0;
+        }
+
+        Regex uriReg = new Regex(@"nexdirect:\/\/(\d+)\/");
+        public void handleURIArgs(IList<string> args)
+        {
+            if (args.Count < 1) return; // no args
+            string fullArgs = string.Join(" ", args);
+
+            Match m = uriReg.Match(fullArgs);
+            resolveSetAndDownload(m.Groups[1].ToString());
         }
 
         private async Task playPreviewAudio(BeatmapSet set)

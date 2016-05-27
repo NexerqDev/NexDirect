@@ -1,10 +1,6 @@
 ﻿using Microsoft.Shell;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace NexDirect
@@ -18,14 +14,15 @@ namespace NexDirect
         private const string AppUnique = "NexDirect_SIApp";
 
         [STAThread]
-        public static void Main()
+        public static void Main(string[] args)
         {
             if (SingleInstance<App>.InitializeAsFirstInstance(AppUnique))
             {
                 var app = new App();
 
                 app.InitializeComponent();
-                app.Run();
+                //app.HandleURIArgs(args.ToList());
+                app.Run(new MainWindow(args));
 
                 SingleInstance<App>.Cleanup();
             }
@@ -43,6 +40,9 @@ namespace NexDirect
 
             MainWindow.Activate();
 
+            args.RemoveAt(0); // args includes the executing path, lets remove that
+            MainWindow _MainWindow = (MainWindow)Current.MainWindow; // get the mainwin instance
+            _MainWindow.handleURIArgs(args);
             return true;
         }
 
