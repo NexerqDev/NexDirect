@@ -504,7 +504,11 @@ namespace NexDirect
             string fullArgs = string.Join(" ", args);
 
             Match m = uriReg.Match(fullArgs);
-            resolveSetAndDownload(m.Groups[1].ToString());
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                resolveSetAndDownload(m.Groups[1].ToString());
+                return;
+            });
         }
 
         private async Task playPreviewAudio(BeatmapSet set)
