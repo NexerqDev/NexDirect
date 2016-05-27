@@ -307,16 +307,27 @@ namespace NexDirect
                 dialog.IsFolderPicker = true;
                 CommonFileDialogResult result = dialog.ShowDialog();
 
-                if (!string.IsNullOrEmpty(dialog.FileName))
+                try
                 {
-                    if (File.Exists(Path.Combine(dialog.FileName, "osu!.exe")))
+                    if (!string.IsNullOrEmpty(dialog.FileName))
                     {
-                        osuFolder = dialog.FileName;
+                        if (File.Exists(Path.Combine(dialog.FileName, "osu!.exe")))
+                        {
+                            osuFolder = dialog.FileName;
+                        }
+                        else
+                        {
+                            MessageBox.Show("This does not seem like a valid osu! songs folder. Please try again.", "NexDirect - Error");
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Could not detect your osu! folder being selected. Please try again.", "NexDirect - Error");
                     }
                 }
-                else
+                catch // catch thrown error on dialog.FileName access when nothing selected
                 {
-                    MessageBox.Show("This does not seem like a valid osu! songs folder. Please try again.", "NexDirect - Error");
+                    MessageBox.Show("You need to select your osu! folder, please try again!", "NexDirect - Error");
                 }
             }
 
