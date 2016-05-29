@@ -2,7 +2,7 @@
 // @name         NexDirect v2
 // @namespace    http://nicholastay.github.io/
 // @homepage     https://github.com/nicholastay/NexDirect
-// @version      0.1.1
+// @version      0.1.2
 // @icon         https://raw.githubusercontent.com/nicholastay/NexDirect/master/Designs/logo.png
 // @description  Adds download button to page to use NexDirect & replaces the heart button on the listings -- You must visit the Settings panel (the logo in the bottom right) and register the URI scheme before you are able to use this script.
 // @author       Nicholas Tay (Nexerq / @n2468txd) <nexerq@gmail.com>
@@ -56,6 +56,13 @@
 		beatmapSetId = beatmapSetId[1]; // its match 1
 
 		var $downloadButton = $(".beatmapDownloadButton");
+		if (!$downloadButton || $downloadButton.length < 1) return log("Could not find the beatmap download button.");
+		if ($downloadButton.length > 1) {
+			// rotate 180 for lined up, usually dont because it stands out - https://stackoverflow.com/questions/14233341/how-can-i-rotate-an-html-div-90-degrees
+			log("Found a no video/osu!supporter button, injecting after that one and rotating for conformity.");
+			$downloadButton = $($downloadButton[0]);
+			$('head').append("<style type=\"text/css\"> .nexdirectDownload { -webkit-transform: rotate(180deg); -moz-transform: rotate(180deg); -o-transform: rotate(180deg); -ms-transform: rotate(180deg); transform: rotate(180deg); } </style>");
+		}
 		$downloadButton.prepend("<div class=\"nexdirectDownload beatmapDownloadButton\"><a href=\"nexdirect://" + beatmapSetId + "\"><img src=\"" + nexDirectImage + "\" alt=\"Download with NexDirect\"/></a></div>");
 	    log("Injected download button.");
 	}
