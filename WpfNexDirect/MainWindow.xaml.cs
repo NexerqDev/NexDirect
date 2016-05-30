@@ -261,7 +261,7 @@ namespace NexDirect
             }
 
             // start dl
-            await downloadBloodcatSet(beatmap);
+            await downloadBloodcatSet(beatmap, false);
         }
 
         private async void dataGrid_MouseDown(object sender, MouseButtonEventArgs e)
@@ -272,12 +272,8 @@ namespace NexDirect
             if (row == null) return;
             var beatmap = row as BeatmapSet;
 
+            audioWaveOut.Stop(); // if already playing something just stop it
             await playPreviewAudio(beatmap);
-        }
-
-        private void dataGrid_MouseLeave(object sender, MouseEventArgs e)
-        {
-            audioWaveOut.Stop(); // crap workaround
         }
 
         private void progressGrid_DoubleClick(object sender, MouseButtonEventArgs e)
@@ -408,7 +404,7 @@ namespace NexDirect
                 BeatmapSet set = new BeatmapSet(this, map);
                 MessageBoxResult confirmPrompt = MessageBox.Show(string.Format("Are you sure you wish to download: {0} - {1} (mapped by {2})?", set.Artist, set.Title, set.Mapper), "NexDirect - Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (confirmPrompt == MessageBoxResult.No) return;
-                await downloadBloodcatSet(set);
+                await downloadBloodcatSet(set, true);
             }
             catch (Exception ex)
             {
@@ -427,7 +423,7 @@ namespace NexDirect
             }
         }
 
-        private async Task downloadBloodcatSet(BeatmapSet set)
+        private async Task downloadBloodcatSet(BeatmapSet set, bool throughUri)
         {
             // check for already have
             if (set.AlreadyHave)
@@ -476,7 +472,6 @@ namespace NexDirect
                     
                     audioDoong.Play();
                 };
-                download.DownloadClient = client;
 
                 try { await client.DownloadFileTaskAsync(downloadUri, download.TempDownloadPath); } // appdomain.etc is a WPF way of getting startup dir... stupid :(
                 catch (Exception ex)
@@ -521,7 +516,8 @@ namespace NexDirect
 
         private async Task playPreviewAudio(BeatmapSet set)
         {
-            audioWaveOut.Stop(); // if already playing something just stop it
+            await Task.Delay(150);
+            if (downloadProgress.Any(d => d.BeatmapSetId == set.Id)) return;
 
             using (var client = new HttpClient())
             {
@@ -533,8 +529,8 @@ namespace NexDirect
 
                     // https://stackoverflow.com/questions/2488426/how-to-play-a-mp3-file-using-naudio sol #2
                     var reader = new Mp3FileReader(audioData);
-                    audioWaveOut.Init(reader);
                     audioWaveOut.Stop(); // in case spam
+                    audioWaveOut.Init(reader);
                     audioWaveOut.Play();
                 }
                 catch { } // meh audio previews arent that important, and sometimes they dont exist
