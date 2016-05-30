@@ -10,6 +10,10 @@ Downloading a beatmap is simple. Just type in the map you wish to download, clic
 
 The settings menu can be accessed by clicking on the NexDirect logo in the bottom right of the interface.
 
+## Previews
+![NexDirect program](preview.jpg)
+![NexDirect in-game overlay](preview-borderless.jpg)
+
 ## Disclaimer
 By using this software, you agree that any damages that it may cause, whether to your osu! account, your computer, whatever... I am not liable for. Basically functioning under the license below.
 
