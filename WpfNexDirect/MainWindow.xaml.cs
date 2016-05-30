@@ -59,6 +59,7 @@ namespace NexDirect
         private ObservableCollection<DownloadingStatus> downloadProgress = new ObservableCollection<DownloadingStatus>();
         private WaveOut audioWaveOut = new WaveOut(); // For playing beatmap previews and stuff
         private WaveOut audioDoong = new WaveOut(); // Specific interface for playing doong, so if previews are playing it doesnt take over
+        private System.Windows.Forms.NotifyIcon notifyIcon = null; // fullscreen overlay indicator
         private string[] alreadyDownloaded;
         public string osuFolder = Properties.Settings.Default.osuFolder;
         public bool overlayMode = Properties.Settings.Default.overlayMode;
@@ -605,8 +606,33 @@ namespace NexDirect
                 _source.RemoveHook(HwndHook);
                 _source = null;
                 UnregisterHotKey((new WindowInteropHelper(this)).Handle, 0);
+
+                // unload tray icon to prevent it sticking there
+                notifyIcon.Visible = false;
+                notifyIcon.Dispose();
+                notifyIcon = null;
             }
             base.OnClosed(e);
+        }
+
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+            if (overlayMode)
+            {
+                // https://stackoverflow.com/questions/1472633/wpf-application-that-only-has-a-tray-icon
+                notifyIcon = new System.Windows.Forms.NotifyIcon();
+                notifyIcon.DoubleClick += (o, e1) => { HotkeyPressed(); }; // it is like pressing the hotkey
+                notifyIcon.Icon = Properties.Resources.logo;
+                notifyIcon.Text = "NexDirect (Overlay Mode)";
+                notifyIcon.ContextMenu = new System.Windows.Forms.ContextMenu(new System.Windows.Forms.MenuItem[]
+                {
+                    new System.Windows.Forms.MenuItem("Show", (o, e1) => { HotkeyPressed(); }),
+                    new System.Windows.Forms.MenuItem("E&xit", (o, e1) => { Application.Current.Shutdown(); })
+                });
+                notifyIcon.Visible = true;
+                notifyIcon.ShowBalloonTip(1500, "NexDirect (Overlay Mode)", "Press CTRL+SHIFT+HOME to toggle the NexDirect overlay...", System.Windows.Forms.ToolTipIcon.Info);
+            }
         }
 
         private void overlayModeExit_MouseUp(object sender, MouseButtonEventArgs e)
