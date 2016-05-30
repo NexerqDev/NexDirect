@@ -261,7 +261,7 @@ namespace NexDirect
             }
 
             // start dl
-            await downloadBloodcatSet(beatmap, false);
+            await downloadBloodcatSet(beatmap);
         }
 
         private async void dataGrid_MouseDown(object sender, MouseButtonEventArgs e)
@@ -404,7 +404,7 @@ namespace NexDirect
                 BeatmapSet set = new BeatmapSet(this, map);
                 MessageBoxResult confirmPrompt = MessageBox.Show(string.Format("Are you sure you wish to download: {0} - {1} (mapped by {2})?", set.Artist, set.Title, set.Mapper), "NexDirect - Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (confirmPrompt == MessageBoxResult.No) return;
-                await downloadBloodcatSet(set, true);
+                await downloadBloodcatSet(set);
             }
             catch (Exception ex)
             {
