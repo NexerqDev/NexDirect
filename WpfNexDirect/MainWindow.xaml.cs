@@ -423,7 +423,7 @@ namespace NexDirect
             }
         }
 
-        private async Task downloadBloodcatSet(BeatmapSet set, bool throughUri)
+        private async Task downloadBloodcatSet(BeatmapSet set)
         {
             // check for already have
             if (set.AlreadyHave)
