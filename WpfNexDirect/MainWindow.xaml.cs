@@ -56,12 +56,13 @@ namespace NexDirect
 
         private HwndSource _source; // hotkey related ???
         private ObservableCollection<BeatmapSet> beatmaps = new ObservableCollection<BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
-        private ObservableCollection<DownloadingStatus> downloadProgress = new ObservableCollection<DownloadingStatus>();
+        private ObservableCollection<BeatmapDownload> downloadProgress = new ObservableCollection<BeatmapDownload>();
         private WaveOut audioWaveOut = new WaveOut(); // For playing beatmap previews and stuff
         private WaveOut audioDoong = new WaveOut(); // Specific interface for playing doong, so if previews are playing it doesnt take over
         private System.Windows.Forms.NotifyIcon notifyIcon = null; // fullscreen overlay indicator
         private string[] alreadyDownloaded;
         public string osuFolder = Properties.Settings.Default.osuFolder;
+        public string osuSongsFolder { get { return Path.Combine(osuFolder, "Songs"); } }
         public bool overlayMode = Properties.Settings.Default.overlayMode;
         public bool audioPreviews = Properties.Settings.Default.audioPreviews;
         public string beatmapMirror = Properties.Settings.Default.beatmapMirror;
@@ -126,7 +127,7 @@ namespace NexDirect
         // i dont even 100% know how this notifypropertychanged works
         // but i get why i need it i guess
         // https://stackoverflow.com/questions/5051530/wpf-gridview-not-updating-on-observable-collection-change
-        private class DownloadingStatus : INotifyPropertyChanged
+        private class BeatmapDownload : INotifyPropertyChanged
         {
             #region INotifyPropertyChanged Members
 
@@ -140,6 +141,7 @@ namespace NexDirect
                 }
             }
             #endregion
+
 
             private string _percent;
 
@@ -155,8 +157,19 @@ namespace NexDirect
             }
             public string BeatmapSetId { get; set; }
             public WebClient DownloadClient { get; set; }
+            public string DownloadFileName { get; set; }
             public string TempDownloadPath { get; set; }
             public bool DownloadCancelled { get; set; }
+
+            public BeatmapDownload(BeatmapSet set, WebClient client)
+            {
+                BeatmapSetName = string.Format("{0} ({1})", set.Title, set.Mapper);
+                ProgressPercent = "0";
+                BeatmapSetId = set.Id;
+                DownloadClient = client;
+                DownloadFileName = Tools.sanitizeFilename(string.Format("{0} {1} - {2}.osz", set.Id, set.Artist, set.Title));
+                TempDownloadPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DownloadFileName + ".nexd");
+            }
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -271,7 +284,7 @@ namespace NexDirect
         {
             var row = Tools.getGridViewSelectedRowItem(sender, e);
             if (row == null) return;
-            var download = row as DownloadingStatus;
+            var download = row as BeatmapDownload;
 
             MessageBoxResult cancelPrompt = MessageBox.Show("Are you sure you wish to cancel the current download for: " + download.BeatmapSetName + "?", "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (cancelPrompt == MessageBoxResult.No) return;
@@ -359,7 +372,7 @@ namespace NexDirect
 
         private void loadAlreadyDownloadedMaps()
         {
-            alreadyDownloaded = Directory.GetDirectories(osuFolder);
+            alreadyDownloaded = Directory.GetDirectories(osuSongsFolder);
         }
 
         private async Task<T> getBloodcatSearch<T>(string query, string selectRanked, string selectMode, string selectSearchVia, bool throughUri)
@@ -432,60 +445,54 @@ namespace NexDirect
             {
                 downloadUri = new Uri(beatmapMirror.Replace("%s", set.Id));
             }
-            
-            string filename = Tools.sanitizeFilename(string.Format("{0} {1} - {2}.osz", set.Id, set.Artist, set.Title));
-
-            var progressObj = new DownloadingStatus();
-            progressObj.BeatmapSetId = set.Id;
-            progressObj.BeatmapSetName = string.Format("{0} ({1})", set.Title, set.Mapper);
-            progressObj.ProgressPercent = "0";
-            progressObj.TempDownloadPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename + ".nexd");
-            downloadProgress.Add(progressObj);
 
             using (var client = new WebClient())
             {
+                var download = new BeatmapDownload(set, client);
+                downloadProgress.Add(download);
+
                 client.DownloadProgressChanged += (o, e) =>
                 {
-                    progressObj.ProgressPercent = e.ProgressPercentage.ToString();
+                    download.ProgressPercent = e.ProgressPercentage.ToString();
                 };
                 client.DownloadFileCompleted += (o, e) =>
                 {
                     if (e.Cancelled)
                     {
-                        File.Delete(progressObj.TempDownloadPath);
+                        File.Delete(download.TempDownloadPath);
                         return;
                     }
 
                     if (launchOsu && Process.GetProcessesByName("osu!").Length > 0) // https://stackoverflow.com/questions/262280/how-can-i-know-if-a-process-is-running - ensure osu! is running dont want to just launch the game lol
                     {
-                        string newPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
-                        File.Move(progressObj.TempDownloadPath, newPath); // rename to .osz
+                        string newPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, download.DownloadFileName);
+                        File.Move(download.TempDownloadPath, newPath); // rename to .osz
                         Process.Start(Path.Combine(osuFolder, "osu!.exe"), newPath);
                     }
                     else
                     {
-                        File.Move(progressObj.TempDownloadPath, Path.Combine(osuFolder, "Songs", filename));
+                        File.Move(download.TempDownloadPath, Path.Combine(osuSongsFolder, download.DownloadFileName));
                     }
                     
                     audioDoong.Play();
                 };
-                progressObj.DownloadClient = client;
+                download.DownloadClient = client;
 
-                try { await client.DownloadFileTaskAsync(downloadUri, progressObj.TempDownloadPath); } // appdomain.etc is a WPF way of getting startup dir... stupid :(
+                try { await client.DownloadFileTaskAsync(downloadUri, download.TempDownloadPath); } // appdomain.etc is a WPF way of getting startup dir... stupid :(
                 catch (Exception ex)
                 {
-                    if (progressObj.DownloadCancelled == true) return;
+                    if (download.DownloadCancelled == true) return;
                     MessageBox.Show(string.Format("An error has occured whilst downloading {0} ({1}).\n\n{2}", set.Title, set.Mapper, ex.ToString()));
                 }
                 finally
                 {
-                    downloadProgress.Remove(progressObj);
+                    downloadProgress.Remove(download);
                     if (downloadProgress.Count < 1) loadAlreadyDownloadedMaps(); // reload only when theres nothing left
                 }
             }
         }
 
-        private void cancelDownload(DownloadingStatus statusObj)
+        private void cancelDownload(BeatmapDownload statusObj)
         {
             statusObj.DownloadCancelled = true;
             statusObj.DownloadClient.CancelAsync();
