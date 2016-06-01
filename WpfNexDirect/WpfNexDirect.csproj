@@ -146,6 +146,18 @@
   <ItemGroup>
     <None Include="Resources\match-start.wav" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\mode-mania-small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\mode-osu-small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\mode-taiko-small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\mode-fruits-small.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

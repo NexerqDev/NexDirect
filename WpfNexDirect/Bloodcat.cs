@@ -1,15 +1,18 @@
 ﻿using NAudio.Wave;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace NexDirect
 {
@@ -25,6 +28,7 @@ namespace NexDirect
             public string Title { get; set; }
             public string Mapper { get; set; }
             public string RankingStatus { get; set; }
+            public IEnumerable<Difficulty> Difficulties { get; set; }
             public bool AlreadyHave { get; set; }
             public Uri PreviewImage { get; set; }
             public JObject BloodcatData { get; set; }
@@ -38,7 +42,35 @@ namespace NexDirect
                 RankingStatus = Tools.resolveRankingStatus(rawData["status"].ToString());
                 PreviewImage = new Uri(string.Format("http://b.ppy.sh/thumb/{0}l.jpg", Id));
                 AlreadyHave = _this.alreadyDownloaded.Any(b => b.Contains(Id + " "));
+                Difficulties = ((JArray)rawData["beatmaps"]).Select(b => new Difficulty(b["name"].ToString(), b["mode"].ToString()));
                 BloodcatData = rawData;
+            }
+
+            public class Difficulty
+            {
+                public string Name { get; set; }
+                public string Mode { get; set; }
+                public Uri ModeImage { get; set; }
+
+                public Difficulty(string name, string mode)
+                {
+                    Name = name;
+                    Mode = mode;
+
+                    string _image;
+                    switch (mode)
+                    {
+                        case "1":
+                            _image = "pack://application:,,,/Resources/mode-taiko-small.png"; break;
+                        case "2":
+                            _image = "pack://application:,,,/Resources/mode-fruits-small.png"; break;
+                        case "3":
+                            _image = "pack://application:,,,/Resources/mode-mania-small.png"; break;
+                        default:
+                            _image = "pack://application:,,,/Resources/mode-osu-small.png"; break;
+                    }
+                    ModeImage = new Uri(_image);
+                }
             }
         }
 
