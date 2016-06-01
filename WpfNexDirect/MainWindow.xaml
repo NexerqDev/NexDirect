@@ -22,7 +22,7 @@
                 <DataGridTextColumn Binding="{Binding Artist}" Width="150" Header="Artist"/>
                 <DataGridTextColumn Binding="{Binding Title}" Width="300" Header="Title"/>
                 <DataGridTextColumn Binding="{Binding Mapper}" Width="150" Header="Mapper"/>
-                <DataGridTemplateColumn Width="200">
+                <DataGridTemplateColumn MinWidth="175" Width="SizeToCells">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <ItemsControl ItemsSource="{Binding Difficulties}">
