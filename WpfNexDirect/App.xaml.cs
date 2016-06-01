@@ -42,7 +42,7 @@ namespace NexDirect
 
             args.RemoveAt(0); // args includes the executing path, lets remove that
             MainWindow _MainWindow = (MainWindow)Current.MainWindow; // get the mainwin instance
-            _MainWindow.handleURIArgs(args);
+            _MainWindow.HandleURIArgs(args);
             return true;
         }
 

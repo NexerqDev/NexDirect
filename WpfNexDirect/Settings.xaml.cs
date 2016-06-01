@@ -40,7 +40,7 @@ namespace NexDirect
         private void changeFolderButton_Click(object sender, RoutedEventArgs e)
         {
             parent.osuFolder = "forced_update";
-            parent.checkOrPromptSongsDir();
+            parent.CheckOrPromptForSongsDir();
         }
 
         private void overlayModeCheckbox_Checked(object sender, RoutedEventArgs e)
@@ -90,7 +90,7 @@ namespace NexDirect
             Properties.Settings.Default.customBgPath = parent.uiBackground;
             Properties.Settings.Default.Save();
             MessageBox.Show("New custom background saved.", "NexDirect - Updated");
-            parent.setCustomBackground(parent.uiBackground);
+            parent.SetFormCustomBackground(parent.uiBackground);
         }
 
         private void clearBgButton_Click(object sender, RoutedEventArgs e)
@@ -99,7 +99,7 @@ namespace NexDirect
             Properties.Settings.Default.customBgPath = parent.uiBackground;
             Properties.Settings.Default.Save();
             MessageBox.Show("Custom background cleared.", "NexDirect - Updated");
-            parent.setCustomBackground(null);
+            parent.SetFormCustomBackground(null);
         }
 
         private void launchOsuCheckbox_Toggled(object sender, RoutedEventArgs e)

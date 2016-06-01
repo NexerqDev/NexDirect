@@ -71,20 +71,20 @@ namespace NexDirect
                 overlayModeExit.Visibility = Visibility.Visible;
             }
 
-            handleURIArgs(startupArgs);
+            HandleURIArgs(startupArgs);
         }
 
 
         public void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            cleanUpOldTemps();
-            checkOrPromptSongsDir();
-            loadDoong(); // load into memory ready to play
-            loadAlreadyDownloadedMaps();
+            CleanUpOldTemps();
+            CheckOrPromptForSongsDir();
+            LoadDoongPlayer(); // load into memory ready to play
+            ReloadAlreadyDownloadedMaps();
 
             if (!string.IsNullOrEmpty(uiBackground))
             {
-                setCustomBackground(uiBackground);
+                SetFormCustomBackground(uiBackground);
             }
 
             if (overlayMode)
@@ -177,7 +177,7 @@ namespace NexDirect
             if (row == null) return;
             var beatmap = row as Bloodcat.BeatmapSet;
 
-            downloadBeatmapSet(beatmap);
+            DownloadBeatmapSet(beatmap);
         }
 
         private async void dataGrid_MouseDown(object sender, MouseButtonEventArgs e)
@@ -234,7 +234,7 @@ namespace NexDirect
             searchViaSelectBox.Items.Add(new KVItem("Normal (Title/Artist)", "o"));
         }
 
-        private async void downloadBeatmapSet(Bloodcat.BeatmapSet set)
+        private async void DownloadBeatmapSet(Bloodcat.BeatmapSet set)
         {
             // check for already downloading
             if (downloadProgress.Any(b => b.BeatmapSetId == set.Id))
@@ -243,14 +243,14 @@ namespace NexDirect
                 return;
             }
 
-            if (!confirmAlreadyHaveMap(set)) return;
+            if (!CheckAndPromptIfHaveMap(set)) return;
 
             // start dl
             await Bloodcat.DownloadSet(set, beatmapMirror, downloadProgress, osuFolder, audioDoong, launchOsu);
-            if (downloadProgress.Count < 1) loadAlreadyDownloadedMaps(); // reload only when theres nothing left
+            if (downloadProgress.Count < 1) ReloadAlreadyDownloadedMaps(); // reload only when theres nothing left
         }
 
-        private void cleanUpOldTemps()
+        private void CleanUpOldTemps()
         {
             try
             {
@@ -263,7 +263,7 @@ namespace NexDirect
             catch { } // dont really care as we are just getting rid of temp files, doesnt matter if it screws up
         }
 
-        public void checkOrPromptSongsDir()
+        public void CheckOrPromptForSongsDir()
         {
             bool newSetup = true;
             if (osuFolder == "forced_update")
@@ -322,12 +322,12 @@ namespace NexDirect
             else MessageBox.Show("Your NexDirect osu! folder registration has been updated.", "NexDirect - Saved");
         }
 
-        public void loadAlreadyDownloadedMaps()
+        public void ReloadAlreadyDownloadedMaps()
         {
             alreadyDownloaded = Directory.GetDirectories(osuSongsFolder);
         }
 
-        private bool confirmAlreadyHaveMap(Bloodcat.BeatmapSet set)
+        private bool CheckAndPromptIfHaveMap(Bloodcat.BeatmapSet set)
         {
             // check for already have
             if (set.AlreadyHave)
@@ -340,7 +340,7 @@ namespace NexDirect
             return true;
         }
 
-        private void loadDoong()
+        private void LoadDoongPlayer()
         {
             var reader = new WaveFileReader(Properties.Resources.doong);
             audioDoong.Init(reader);
@@ -348,7 +348,7 @@ namespace NexDirect
         }
 
         Regex uriReg = new Regex(@"nexdirect:\/\/(\d+)\/");
-        public void handleURIArgs(IList<string> args)
+        public void HandleURIArgs(IList<string> args)
         {
             if (args.Count < 1) return; // no args
             string fullArgs = string.Join(" ", args);
@@ -364,11 +364,11 @@ namespace NexDirect
                 }
                 MessageBoxResult confirmPrompt = MessageBox.Show(string.Format("Are you sure you wish to download: {0} - {1} (mapped by {2})?", set.Artist, set.Title, set.Mapper), "NexDirect - Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (confirmPrompt == MessageBoxResult.No) return;
-                downloadBeatmapSet(set);
+                DownloadBeatmapSet(set);
             });
         }
         
-        public void setCustomBackground(string inPath)
+        public void SetFormCustomBackground(string inPath)
         {
             dynamic[] changedElements = { searchBox, searchButton, popularLoadButton, rankedStatusBox, modeSelectBox, progressGrid, dataGrid };
 
