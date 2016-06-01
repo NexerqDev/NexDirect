@@ -80,16 +80,28 @@ namespace NexDirect
             var dialog = new CommonOpenFileDialog();
             CommonFileDialogResult result = dialog.ShowDialog();
 
-            if (string.IsNullOrEmpty(dialog.FileName))
+            string filename;
+            try
             {
-                MessageBox.Show("No file selected. Please try again.", "NexDirect - Error");
-                return;
+                if (string.IsNullOrEmpty(dialog.FileName))
+                {
+                    MessageBox.Show("Invalid file selected. Please try again.", "NexDirect - Error");
+                    return;
+                }
+                filename = dialog.FileName;
+            }
+            catch
+            {
+                // take it as clear - catch dialog.FileName cancel button
+                filename = "";
             }
 
-            parent.uiBackground = dialog.FileName;
+            parent.uiBackground = filename;
             Properties.Settings.Default.customBgPath = parent.uiBackground;
             Properties.Settings.Default.Save();
-            MessageBox.Show("New custom background saved.", "NexDirect - Updated");
+
+            if (!string.IsNullOrEmpty(filename)) MessageBox.Show("New custom background saved.", "NexDirect - Updated");
+            else MessageBox.Show("Custom background removed.", "NexDirect - Updated");
             parent.SetFormCustomBackground(parent.uiBackground);
         }
 
