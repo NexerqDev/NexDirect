@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace NexDirect
 {
-    static class Tools
+    public static class Tools
     {
         static public string resolveRankingStatus(string status)
         {
@@ -29,55 +25,6 @@ namespace NexDirect
                     return "Graveyard";
                 default:
                     return "Unknown";
-            }
-        }
-
-        static public string resolveRankingComboBox(string input)
-        {
-            switch (input)
-            {
-                case "Ranked":
-                    return "1,2";
-                case "Qualified":
-                    return "3";
-                case "Unranked":
-                    return "0,-1,-2";
-                default:
-                    return null;
-            }
-        }
-
-        static public string resolveModeComboBox(string input)
-        {
-            switch (input)
-            {
-                case "osu!":
-                    return "0";
-                case "Catch the Beat":
-                    return "2";
-                case "Taiko":
-                    return "1";
-                case "osu!mania":
-                    return "3";
-                default:
-                    return null;
-            }
-        }
-
-        static public string resolveSearchViaComboBox(string input)
-        {
-            switch (input)
-            {
-                case "Normal (Title/Artist)":
-                    return "o";
-                case "Beatmap Set ID":
-                    return "s";
-                case "Beatmap ID":
-                    return "b";
-                case "Mapper User ID":
-                    return "u";
-                default:
-                    return null;
             }
         }
 

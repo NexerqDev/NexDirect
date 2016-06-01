@@ -1,38 +1,19 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Net.Http;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Net;
-using System.ComponentModel;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using NAudio.Wave;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
-using System.Web;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
-
-// TODO
-// Multiple same beatmap d/l -- DONE
-// Cancel download -- DONE
-// Beatmap download completion sound -- DONE
-// Beatmap audio preview -- DONE
-// Search by ranked status -- DONE
-// Overlay interface -- DONE
-// Settings pane to toggle that stuff -- DONE
-// URI + Userscript
-// Username/password official website d/l or mirror field -- MIRROR DONE
-// Already downloaded maps -- DONE
+using System.Threading.Tasks;
 
 namespace NexDirect
 {
@@ -55,12 +36,13 @@ namespace NexDirect
             [In] int id);
 
         private HwndSource _source; // hotkey related ???
-        private ObservableCollection<BeatmapSet> beatmaps = new ObservableCollection<BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
-        private ObservableCollection<BeatmapDownload> downloadProgress = new ObservableCollection<BeatmapDownload>();
-        private WaveOut audioWaveOut = new WaveOut(); // For playing beatmap previews and stuff
-        private WaveOut audioDoong = new WaveOut(); // Specific interface for playing doong, so if previews are playing it doesnt take over
+        public ObservableCollection<Bloodcat.BeatmapSet> beatmaps = new ObservableCollection<Bloodcat.BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
+        public ObservableCollection<Bloodcat.BeatmapDownload> downloadProgress = new ObservableCollection<Bloodcat.BeatmapDownload>();
+        public WaveOut audioWaveOut = new WaveOut(); // For playing beatmap previews and stuff
+        public WaveOut audioDoong = new WaveOut(); // Specific interface for playing doong, so if previews are playing it doesnt take over
         private System.Windows.Forms.NotifyIcon notifyIcon = null; // fullscreen overlay indicator
-        private string[] alreadyDownloaded;
+        public string[] alreadyDownloaded;
+
         public string osuFolder = Properties.Settings.Default.osuFolder;
         public string osuSongsFolder { get { return Path.Combine(osuFolder, "Songs"); } }
         public bool overlayMode = Properties.Settings.Default.overlayMode;
@@ -74,6 +56,7 @@ namespace NexDirect
             InitializeComponent();
             dataGrid.ItemsSource = beatmaps;
             progressGrid.ItemsSource = downloadProgress;
+            InitComboBoxes();
 
             // overlay mode window settings
             if (overlayMode)
@@ -88,91 +71,11 @@ namespace NexDirect
                 overlayModeExit.Visibility = Visibility.Visible;
             }
 
-            // test grid row
-            //var beatmap = new BeatmapSet();
-            //beatmap.Artist = "Reol";
-            //beatmap.Title = "No Title";
-            //beatmap.Mapper = "Nexerq";
-            //beatmap.RankingStatus = "Ranked";
-            //beatmap.AlreadyHave = false;
-            //beatmaps.Add(beatmap);
-
             handleURIArgs(startupArgs);
         }
 
-        public class BeatmapSet
-        {
-            public string Id { get; set; }
-            public string Artist { get; set; }
-            public string Title { get; set; }
-            public string Mapper { get; set; }
-            public string RankingStatus { get; set; }
-            public bool AlreadyHave { get; set; }
-            public Uri PreviewImage { get; set; }
-            public JObject BloodcatData { get; set; }
 
-            public BeatmapSet(MainWindow _this, JObject rawData)
-            {
-                Id = rawData["id"].ToString();
-                Artist = rawData["artist"].ToString();
-                Title = rawData["title"].ToString();
-                Mapper = rawData["creator"].ToString();
-                RankingStatus = Tools.resolveRankingStatus(rawData["status"].ToString());
-                PreviewImage = new Uri(string.Format("http://b.ppy.sh/thumb/{0}l.jpg", Id));
-                AlreadyHave = _this.alreadyDownloaded.Any(b => b.Contains(Id + " "));
-                BloodcatData = rawData;
-            }
-        }
-
-        // i dont even 100% know how this notifypropertychanged works
-        // but i get why i need it i guess
-        // https://stackoverflow.com/questions/5051530/wpf-gridview-not-updating-on-observable-collection-change
-        private class BeatmapDownload : INotifyPropertyChanged
-        {
-            #region INotifyPropertyChanged Members
-
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            protected void Notify(string propName)
-            {
-                if (PropertyChanged != null)
-                {
-                    PropertyChanged(this, new PropertyChangedEventArgs(propName));
-                }
-            }
-            #endregion
-
-
-            private string _percent;
-
-            public string BeatmapSetName { get; set; }
-            public string ProgressPercent
-            {
-                get { return _percent; }
-                set
-                {
-                    _percent = value;
-                    Notify("ProgressPercent");
-                }
-            }
-            public string BeatmapSetId { get; set; }
-            public WebClient DownloadClient { get; set; }
-            public string DownloadFileName { get; set; }
-            public string TempDownloadPath { get; set; }
-            public bool DownloadCancelled { get; set; }
-
-            public BeatmapDownload(BeatmapSet set, WebClient client)
-            {
-                BeatmapSetName = string.Format("{0} ({1})", set.Title, set.Mapper);
-                ProgressPercent = "0";
-                BeatmapSetId = set.Id;
-                DownloadClient = client;
-                DownloadFileName = Tools.sanitizeFilename(string.Format("{0} {1} - {2}.osz", set.Id, set.Artist, set.Title));
-                TempDownloadPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DownloadFileName + ".nexd");
-            }
-        }
-
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        public void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             cleanUpOldTemps();
             checkOrPromptSongsDir();
@@ -191,12 +94,33 @@ namespace NexDirect
             }
         }
 
+        // Class for the selectboxes. Key/Value item so can just access the SelectedItem's value
+        private class KVItem
+        {
+            public string Key { get; set; }
+            public string Value { get; set; }
+            public KVItem(string k, string v)
+            {
+                Key = k;
+                Value = v;
+            }
+
+            public override string ToString()
+            {
+                return Key;
+            }
+        }
+
         private async void searchButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 searchingLoading.Visibility = Visibility.Visible;
-                var beatmapsData = await getBloodcatSearch<JArray>(searchBox.Text, rankedStatusBox.Text.ToString(), modeSelectBox.Text.ToString(), searchViaSelectBox.Text.ToString(), false);
+                var beatmapsData = await Bloodcat.Search(searchBox.Text,
+                    (rankedStatusBox.SelectedItem as KVItem).Value,
+                    (modeSelectBox.SelectedItem as KVItem).Value,
+                    searchViaSelectBox.Visibility == Visibility.Hidden ? null : (searchViaSelectBox.SelectedItem as KVItem).Value
+                );
                 populateBeatmaps(beatmapsData);
             }
             catch (Exception ex) { MessageBox.Show("There was an error searching for beatmaps...\n\n" + ex.ToString()); }
@@ -212,7 +136,7 @@ namespace NexDirect
             try
             {
                 searchingLoading.Visibility = Visibility.Visible;
-                var beatmapsData = await getBloodcatPopular<JArray>();
+                var beatmapsData = await Bloodcat.Popular();
                 populateBeatmaps(beatmapsData);
             }
             catch (Exception ex) { MessageBox.Show("There was an error loading the popular beatmaps...\n\n" + ex.ToString()); }
@@ -243,25 +167,17 @@ namespace NexDirect
             beatmaps.Clear();
             foreach (JObject beatmapData in beatmapsData)
             {
-                beatmaps.Add(new BeatmapSet(this, beatmapData));
+                beatmaps.Add(new Bloodcat.BeatmapSet(this, beatmapData));
             }
         }
 
-        private async void dataGrid_DoubleClick(object sender, MouseButtonEventArgs e)
+        private void dataGrid_DoubleClick(object sender, MouseButtonEventArgs e)
         {
             var row = Tools.getGridViewSelectedRowItem(sender, e);
             if (row == null) return;
-            var beatmap = row as BeatmapSet;
+            var beatmap = row as Bloodcat.BeatmapSet;
 
-            // check for already downloading
-            if (downloadProgress.Any(b => b.BeatmapSetId == beatmap.Id))
-            {
-                MessageBox.Show("This beatmap is already being downloaded!");
-                return;
-            }
-
-            // start dl
-            await downloadBloodcatSet(beatmap);
+            downloadBeatmapSet(beatmap);
         }
 
         private async void dataGrid_MouseDown(object sender, MouseButtonEventArgs e)
@@ -270,28 +186,68 @@ namespace NexDirect
 
             var row = Tools.getGridViewSelectedRowItem(sender, e);
             if (row == null) return;
-            var beatmap = row as BeatmapSet;
+            var set = row as Bloodcat.BeatmapSet;
 
             audioWaveOut.Stop(); // if already playing something just stop it
-            await playPreviewAudio(beatmap);
+            await Task.Delay(150);
+            if (downloadProgress.Any(d => d.BeatmapSetId == set.Id)) return; // check for if already d/l'ing overlaps
+            Osu.PlayPreviewAudio(set, audioWaveOut);
         }
 
         private void progressGrid_DoubleClick(object sender, MouseButtonEventArgs e)
         {
             var row = Tools.getGridViewSelectedRowItem(sender, e);
             if (row == null) return;
-            var download = row as BeatmapDownload;
+            var download = row as Bloodcat.BeatmapDownload;
 
             MessageBoxResult cancelPrompt = MessageBox.Show("Are you sure you wish to cancel the current download for: " + download.BeatmapSetName + "?", "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (cancelPrompt == MessageBoxResult.No) return;
 
-            cancelDownload(download);
+            Bloodcat.CancelDownload(download);
         }
 
         private void logoImage_MouseUp(object sender, MouseButtonEventArgs e)
         {
             var settingsWindow = new Settings(this);
             settingsWindow.ShowDialog();
+        }
+
+        private void InitComboBoxes()
+        {
+            // Search filters
+            rankedStatusBox.Items.Add(new KVItem("All", null));
+            rankedStatusBox.Items.Add(new KVItem("Ranked", "1,2"));
+            rankedStatusBox.Items.Add(new KVItem("Qualified", "3"));
+            rankedStatusBox.Items.Add(new KVItem("Unranked", "0,-1,-2"));
+
+            // Modes
+            modeSelectBox.Items.Add(new KVItem("All", null));
+            modeSelectBox.Items.Add(new KVItem("osu!", "0"));
+            modeSelectBox.Items.Add(new KVItem("Catch the Beat", "2"));
+            modeSelectBox.Items.Add(new KVItem("Taiko", "1"));
+            modeSelectBox.Items.Add(new KVItem("osu!mania", "3"));
+
+            // ID lookup thingys
+            searchViaSelectBox.Items.Add(new KVItem("Beatmap Set ID (/s)", "s"));
+            searchViaSelectBox.Items.Add(new KVItem("Beatmap ID (/b)", "b"));
+            searchViaSelectBox.Items.Add(new KVItem("Mapper User ID", "u"));
+            searchViaSelectBox.Items.Add(new KVItem("Normal (Title/Artist)", "o"));
+        }
+
+        private async void downloadBeatmapSet(Bloodcat.BeatmapSet set)
+        {
+            // check for already downloading
+            if (downloadProgress.Any(b => b.BeatmapSetId == set.Id))
+            {
+                MessageBox.Show("This beatmap is already being downloaded!");
+                return;
+            }
+
+            if (!confirmAlreadyHaveMap(set)) return;
+
+            // start dl
+            await Bloodcat.DownloadSet(set, beatmapMirror, downloadProgress, osuFolder, audioDoong, launchOsu);
+            if (downloadProgress.Count < 1) loadAlreadyDownloadedMaps(); // reload only when theres nothing left
         }
 
         private void cleanUpOldTemps()
@@ -366,131 +322,22 @@ namespace NexDirect
             else MessageBox.Show("Your NexDirect osu! folder registration has been updated.", "NexDirect - Saved");
         }
 
-        private void loadAlreadyDownloadedMaps()
+        public void loadAlreadyDownloadedMaps()
         {
             alreadyDownloaded = Directory.GetDirectories(osuSongsFolder);
         }
 
-        private async Task<T> getBloodcatSearch<T>(string query, string selectRanked, string selectMode, string selectSearchVia, bool throughUri)
-        {
-            // build query string -- https://stackoverflow.com/questions/17096201/build-query-string-for-system-net-httpclient-get
-            var qs = HttpUtility.ParseQueryString(string.Empty);
-            qs["mod"] = "json";
-            qs["q"] = query;
-            if (selectRanked != "All") qs["s"] = Tools.resolveRankingComboBox(selectRanked);
-            if (selectMode != "All") qs["m"] = Tools.resolveModeComboBox(selectMode);
-            if (throughUri || searchViaLabel.Visibility != Visibility.Hidden) qs["c"] = Tools.resolveSearchViaComboBox(selectSearchVia);
-
-            return await getJson<T>("http://bloodcat.com/osu/?" + qs.ToString());
-        }
-
-        private async Task<T> getBloodcatPopular<T>()
-        {
-            return await getJson<T>("http://bloodcat.com/osu/popular.php?mod=json");
-        }
-
-        public async void resolveSetAndDownload(string beatmapSetId)
-        {
-            try
-            {
-                JArray results = await getBloodcatSearch<JArray>(beatmapSetId, "All", "All", "Beatmap Set ID", true);
-                JObject map = results.Children<JObject>().FirstOrDefault(r => r["id"].ToString() == beatmapSetId);
-                if (map == null)
-                {
-                    MessageBox.Show("Could not find the beatmap on Bloodcat. Cannot proceed to download :(");
-                    return;
-                }
-
-                BeatmapSet set = new BeatmapSet(this, map);
-                MessageBoxResult confirmPrompt = MessageBox.Show(string.Format("Are you sure you wish to download: {0} - {1} (mapped by {2})?", set.Artist, set.Title, set.Mapper), "NexDirect - Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (confirmPrompt == MessageBoxResult.No) return;
-                await downloadBloodcatSet(set);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("An error has occurred...\n" + ex.ToString());
-            }
-        }
-
-        private async Task<T> getJson<T>(string url)
-        {
-            using (var client = new HttpClient())
-            {
-                var response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-                string body = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<T>(body);
-            }
-        }
-
-        private async Task downloadBloodcatSet(BeatmapSet set)
+        private bool confirmAlreadyHaveMap(Bloodcat.BeatmapSet set)
         {
             // check for already have
             if (set.AlreadyHave)
             {
-                MessageBoxResult prompt = MessageBox.Show(string.Format("You already have this beatmap {0} ({1}). Do you wish to redownload it?", set.Title, set.Mapper), "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (prompt == MessageBoxResult.No) return;
+                MessageBoxResult prompt = MessageBox.Show(string.Format("You already have this beatmap {0} ({1}). Do you wish to redownload it?", set.Title, set.Mapper), "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (prompt == MessageBoxResult.No) return false;
+
+                return true;
             }
-
-            Uri downloadUri;
-            if (string.IsNullOrEmpty(beatmapMirror))
-            {
-                downloadUri = new Uri("http://bloodcat.com/osu/s/" + set.Id);
-            }
-            else
-            {
-                downloadUri = new Uri(beatmapMirror.Replace("%s", set.Id));
-            }
-
-            using (var client = new WebClient())
-            {
-                var download = new BeatmapDownload(set, client);
-                downloadProgress.Add(download);
-
-                client.DownloadProgressChanged += (o, e) =>
-                {
-                    download.ProgressPercent = e.ProgressPercentage.ToString();
-                };
-                client.DownloadFileCompleted += (o, e) =>
-                {
-                    if (e.Cancelled)
-                    {
-                        File.Delete(download.TempDownloadPath);
-                        return;
-                    }
-
-                    if (launchOsu && Process.GetProcessesByName("osu!").Length > 0) // https://stackoverflow.com/questions/262280/how-can-i-know-if-a-process-is-running - ensure osu! is running dont want to just launch the game lol
-                    {
-                        string newPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, download.DownloadFileName);
-                        File.Move(download.TempDownloadPath, newPath); // rename to .osz
-                        Process.Start(Path.Combine(osuFolder, "osu!.exe"), newPath);
-                    }
-                    else
-                    {
-                        File.Move(download.TempDownloadPath, Path.Combine(osuSongsFolder, download.DownloadFileName));
-                    }
-                    
-                    audioDoong.Play();
-                };
-
-                try { await client.DownloadFileTaskAsync(downloadUri, download.TempDownloadPath); } // appdomain.etc is a WPF way of getting startup dir... stupid :(
-                catch (Exception ex)
-                {
-                    if (download.DownloadCancelled == true) return;
-                    MessageBox.Show(string.Format("An error has occured whilst downloading {0} ({1}).\n\n{2}", set.Title, set.Mapper, ex.ToString()));
-                }
-                finally
-                {
-                    downloadProgress.Remove(download);
-                    if (downloadProgress.Count < 1) loadAlreadyDownloadedMaps(); // reload only when theres nothing left
-                }
-            }
-        }
-
-        private void cancelDownload(BeatmapDownload statusObj)
-        {
-            statusObj.DownloadCancelled = true;
-            statusObj.DownloadClient.CancelAsync();
+            return true;
         }
 
         private void loadDoong()
@@ -507,34 +354,18 @@ namespace NexDirect
             string fullArgs = string.Join(" ", args);
 
             Match m = uriReg.Match(fullArgs);
-            Application.Current.Dispatcher.Invoke(() =>
+            Application.Current.Dispatcher.Invoke(async () =>
             {
-                resolveSetAndDownload(m.Groups[1].ToString());
-                return;
-            });
-        }
-
-        private async Task playPreviewAudio(BeatmapSet set)
-        {
-            await Task.Delay(150);
-            if (downloadProgress.Any(d => d.BeatmapSetId == set.Id)) return;
-
-            using (var client = new HttpClient())
-            {
-                try
+                Bloodcat.BeatmapSet set = await Bloodcat.ResolveSetId(this, m.Groups[1].ToString());
+                if (set == null)
                 {
-                    var response = await client.GetAsync("http://b.ppy.sh/preview/" + set.Id + ".mp3");
-                    response.EnsureSuccessStatusCode();
-                    Stream audioData = await response.Content.ReadAsStreamAsync();
-
-                    // https://stackoverflow.com/questions/2488426/how-to-play-a-mp3-file-using-naudio sol #2
-                    var reader = new Mp3FileReader(audioData);
-                    audioWaveOut.Stop(); // in case spam
-                    audioWaveOut.Init(reader);
-                    audioWaveOut.Play();
+                    MessageBox.Show("Could not find the beatmap on Bloodcat. Cannot proceed to download :(");
+                    return;
                 }
-                catch { } // meh audio previews arent that important, and sometimes they dont exist
-            }
+                MessageBoxResult confirmPrompt = MessageBox.Show(string.Format("Are you sure you wish to download: {0} - {1} (mapped by {2})?", set.Artist, set.Title, set.Mapper), "NexDirect - Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (confirmPrompt == MessageBoxResult.No) return;
+                downloadBeatmapSet(set);
+            });
         }
         
         public void setCustomBackground(string inPath)
