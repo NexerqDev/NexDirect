@@ -195,7 +195,7 @@ namespace NexDirect
         {
             if (await CheckIllegal(_mw, set))
             {
-                MessageBoxResult bloodcatAsk = MessageBox.Show("Sorry, this map seems like it has been taken down from the official osu! servers due to a DMCA request to them. Would you like to check if a copy off Bloodcat is available?", "NexDirect - Mirror?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                MessageBoxResult bloodcatAsk = MessageBox.Show("Sorry, this map seems like it has been taken down from the official osu! servers due to a DMCA request to them. Would you like to check if a copy off Bloodcat is available, and if so download it?", "NexDirect - Mirror?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (bloodcatAsk == MessageBoxResult.No) return;
 
                 _mw.DownloadBeatmapSet(set, true);

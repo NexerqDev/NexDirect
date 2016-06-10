@@ -283,6 +283,16 @@ namespace NexDirect
             }
 
             if (!forcedBloodcat && !CheckAndPromptIfHaveMap(set)) return;
+            else
+            {
+                // check
+                var resolvedSet = await Bloodcat.ResolveSetId(this, set.Id);
+                if (resolvedSet == null)
+                {
+                    MessageBox.Show("Could not find the beatmap on Bloodcat. Cannot proceed to download :(");
+                    return;
+                }
+            }
 
             // start dl
             if (useOfficialOsu && !forcedBloodcat)
