@@ -16,5 +16,11 @@ namespace NexDirect
                 return JsonConvert.DeserializeObject<T>(body);
             }
         }
+
+        public static void CancelDownload(Structures.BeatmapDownload statusObj)
+        {
+            statusObj.DownloadCancelled = true;
+            statusObj.DownloadClient.CancelAsync();
+        }
     }
 }

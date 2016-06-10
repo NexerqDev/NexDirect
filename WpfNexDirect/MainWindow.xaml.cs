@@ -36,12 +36,13 @@ namespace NexDirect
             [In] int id);
 
         private HwndSource _source; // hotkey related ???
-        public ObservableCollection<Bloodcat.BeatmapSet> beatmaps = new ObservableCollection<Bloodcat.BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
-        public ObservableCollection<Bloodcat.BeatmapDownload> downloadProgress = new ObservableCollection<Bloodcat.BeatmapDownload>();
+        public ObservableCollection<Structures.BeatmapSet> beatmaps = new ObservableCollection<Structures.BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
+        public ObservableCollection<Structures.BeatmapDownload> downloadProgress = new ObservableCollection<Structures.BeatmapDownload>();
         public WaveOut audioWaveOut = new WaveOut(); // For playing beatmap previews and stuff
         public WaveOut audioDoong = new WaveOut(); // Specific interface for playing doong, so if previews are playing it doesnt take over
         private System.Windows.Forms.NotifyIcon notifyIcon = null; // fullscreen overlay indicator
         public string[] alreadyDownloaded;
+        public System.Net.CookieContainer officialCookieJar; // for official osu
 
         public string osuFolder = Properties.Settings.Default.osuFolder;
         public string osuSongsFolder { get { return Path.Combine(osuFolder, "Songs"); } }
@@ -50,6 +51,11 @@ namespace NexDirect
         public string beatmapMirror = Properties.Settings.Default.beatmapMirror;
         public string uiBackground = Properties.Settings.Default.customBgPath;
         public bool launchOsu = Properties.Settings.Default.launchOsu;
+        public bool useOfficialOsu = Properties.Settings.Default.useOfficialOsu;
+        public string officialOsuCookies = Properties.Settings.Default.officialOsuCookies;
+        public bool fallbackActualOsu = false;
+        public string officialOsuUsername = Properties.Settings.Default.officialOsuUsername;
+        public string officialOsuPassword = Properties.Settings.Default.officialOsuPassword;
 
         public MainWindow(string[] startupArgs)
         {
@@ -69,6 +75,11 @@ namespace NexDirect
                 AllowsTransparency = true;
                 overlayModeNotice.Visibility = Visibility.Visible;
                 overlayModeExit.Visibility = Visibility.Visible;
+            }
+
+            if (useOfficialOsu)
+            {
+                (new Dialogs.OsuLoginCheck(this)).ShowDialog();
             }
 
             HandleURIArgs(startupArgs);
@@ -116,12 +127,28 @@ namespace NexDirect
             try
             {
                 searchingLoading.Visibility = Visibility.Visible;
-                var beatmapsData = await Bloodcat.Search(searchBox.Text,
-                    (rankedStatusBox.SelectedItem as KVItem).Value,
-                    (modeSelectBox.SelectedItem as KVItem).Value,
-                    searchViaSelectBox.Visibility == Visibility.Hidden ? null : (searchViaSelectBox.SelectedItem as KVItem).Value
-                );
-                populateBeatmaps(beatmapsData);
+
+                dynamic _beatmaps;
+                if (useOfficialOsu)
+                {
+                    var beatmapsData = await Osu.Search(this,
+                        searchBox.Text,
+                        (rankedStatusBox.SelectedItem as KVItem).Value,
+                        (modeSelectBox.SelectedItem as KVItem).Value
+                    );
+                    _beatmaps = beatmapsData;
+                }
+                else
+                {
+                    var beatmapsData = await Bloodcat.Search(searchBox.Text,
+                        (rankedStatusBox.SelectedItem as KVItem).Value,
+                        (modeSelectBox.SelectedItem as KVItem).Value,
+                        searchViaSelectBox.Visibility == Visibility.Hidden ? null : (searchViaSelectBox.SelectedItem as KVItem).Value
+                    );
+                    _beatmaps = new List<Structures.BeatmapSet>();
+                    foreach (JObject b in beatmapsData) _beatmaps.Add(Bloodcat.StandardizeToSetStruct(this, b));
+                }
+                populateBeatmaps(_beatmaps);
             }
             catch (Exception ex) { MessageBox.Show("There was an error searching for beatmaps...\n\n" + ex.ToString()); }
             finally { searchingLoading.Visibility = Visibility.Hidden; }
@@ -137,7 +164,9 @@ namespace NexDirect
             {
                 searchingLoading.Visibility = Visibility.Visible;
                 var beatmapsData = await Bloodcat.Popular();
-                populateBeatmaps(beatmapsData);
+                var _beatmaps = new List<Structures.BeatmapSet>();
+                foreach (JObject b in beatmapsData) _beatmaps.Add(Bloodcat.StandardizeToSetStruct(this, b));
+                populateBeatmaps(_beatmaps);
             }
             catch (Exception ex) { MessageBox.Show("There was an error loading the popular beatmaps...\n\n" + ex.ToString()); }
             finally { searchingLoading.Visibility = Visibility.Hidden; }
@@ -146,6 +175,9 @@ namespace NexDirect
         private Regex onlyNumbersReg = new Regex(@"^\d+$");
         private void searchBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
+            // not for official osu search
+            if (useOfficialOsu) return;
+
             // if only numbers show the search via, just like the bloodcat website
             if (onlyNumbersReg.IsMatch(searchBox.Text))
             {
@@ -162,12 +194,12 @@ namespace NexDirect
             }
         }
 
-        private void populateBeatmaps(JArray beatmapsData)
+        private void populateBeatmaps(IEnumerable<Structures.BeatmapSet> beatmapsData)
         {
             beatmaps.Clear();
-            foreach (JObject beatmapData in beatmapsData)
+            foreach (Structures.BeatmapSet beatmap in beatmapsData)
             {
-                beatmaps.Add(new Bloodcat.BeatmapSet(this, beatmapData));
+                beatmaps.Add(beatmap);
             }
         }
 
@@ -175,18 +207,18 @@ namespace NexDirect
         {
             var row = Tools.getGridViewSelectedRowItem(sender, e);
             if (row == null) return;
-            var beatmap = row as Bloodcat.BeatmapSet;
+            var beatmap = row as Structures.BeatmapSet;
 
             DownloadBeatmapSet(beatmap);
         }
 
-        private async void dataGrid_MouseDown(object sender, MouseButtonEventArgs e)
+        private async void dataGrid_LeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (!audioPreviews) return;
 
             var row = Tools.getGridViewSelectedRowItem(sender, e);
             if (row == null) return;
-            var set = row as Bloodcat.BeatmapSet;
+            var set = row as Structures.BeatmapSet;
 
             audioWaveOut.Stop(); // if already playing something just stop it
             await Task.Delay(150);
@@ -194,16 +226,23 @@ namespace NexDirect
             Osu.PlayPreviewAudio(set, audioWaveOut);
         }
 
+        private void dataGrid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            // shortcut to stop playing
+            if (!audioPreviews) return;
+            audioWaveOut.Stop();
+        }
+
         private void progressGrid_DoubleClick(object sender, MouseButtonEventArgs e)
         {
             var row = Tools.getGridViewSelectedRowItem(sender, e);
             if (row == null) return;
-            var download = row as Bloodcat.BeatmapDownload;
+            var download = row as Structures.BeatmapDownload;
 
             MessageBoxResult cancelPrompt = MessageBox.Show("Are you sure you wish to cancel the current download for: " + download.BeatmapSetName + "?", "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (cancelPrompt == MessageBoxResult.No) return;
 
-            Bloodcat.CancelDownload(download);
+            Web.CancelDownload(download);
         }
 
         private void logoImage_MouseUp(object sender, MouseButtonEventArgs e)
@@ -216,7 +255,7 @@ namespace NexDirect
         {
             // Search filters
             rankedStatusBox.Items.Add(new KVItem("All", null));
-            rankedStatusBox.Items.Add(new KVItem("Ranked", "1,2"));
+            rankedStatusBox.Items.Add(new KVItem("Ranked / Approved", "1,2"));
             rankedStatusBox.Items.Add(new KVItem("Qualified", "3"));
             rankedStatusBox.Items.Add(new KVItem("Unranked", "0,-1,-2"));
 
@@ -234,7 +273,7 @@ namespace NexDirect
             searchViaSelectBox.Items.Add(new KVItem("Normal (Title/Artist)", "o"));
         }
 
-        private async void DownloadBeatmapSet(Bloodcat.BeatmapSet set)
+        private async void DownloadBeatmapSet(Structures.BeatmapSet set)
         {
             // check for already downloading
             if (downloadProgress.Any(b => b.BeatmapSetId == set.Id))
@@ -246,7 +285,15 @@ namespace NexDirect
             if (!CheckAndPromptIfHaveMap(set)) return;
 
             // start dl
-            await Bloodcat.DownloadSet(set, beatmapMirror, downloadProgress, osuFolder, audioDoong, launchOsu);
+            if (useOfficialOsu)
+            {
+                await Osu.DownloadSet(this, set, downloadProgress, osuFolder, audioDoong, launchOsu);
+            }
+            else
+            {
+                await Bloodcat.DownloadSet(set, beatmapMirror, downloadProgress, osuFolder, audioDoong, launchOsu);
+            }
+            
             if (downloadProgress.Count < 1) ReloadAlreadyDownloadedMaps(); // reload only when theres nothing left
         }
 
@@ -327,7 +374,7 @@ namespace NexDirect
             alreadyDownloaded = Directory.GetDirectories(osuSongsFolder);
         }
 
-        private bool CheckAndPromptIfHaveMap(Bloodcat.BeatmapSet set)
+        private bool CheckAndPromptIfHaveMap(Structures.BeatmapSet set)
         {
             // check for already have
             if (set.AlreadyHave)
@@ -356,11 +403,24 @@ namespace NexDirect
             Match m = uriReg.Match(fullArgs);
             Application.Current.Dispatcher.Invoke(async () =>
             {
-                Bloodcat.BeatmapSet set = await Bloodcat.ResolveSetId(this, m.Groups[1].ToString());
-                if (set == null)
+                Structures.BeatmapSet set;
+                if (useOfficialOsu)
                 {
-                    MessageBox.Show("Could not find the beatmap on Bloodcat. Cannot proceed to download :(");
-                    return;
+                    set = await Osu.ResolveSetId(this, m.Groups[1].ToString());
+                    if (set == null)
+                    {
+                        MessageBox.Show("Could not find the beatmap on the official osu! directory. Cannot proceed to download :(");
+                        return;
+                    }
+                }
+                else
+                {
+                    set = await Bloodcat.ResolveSetId(this, m.Groups[1].ToString());
+                    if (set == null)
+                    {
+                        MessageBox.Show("Could not find the beatmap on Bloodcat. Cannot proceed to download :(");
+                        return;
+                    }
                 }
                 MessageBoxResult confirmPrompt = MessageBox.Show(string.Format("Are you sure you wish to download: {0} - {1} (mapped by {2})?", set.Artist, set.Title, set.Mapper), "NexDirect - Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (confirmPrompt == MessageBoxResult.No) return;

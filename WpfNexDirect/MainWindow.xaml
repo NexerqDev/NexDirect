@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="NexDirect" Height="600.5" Width="1316" Icon="Resources/logo.ico" Loaded="MainWindow_Loaded" Background="White">
     <Grid Margin="0,0,2,0">
-        <DataGrid x:Name="dataGrid" Margin="10,101,200,26" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="dataGrid_DoubleClick" HeadersVisibility="Column" RowHeight="35" MouseLeftButtonUp="dataGrid_MouseDown" BorderBrush="#FF688CAF" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#BF6A6A6A">
+        <DataGrid x:Name="dataGrid" Margin="10,101,200,26" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="dataGrid_DoubleClick" HeadersVisibility="Column" RowHeight="35" MouseLeftButtonUp="dataGrid_LeftButtonUp" BorderBrush="#FF688CAF" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#BF6A6A6A" MouseRightButtonUp="dataGrid_MouseRightButtonUp">
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Binding="{Binding AlreadyHave}" Width="15"/>
                 <DataGridTemplateColumn Width="150">
@@ -58,7 +58,7 @@
         <ComboBox x:Name="modeSelectBox" Height="23" Margin="328,73,0,0" VerticalAlignment="Top" SelectedIndex="0" HorizontalAlignment="Left" Width="161"/>
         <Label x:Name="label" Content="Show:" Height="23" Margin="22,73,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="46"/>
         <Label x:Name="label1" Content="Mode:" Height="27" Margin="278,71,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="45"/>
-        <Button x:Name="popularLoadButton" Content="Load Popular Maps" Height="25" Margin="0,71,206,0" VerticalAlignment="Top" Click="popularLoadButton_Click" HorizontalAlignment="Right" Width="159"/>
+        <Button x:Name="popularLoadButton" Content="Load Popular Maps on Bloodcat" Height="25" Margin="0,72,200,0" VerticalAlignment="Top" Click="popularLoadButton_Click" HorizontalAlignment="Right" Width="203"/>
         <Label x:Name="searchViaLabel" Content="Search via: " Height="27" Margin="0,72,530,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="68" Visibility="Hidden"/>
         <ComboBox x:Name="searchViaSelectBox" Height="22" Margin="0,74,395,0" VerticalAlignment="Top" SelectedIndex="1" HorizontalAlignment="Right" Width="135" Visibility="Hidden"/>
     </Grid>

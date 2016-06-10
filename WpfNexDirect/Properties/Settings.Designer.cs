@@ -94,5 +94,53 @@ namespace NexDirect.Properties {
                 this["osuFolder"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool useOfficialOsu {
+            get {
+                return ((bool)(this["useOfficialOsu"]));
+            }
+            set {
+                this["useOfficialOsu"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string officialOsuCookies {
+            get {
+                return ((string)(this["officialOsuCookies"]));
+            }
+            set {
+                this["officialOsuCookies"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string officialOsuUsername {
+            get {
+                return ((string)(this["officialOsuUsername"]));
+            }
+            set {
+                this["officialOsuUsername"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string officialOsuPassword {
+            get {
+                return ((string)(this["officialOsuPassword"]));
+            }
+            set {
+                this["officialOsuPassword"] = value;
+            }
+        }
     }
 }

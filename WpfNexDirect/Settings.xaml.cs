@@ -1,18 +1,7 @@
 ﻿using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace NexDirect
 {
@@ -34,6 +23,8 @@ namespace NexDirect
             audioPreviewsCheckbox.IsChecked = parent.audioPreviews;
             mirrorTextBox.Text = parent.beatmapMirror;
             launchOsuCheckbox.IsChecked = parent.launchOsu;
+            officialDownloadBox.IsChecked = parent.useOfficialOsu;
+            if (_parent.fallbackActualOsu) officialDownloadBox.IsChecked = true;
             loaded = true;
         }
 
@@ -152,6 +143,32 @@ namespace NexDirect
             {
                 MessageBox.Show(string.Format("An error occured whilst registering the handler..."), ex.ToString());
             }
+        }
+
+        private void officialDownloadBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (!loaded) return;
+            (new Dialogs.OsuLogin(parent)).ShowDialog();
+            if (!parent.useOfficialOsu)
+            {
+                loaded = false; // just stop it from running handler
+                officialDownloadBox.IsChecked = false;
+                loaded = true;
+            }
+        }
+
+        private void officialDownloadBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (!loaded) return;
+            parent.useOfficialOsu = false;
+            parent.officialOsuCookies = null;
+            if (parent.fallbackActualOsu) parent.fallbackActualOsu = false;
+            Properties.Settings.Default.useOfficialOsu = false;
+            Properties.Settings.Default.officialOsuCookies = null;
+            Properties.Settings.Default.officialOsuUsername = "";
+            Properties.Settings.Default.officialOsuPassword = "";
+            Properties.Settings.Default.Save();
+            MessageBox.Show("Disabled official osu! server downloads.");
         }
     }
 }
