@@ -138,25 +138,28 @@ namespace NexDirect
             if (beatmapNodes == null) return new List<Structures.BeatmapSet>(); // empty
             return beatmapNodes.Select(b => {
                 var difficulties = new Dictionary<string, string>();
-                int i = 1;
-                foreach (var d in b.SelectNodes("div[@class='left-aligned']/div[starts-with(@class, 'difficulties')]/div"))
+                try
                 {
-                    string _d = d.Attributes["class"].Value.Replace("diffIcon ", "");
+                    int i = 1;
+                    foreach (var d in b.SelectNodes("div[@class='left-aligned']/div[starts-with(@class, 'difficulties')]/div"))
+                    {
+                        string _d = d.Attributes["class"].Value.Replace("diffIcon ", "");
 
-                    if (_d.Contains("-t")) _d = "1"; // taiko
-                    else if (_d.Contains("-f")) _d = "2"; // ctb
-                    else if (_d.Contains("-m")) _d = "3"; // mania
-                    else _d = "0"; // standard
+                        if (_d.Contains("-t")) _d = "1"; // taiko
+                        else if (_d.Contains("-f")) _d = "2"; // ctb
+                        else if (_d.Contains("-m")) _d = "3"; // mania
+                        else _d = "0"; // standard
 
-                    difficulties.Add(i.ToString(), _d);
-                    i++;
-                }
+                        difficulties.Add(i.ToString(), _d);
+                        i++;
+                    }
+                } catch { } // rip
 
                 return new Structures.BeatmapSet(_mw,
                     b.Id,
-                    b.SelectSingleNode("div[@class='maintext']/span[@class='artist']").InnerText,
-                    b.SelectSingleNode("div[@class='maintext']/a[@class='title']").InnerText,
-                    b.SelectSingleNode("div[@class='left-aligned']/div[1]/a").InnerText,
+                    TryGetNodeText(b, "div[@class='maintext']/span[@class='artist']"),
+                    TryGetNodeText(b, "div[@class='maintext']/a[@class='title']"),
+                    TryGetNodeText(b, "div[@class='left-aligned']/div[1]/a"),
                     null,
                     difficulties,
                     null
@@ -164,9 +167,41 @@ namespace NexDirect
             });
         }
 
+        private static string TryGetNodeText(HtmlAgilityPack.HtmlNode node, string xpath)
+        {
+            try
+            {
+                return node.SelectSingleNode(xpath).InnerText;
+            }
+            catch
+            {
+                return "<Unknown>";
+            }
+        }
+
+        public static async Task<bool> CheckIllegal(MainWindow _mw, Structures.BeatmapSet set)
+        {
+            // Get MIME type, application/download = actual download, text/html would be the illegal page
+            using (var handler = new HttpClientHandler() { CookieContainer = _mw.officialCookieJar })
+            using (var client = new HttpClient())
+            {
+                // HEAD request
+                HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, string.Format("https://osu.ppy.sh/d/{0}", set.Id)));
+                return response.Content.Headers.GetValues("content-type").FirstOrDefault().Contains("text/html"); // Check.
+            }
+        }
+
         public static async Task DownloadSet(MainWindow _mw, Structures.BeatmapSet set, ObservableCollection<Structures.BeatmapDownload> downloadProgress, string osuFolder, WaveOut doongPlayer, bool launchOsu)
         {
-            // Mostly and copy paste. Need to work out some way later to clean this up so not copy pasting.
+            if (await CheckIllegal(_mw, set))
+            {
+                MessageBoxResult bloodcatAsk = MessageBox.Show("Sorry, this map seems like it has been taken down from the official osu! servers due to a DMCA request to them. Would you like to check if a copy off Bloodcat is available?", "NexDirect - Mirror?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (bloodcatAsk == MessageBoxResult.No) return;
+
+                _mw.DownloadBeatmapSet(set, true);
+                return;
+            }
+
             using (var client = new WebClient())
             {
                 var download = new Structures.BeatmapDownload(set, client, osuFolder, doongPlayer, launchOsu);
