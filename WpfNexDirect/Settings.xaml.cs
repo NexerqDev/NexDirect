@@ -171,6 +171,7 @@ namespace NexDirect
             parent.useOfficialOsu = false;
             parent.officialOsuCookies = null;
             if (parent.fallbackActualOsu) parent.fallbackActualOsu = false;
+            officialLoggedInAs.Visibility = Visibility.Hidden;
             Properties.Settings.Default.useOfficialOsu = false;
             Properties.Settings.Default.officialOsuCookies = null;
             Properties.Settings.Default.officialOsuUsername = "";
