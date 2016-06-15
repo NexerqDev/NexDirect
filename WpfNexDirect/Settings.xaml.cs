@@ -25,6 +25,14 @@ namespace NexDirect
             launchOsuCheckbox.IsChecked = parent.launchOsu;
             officialDownloadBox.IsChecked = parent.useOfficialOsu;
             if (_parent.fallbackActualOsu) officialDownloadBox.IsChecked = true;
+
+            if ((bool)officialDownloadBox.IsChecked)
+            {
+                officialLoggedInAs.Visibility = Visibility.Visible;
+                officialLoggedInAs.Content = "Currently logged in as: " + Properties.Settings.Default.officialOsuUsername;
+                if (_parent.fallbackActualOsu) officialLoggedInAs.Content += " (falling back to Bloodcat)";
+            }
+
             loaded = true;
         }
 
@@ -148,7 +156,7 @@ namespace NexDirect
         private void officialDownloadBox_Checked(object sender, RoutedEventArgs e)
         {
             if (!loaded) return;
-            (new Dialogs.OsuLogin(parent)).ShowDialog();
+            (new Dialogs.OsuLogin(this, parent)).ShowDialog();
             if (!parent.useOfficialOsu)
             {
                 loaded = false; // just stop it from running handler

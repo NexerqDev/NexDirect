@@ -8,11 +8,13 @@ namespace NexDirect.Dialogs
     public partial class OsuLogin : Form
     {
         private MainWindow _mw;
+        private Settings _s;
 
-        public OsuLogin(MainWindow mw)
+        public OsuLogin(Settings s, MainWindow mw)
         {
             InitializeComponent();
             _mw = mw;
+            _s = s;
         }
 
         private async void button1_Click(object sender, EventArgs e)
@@ -24,6 +26,7 @@ namespace NexDirect.Dialogs
                 _mw.fallbackActualOsu = true;
                 _mw.officialOsuUsername = usernameBox.Text;
                 _mw.officialOsuPassword = passwordBox.Text;
+                _s.officialLoggedInAs.Content = "Currently logged in as: " + usernameBox.Text;
                 Properties.Settings.Default.officialOsuCookies = _mw.officialOsuCookies;
                 Properties.Settings.Default.useOfficialOsu = true;
                 Properties.Settings.Default.officialOsuUsername = usernameBox.Text;
