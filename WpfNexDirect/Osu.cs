@@ -155,12 +155,23 @@ namespace NexDirect
                     }
                 } catch { } // rip
 
+                // we can only base this off that green/red bar, lol
+                string rankStatus;
+                if (b.SelectSingleNode("div[@class='right-aligned']/div[@class='rating']") != null)
+                {
+                    rankStatus = "Ranked/Approved/Qualified";
+                }
+                else
+                {
+                    rankStatus = "Pending/Graveyard";
+                }
+
                 return new Structures.BeatmapSet(_mw,
                     b.Id,
                     TryGetNodeText(b, "div[@class='maintext']/span[@class='artist']"),
                     TryGetNodeText(b, "div[@class='maintext']/a[@class='title']"),
                     TryGetNodeText(b, "div[@class='left-aligned']/div[1]/a"),
-                    null,
+                    rankStatus,
                     difficulties,
                     null
                 );

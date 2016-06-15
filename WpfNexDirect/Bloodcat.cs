@@ -51,7 +51,8 @@ namespace NexDirect
             return new Structures.BeatmapSet(_this,
                 bloodcatData["id"].ToString(), bloodcatData["artist"].ToString(),
                 bloodcatData["title"].ToString(), bloodcatData["creator"].ToString(),
-                bloodcatData["status"].ToString(), difficulties, bloodcatData);
+                Tools.resolveRankingStatus(bloodcatData["status"].ToString()),
+                difficulties, bloodcatData);
         }
 
         /// <summary>

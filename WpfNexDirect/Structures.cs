@@ -27,13 +27,13 @@ namespace NexDirect
             public bool IsBloodcat { get; set; }
             public JObject BloodcatData { get; set; }
 
-            public BeatmapSet(MainWindow _this, string id, string artist, string title, string mapper, string rankStatusId, Dictionary<string, string> difficulties, JObject bloodcatRaw)
+            public BeatmapSet(MainWindow _this, string id, string artist, string title, string mapper, string rankStatus, Dictionary<string, string> difficulties, JObject bloodcatRaw)
             {
                 Id = id;
                 Artist = artist;
                 Title = title;
                 Mapper = mapper;
-                RankingStatus = Tools.resolveRankingStatus(rankStatusId);
+                RankingStatus = rankStatus;
                 PreviewImage = new Uri(string.Format("http://b.ppy.sh/thumb/{0}l.jpg", Id));
                 AlreadyHave = _this.alreadyDownloaded.Any(b => b.Contains(Id + " "));
                 Difficulties = difficulties.Select(d => new Difficulty(d.Key, d.Value));
