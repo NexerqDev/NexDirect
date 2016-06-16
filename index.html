@@ -10,48 +10,223 @@
         <meta property="og:description" content="A free, open-source alternative osu! beatmap downloader.">
         <meta property="og:image" content="https://nicholastay.github.io/NexDirect/img/logo.png"/>
 
-        <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
-        <style type="text/css">
+        <!-- favicon stuff - thanks favicon-generator.org v helpful -->
+        <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="img/favicon.ico" type="image/x-icon">
+
+        <link rel="stylesheet" type="text/css" href="vendor/css/slick-1.6.0/slick.css"/>
+        <link rel="stylesheet" type="text/css" href="vendor/css/slick-1.6.0/slick-theme.css"/>
+
+        <link href="vendor/css/skeleton-2.0.4.min.css" rel="stylesheet" type="text/css">
+        <style>
+        html,
         body {
-            color: white;
-            background: black;
-            font-family: 'Raleway', sans-serif;
+            margin: 0;
         }
 
-        a {
-            color: white;
-            text-decoration: none;
+        .container {
+            padding: 50px 0;
         }
 
-        #main {
-            top: 20%;
-            padding: 50px;
+        .special {
             text-align: center;
+            color: white;
+            margin-bottom: 55px;
         }
 
-        #title {
-            font-size: 48pt;
+        .footer {
+            font-size: 7.5pt;
+            padding-bottom: 2px;
+            text-align: right;
+            right: 0;
+            padding-right: 7px;
+        }
+
+        .icon {
+            width: 65px;
+            margin: 2.5rem auto 0;
+            -webkit-filter: invert();
+            filter: invert();
+        }
+
+        .separator {
+            display: block;
+            width: 200px;
+        }
+        .separator::before {
+            content: " ";
+            display: block;
+            border-top: solid 1px #5C5F5C;
+        }
+
+        .slick-arrow,
+        .slick-arrow:hover {
+            -webkit-filter: invert();
+            filter: invert();
+        }
+
+        li {
+            margin-bottom: 3px; /* override */
+        }
+
+        li img {
+            width: 30px;
+            -webkit-filter: invert();
+            filter: invert();
+            vertical-align: middle;
+            margin-right: 2.5px;
+        }
+
+        @media (min-width: 550px) {
+            html {
+                background: url(img/56964256_p1c_whitewash.jpg) no-repeat center center fixed;
+                -webkit-background-size: cover;
+                -ms-background-size: cover;
+                -moz-background-size: cover;
+                -o-background-size: cover;
+                background-size: cover;
+            }
+        }
+
+        @media (max-width: 550px) {
+            .title {
+                text-align: center;
+            }
+
+            .footer {
+                text-align: center;
+            }
+            .footer .separator {
+                display: none;
+            }
         }
         </style>
     </head>
     <body>
-        <div id="main">
-            <div>
-                <img src="img/logo.png" alt="NexDirect logo"/>
+        <div class="webpage">
+            <div class="special" style="background-color: rgba(255, 255, 255, 0.35); color: black; height: 100%; height: 100vh;">
+                <div class="container">
+                    <div class="row title">
+                        <div class="one-half column">
+                            <img class="u-max-full-width" src="img/logo.png" alt="NexDirect logo"/>
+                            <h3>NexDirect</h3>
+                            <i>A free, open-source alternative osu! beatmap downloader.</i>
+                        </div>
+                        <div class="one-half column" style="padding-top: 85px; text-align: center;">
+                            <div class="slickshow" style="display: none;"> <!-- it looks ugly when loading, reveal in js -->
+                                <div>
+                                    <img class="u-full-width" src="img/previews/nexdirect.jpg" alt="NexDirect interface"/>
+                                    The slick interface!
+                                </div>
+                                <div>
+                                    <img class="u-full-width" src="img/previews/overlay-mode.jpg" alt="NexDirect overlay interface"/>
+                                    Overlay mode - in-game downloads!
+                                </div>
+                                <div>
+                                    <img class="u-full-width" src="img/previews/custom-bg.jpg" alt="Custom backgrounds feature"/>
+                                    Custom UI backgrounds!
+                                </div>
+                                <div>
+                                    <img src="img/previews/settings.jpg" style="display: block; margin: auto;" alt="Settings pane"/>
+                                    The neat, little settings pane.
+                                </div>
+                                <div>
+                                    <img class="u-full-width" src="img/previews/dev.jpg" alt="NexDirect development"/>
+                                    Random screenshot of development.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 50px;">
+                        <div class="one-half column">
+                            <a class="button button-primary" href="https://github.com/nicholastay/NexDirect/releases">Downloads</a>
+                            <a class="button" href="https://github.com/nicholastay/NexDirect">Visit on GitHub</a>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div id="title">
-                NexDirect
+            <div class="special" style="background-color: rgba(50, 195, 240, 0.7);">
+                <div class="container">
+                    <div class="row">
+                        <div class="four columns">
+                            <img class="icon" src="img/search.svg"/>
+                            <br>
+                            Get your beatmap searching done quicker and neater, in a more beautiful looking interface right at your disposal.
+                        </div>
+                        <div class="four columns">
+                            <img class="icon" src="img/success.svg"/>
+                            <br>
+                            Beatmap downloading handled swiftly and delivered straight to your osu! game: no manual opening and fiddling with files required.
+                        </div>
+                        <div class="four columns">
+                            <img class="icon" src="img/hands.svg"/>
+                            <br>
+                            Already actively used and approved by 2 people in the world! ... maybe you can help make a difference today! (no pressure)
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div>
-                <i>A free, open-source alternative osu! beatmap downloader.</i>
+            <div class="special" style="background-color: rgba(227, 42, 192, 0.65); margin-top: 30px;">
+                <div class="container" style="text-align: center;">
+                    <div class="row">
+                        <h4>Quick (more detailed) Feature Rundown</h4>
+                    </div>
+                    <div class="row">
+                        <ul>
+                            <li>
+                                <img src="img/spotlight.svg">
+                                An overlay mode, to overlay the program over your osu! game for quick, easy beatmap downloading.
+                            </li>
+                            <li>
+                                <img src="img/paper-plane.svg">
+                                Download beatmaps straight from the web to your osu! beatmaps folder where it is ready to be processed.
+                            </li>
+                            <li>
+                                <img src="img/settings.svg">
+                                Choose between the Bloodcat mirror or the official osu! beatmap servers.
+                            </li>
+                            <li>
+                                <img src="img/like.svg">
+                                Choose your own (waifu) wallpaper for a slick customized UI!
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
-            <div style="padding-top: 35px;">
-                <a href="https://github.com/nicholastay/NexDirect/releases">Downloads</a> | 
-                <a href="https://github.com/nicholastay/NexDirect">GitHub</a>
+            <div class="special" style="background-color: rgba(255, 255, 255, 0.65); color: black;">
+                <div class="container" style="text-align: center; padding: 15px 0">
+                    <div class="row">
+                        What's to lose? Give it a try today (and expect to stay forever! :>)<br>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <span class="separator" style="right: 0; position: absolute;"></span>
+                <div style="padding-top: 8px;">
+                    Code repository and this page all proudly hosted by GitHub<br>
+                    <a href="https://nicholastay.github.io/NexDirect">NexDirect</a> by <a href="https://nicholastay.github.io/">Nicholas Tay</a> 2016 - licensed under <a href="https://github.com/nicholastay/NexDirect/blob/master/LICENSE">zlib/libpng</a><br>
+                    Background image from <a href="http://www.pixiv.net/member_illust.php?mode=manga_big&amp;illust_id=56964256&amp;page=1">pixiv#56964256</a> - yukinon is best &lt;3<br>
+                    Icons made by <a href="http://www.flaticon.com/authors/madebyoliver">Madebyoliver</a> from <a href="http://www.flaticon.com/">www.flaticon.com</a> - thanks they look beautiful :)
+                </div>
             </div>
         </div>
+
+        <script type="text/javascript" src="vendor/js/jquery-3.0.0.slim.min.js"></script>
+        <script type="text/javascript" src="vendor/js/jquery.slick-1.6.0.min.js"></script>
+        <script>
+        var $show = $('.slickshow');
+        $show.slick({
+            infinite: true,
+            arrows: true,
+            dots: true,
+            autoplay: true,
+            autoplaySpeed: 5500
+        });
+        $show.css('display', '');
+        </script>
     </body>
 </html>
