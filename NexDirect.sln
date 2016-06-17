@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfNexDirect", "WpfNexDirect\WpfNexDirect.csproj", "{69361411-A413-4F51-9418-84CBDEA49337}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexDirect", "NexDirect\NexDirect.csproj", "{69361411-A413-4F51-9418-84CBDEA49337}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
