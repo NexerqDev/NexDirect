@@ -91,6 +91,15 @@
         a.text-link:hover {
             color: crimson;
         }
+        
+        #scrolldown-info {
+            position: absolute;
+            bottom: 0;
+            margin: auto;
+            padding: 15px 10px;
+            left: 0;
+            right: 0;
+        }
 
         @media (min-width: 550px) {
             html {
@@ -112,6 +121,10 @@
                 text-align: center;
             }
             .footer .separator {
+                display: none;
+            }
+            
+            #scrolldown-info {
                 display: none;
             }
         }
@@ -162,6 +175,11 @@
                             <a class="button" href="https://github.com/nicholastay/NexDirect">Visit on GitHub</a>
                         </div>
                     </div>
+                </div>
+                
+                <div id="scrolldown-info">
+                    Scroll down for more information!<br>
+                    <img src="img/down-arr.png" height="15px">
                 </div>
             </div>
 
