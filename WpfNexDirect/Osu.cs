@@ -17,6 +17,9 @@ namespace NexDirect
 {
     public static class Osu
     {
+        /// <summary>
+        /// Plays preview audio of a specific beatmap set to the waveout interface
+        /// </summary>
         public static async void PlayPreviewAudio(Structures.BeatmapSet set, WaveOut waveOut)
         {
             using (var client = new HttpClient())
@@ -37,6 +40,9 @@ namespace NexDirect
             }
         }
 
+        /// <summary>
+        /// Logs in to the official osu! website with a given username/password and returns cookies in a serializable format.
+        /// </summary>
         public static async Task<StringDictionary> LoginAndGetCookie(string username, string password)
         {
             var _formData = new Dictionary<string, string>();
@@ -68,6 +74,9 @@ namespace NexDirect
             }
         }
 
+        /// <summary>
+        /// Checks if cookies are still working.
+        /// </summary>
         public static async Task<CookieContainer> CheckLoginCookie(MainWindow _mw, StringDictionary _cookies)
         {
             var cookies = new CookieContainer();
@@ -105,6 +114,9 @@ namespace NexDirect
             }
         }
 
+        /// <summary>
+        /// Searches the official beatmap listing for beatmaps.
+        /// </summary>
         public static async Task<IEnumerable<Structures.BeatmapSet>> Search(MainWindow _mw, string query, string sRankedParam, string mModeParam)
         {
             if (sRankedParam == "0,-1,-2")
@@ -178,6 +190,9 @@ namespace NexDirect
             });
         }
 
+        /// <summary>
+        /// Tries to get text from node.
+        /// </summary>
         private static string TryGetNodeText(HtmlAgilityPack.HtmlNode node, string xpath)
         {
             try
@@ -190,6 +205,9 @@ namespace NexDirect
             }
         }
 
+        /// <summary>
+        /// Checks headers of a beatmap set download to see if it has been taken down by DMCA.
+        /// </summary>
         public static async Task<bool> CheckIllegal(MainWindow _mw, Structures.BeatmapSet set)
         {
             // Get MIME type, application/download = actual download, text/html would be the illegal page
@@ -202,6 +220,9 @@ namespace NexDirect
             }
         }
 
+        /// <summary>
+        /// Checks the DMCA of a map, then downloads it.
+        /// </summary>
         public static async Task DownloadSet(MainWindow _mw, Structures.BeatmapSet set, ObservableCollection<Structures.BeatmapDownload> downloadProgress, string osuFolder, WaveOut doongPlayer, bool launchOsu)
         {
             if (await CheckIllegal(_mw, set))
@@ -232,6 +253,9 @@ namespace NexDirect
             }
         }
 
+        /// <summary>
+        /// Resolves a beatmap set's ID to an object.
+        /// </summary>
         public static async Task<Structures.BeatmapSet> ResolveSetId(MainWindow _mw, string setId)
         {
             string rawData = await GetRawWithCookies(_mw, string.Format("https://osu.ppy.sh/s/{0}", setId));
@@ -252,6 +276,9 @@ namespace NexDirect
             );
         }
 
+        /// <summary>
+        /// Gets raw data using preloaded cookies.
+        /// </summary>
         private static async Task<string> GetRawWithCookies(MainWindow _mw, string uri)
         {
             using (var handler = new HttpClientHandler() { CookieContainer = _mw.officialCookieJar })
