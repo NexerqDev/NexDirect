@@ -210,13 +210,20 @@ namespace NexDirect
         /// </summary>
         public static async Task<bool> CheckIllegal(MainWindow _mw, Structures.BeatmapSet set)
         {
-            // Get MIME type, application/download = actual download, text/html would be the illegal page
-            using (var handler = new HttpClientHandler() { CookieContainer = _mw.officialCookieJar })
-            using (var client = new HttpClient())
+            // Get status code - 302 REDIRECT = redirected to the real download, 200 OK = illegal page!
+            using (var handler = new HttpClientHandler() { CookieContainer = _mw.officialCookieJar, AllowAutoRedirect = false })
+            using (var client = new HttpClient(handler))
             {
-                // HEAD request
-                HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, string.Format("https://osu.ppy.sh/d/{0}", set.Id)));
-                return response.Content.Headers.GetValues("content-type").FirstOrDefault().Contains("text/html"); // Check.
+                // HEAD request for the status code
+                try
+                {
+                    HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, string.Format("https://osu.ppy.sh/d/{0}", set.Id)));
+                    return response.StatusCode == HttpStatusCode.Redirect; // Check.
+                }
+                catch
+                {
+                    return true;
+                }
             }
         }
 
