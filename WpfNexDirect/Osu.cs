@@ -218,7 +218,7 @@ namespace NexDirect
                 try
                 {
                     HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, string.Format("https://osu.ppy.sh/d/{0}", set.Id)));
-                    return response.StatusCode == HttpStatusCode.Redirect; // Check.
+                    return response.StatusCode != HttpStatusCode.Redirect; // Check.
                 }
                 catch
                 {
