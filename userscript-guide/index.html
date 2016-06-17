@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Userscript Guide - NexDirect</title>
+        <meta name="description" content="Userscript Guide - A free, open-source alternative osu! beatmap downloader.">
+        <meta property="og:title" content="Userscript Guide - NexDirect"/>
+        <meta property="og:url" content="https://nicholastay.github.io/NexDirect/userscript-guide/"/>
+        <meta property="og:description" content="Userscript Guide - A free, open-source alternative osu! beatmap downloader.">
+        <meta property="og:image" content="https://nicholastay.github.io/NexDirect/img/logo.png"/>
+
+        <link rel="shortcut icon" href="../img/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="../img/favicon.ico" type="image/x-icon">
+
+        <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Raleway:400,300,600">
+        <link href="../vendor/css/skeleton-2.0.4.min.css" rel="stylesheet" type="text/css">
+        <style>
+        html,
+        body {
+            margin: 0;
+        }
+        
+        html {
+            background: url(img/49037131_p0_wwcrop.jpg) no-repeat center center fixed;
+            -webkit-background-size: cover;
+            -ms-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+        
+        .webpage {
+            text-align: center;
+        }
+        
+        .header {
+            padding-top: 25px;
+        }
+        
+        .row {
+            padding-top: 35px;
+        }
+        
+        .right.row {
+            text-align: right;
+        }
+        
+        .left.row {
+            text-align: left;
+        }
+        
+        #nomobile {
+            display: none;
+        }
+        
+        @media (max-width: 550px) {
+            #nomobile {
+                display: block;
+                width: 100%;
+                height: 100%;
+                width: 100vw;
+                height: 100vh;
+                background-color: red;
+            }
+            
+            #nomobile div {
+                color: white;
+                padding-top: 55%;
+                text-align: center;
+                font-size: 15pt;
+            }
+        }
+        </style>
+    </head>
+    <body>
+        <div id="nomobile">
+            <div>This page is best viewed on the computer. Scroll down for possibly a nightmare of trying to read information.</div>
+        </div>
+        
+        <div class="webpage">
+            <div class="header">
+                <img src="../img/logo.png" alt="NexDirect logo" style="vertical-align: middle; padding-bottom: 20px;" height="128px">
+                <h2 style="display: inline;">NexDirect - Userscript Guide</h2>
+            </div>
+            
+            <div class="container">
+                <div class="right row">
+                    <div class="four columns">
+                        <img class="u-full-width" src="img/register-uri.jpg" alt="NexDirect: Settings Menu -> Register URI">
+                    </div>
+                    <div class="eight columns">
+                        <h3>Step 1</h3>
+                        Register the NexDirect URI scheme for your user account through the Settings menu (click the logo in the bottom right). [I know this sounds like technical dribble, but essentially it allows your browser to communicate with NexDirect.]
+                    </div>
+                </div>
+                
+                <div class="left row">
+                    <div class="eight columns">
+                        <h3>Step 2</h3>
+                        Ensure you have your favorite userscript manager installed in your browser. (Tested with <a href="https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo">Tampermonkey</a> for Google Chrome, <a href="https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/">Greasemonkey</a> on Firefox should work too.)
+                    </div>
+                    <div class="four columns">
+                        <img class="u-full-width" src="img/tampermonkey.png" alt="Chrome Web Store: Tampermonkey">
+                    </div>
+                </div>
+                
+                <div class="right row">
+                    <div class="four columns">
+                        <img class="u-full-width" src="img/install.png" alt="Tampermonkey: Userscript installation">
+                    </div>
+                    <div class="eight columns">
+                        <h3>Step 3</h3>
+                        Visit <a href="https://github.com/nicholastay/NexDirect/raw/master/nexdirect.user.js" target="_blank">this</a> link to install the userscript. (Feel free to read through the code if that's your thing, but unless it has been hacked there shouldn't be anything bad...)
+                    </div>
+                </div>
+                
+                <div class="left row">
+                    <div class="eight columns">
+                        <h3>End</h3>
+                        Enjoy your new, shiny download button!
+                    </div>
+                    <div class="four columns">
+                        <img class="u-full-width" src="img/end.png" alt="Done!">
+                    </div>
+                </div>
+            </div>
+            
+            <div style="padding-top: 50px">
+                Click <a href="../">here</a> to return to the NexDirect homepage.<br>
+                (Page background from <a href="http://www.pixiv.net/member_illust.php?mode=medium&illust_id=49037131" target="_blank">pixiv#49037131</a> - miku-chan is cool too)
+            </div>
+        </div>
+    </body>
+</html>
