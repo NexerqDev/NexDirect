@@ -389,7 +389,7 @@ namespace NexDirect
             // check for already have
             if (set.AlreadyHave)
             {
-                MessageBoxResult prompt = MessageBox.Show(string.Format("You already have this beatmap {0} ({1}). Do you wish to redownload it?", set.Title, set.Mapper), "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                MessageBoxResult prompt = MessageBox.Show($"You already have this beatmap {set.Title} ({set.Mapper}). Do you wish to redownload it?", "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (prompt == MessageBoxResult.No) return false;
 
                 return true;
@@ -432,7 +432,7 @@ namespace NexDirect
                         return;
                     }
                 }
-                MessageBoxResult confirmPrompt = MessageBox.Show(string.Format("Are you sure you wish to download: {0} - {1} (mapped by {2})?", set.Artist, set.Title, set.Mapper), "NexDirect - Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                MessageBoxResult confirmPrompt = MessageBox.Show($"Are you sure you wish to download: {set.Artist} - {set.Title} (mapped by {set.Mapper})?", "NexDirect - Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (confirmPrompt == MessageBoxResult.No) return;
                 DownloadBeatmapSet(set, false);
             });

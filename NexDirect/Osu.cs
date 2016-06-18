@@ -217,7 +217,7 @@ namespace NexDirect
                 // HEAD request for the status code
                 try
                 {
-                    HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, string.Format("https://osu.ppy.sh/d/{0}", set.Id)));
+                    HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, $"https://osu.ppy.sh/d/{set.Id}"));
                     return response.StatusCode != HttpStatusCode.Redirect; // Check.
                 }
                 catch
@@ -247,11 +247,11 @@ namespace NexDirect
                 downloadProgress.Add(download);
 
                 client.Headers.Add(HttpRequestHeader.Cookie, _mw.officialCookieJar.GetCookieHeader(new Uri("http://osu.ppy.sh"))); // use cookie auth
-                try { await client.DownloadFileTaskAsync(string.Format("https://osu.ppy.sh/d/{0}", set.Id), download.TempDownloadPath); } // appdomain.etc is a WPF way of getting startup dir... stupid :(
+                try { await client.DownloadFileTaskAsync($"https://osu.ppy.sh/d/{set.Id}", download.TempDownloadPath); } // appdomain.etc is a WPF way of getting startup dir... stupid :(
                 catch (Exception ex)
                 {
                     if (download.DownloadCancelled == true) return;
-                    MessageBox.Show(string.Format("An error has occured whilst downloading {0} ({1}).\n\n{2}", set.Title, set.Mapper, ex.ToString()));
+                    MessageBox.Show($"An error has occured whilst downloading {set.Title} ({set.Mapper}).\n\n{ex.ToString()}");
                 }
                 finally
                 {
@@ -265,7 +265,7 @@ namespace NexDirect
         /// </summary>
         public static async Task<Structures.BeatmapSet> ResolveSetId(MainWindow _mw, string setId)
         {
-            string rawData = await GetRawWithCookies(_mw, string.Format("https://osu.ppy.sh/s/{0}", setId));
+            string rawData = await GetRawWithCookies(_mw, $"https://osu.ppy.sh/s/{setId}");
             if (rawData.Contains("looking for was not found")) return null;
 
             var htmlDoc = new HtmlAgilityPack.HtmlDocument();

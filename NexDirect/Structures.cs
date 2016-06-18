@@ -34,7 +34,7 @@ namespace NexDirect
                 Title = title;
                 Mapper = mapper;
                 RankingStatus = rankStatus;
-                PreviewImage = new Uri(string.Format("http://b.ppy.sh/thumb/{0}l.jpg", Id));
+                PreviewImage = new Uri($"http://b.ppy.sh/thumb/{Id}l.jpg");
                 AlreadyHave = _this.alreadyDownloaded.Any(b => b.Contains(Id + " "));
                 Difficulties = difficulties.Select(d => new Difficulty(d.Key, d.Value));
 
@@ -115,11 +115,11 @@ namespace NexDirect
 
             public BeatmapDownload(BeatmapSet set, WebClient client, string osuFolder, NAudio.Wave.WaveOut doongPlayer, bool launchOsuAfter)
             {
-                BeatmapSetName = string.Format("{0} ({1})", set.Title, set.Mapper);
+                BeatmapSetName = $"{set.Title} ({set.Mapper})";
                 ProgressPercent = "0";
                 BeatmapSetId = set.Id;
                 DownloadClient = client;
-                DownloadFileName = Tools.sanitizeFilename(string.Format("{0} {1} - {2}.osz", set.Id, set.Artist, set.Title));
+                DownloadFileName = Tools.sanitizeFilename($"{set.Id} {set.Artist} - {set.Title}.osz");
                 TempDownloadPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DownloadFileName + ".nexd");
 
                 // Attach events

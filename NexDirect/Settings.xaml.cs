@@ -136,12 +136,12 @@ namespace NexDirect
 
                     using (RegistryKey iconKey = key.CreateSubKey(@"DefaultIcon"))
                     {
-                        iconKey.SetValue("", string.Format("{0},1", appLocation));
+                        iconKey.SetValue("", $"{appLocation},1");
                     }
 
                     using (RegistryKey shellOpenKey = key.CreateSubKey(@"shell\open\command"))
                     {
-                        shellOpenKey.SetValue("", string.Format("\"{0}\" \"%1\"", appLocation));
+                        shellOpenKey.SetValue("", $"\"{appLocation}\" \"%1\"");
                     }
                 }
 
@@ -149,7 +149,7 @@ namespace NexDirect
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("An error occured whilst registering the handler..."), ex.ToString());
+                MessageBox.Show($"An error occured whilst registering the handler...\n{ex.ToString()}");
             }
         }
 

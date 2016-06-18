@@ -90,7 +90,7 @@ namespace NexDirect
                 catch (Exception ex)
                 {
                     if (download.DownloadCancelled == true) return;
-                    MessageBox.Show(string.Format("An error has occured whilst downloading {0} ({1}).\n\n{2}", set.Title, set.Mapper, ex.ToString()));
+                    MessageBox.Show($"An error has occured whilst downloading {set.Title} ({set.Mapper}).\n\n{ex.ToString()}");
                 }
                 finally
                 {
