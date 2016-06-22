@@ -19,6 +19,8 @@ namespace NexDirect.Dialogs
 
         private async void button1_Click(object sender, EventArgs e)
         {
+            button1.Enabled = false; // disable no spam plz
+
             try
             {
                 System.Collections.Specialized.StringDictionary cookies = await Osu.LoginAndGetCookie(usernameBox.Text, passwordBox.Text);
@@ -34,11 +36,14 @@ namespace NexDirect.Dialogs
                 Properties.Settings.Default.Save();
                 MessageBox.Show("Logged in to osu! servers and login data saved. Restart NexDirect to begin using the official osu! servers.");
                 Close();
+                return;
             }
             catch (Exception ex)
             {
                 MessageBox.Show("There was an error logging in...\n" + ex);
             }
+
+            button1.Enabled = true;
         }
     }
 }

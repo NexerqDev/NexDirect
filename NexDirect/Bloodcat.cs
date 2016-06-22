@@ -36,7 +36,7 @@ namespace NexDirect
         /// <summary>
         /// Standardizes Bloodcat JSON data to our central structure
         /// </summary>
-        public static Structures.BeatmapSet StandardizeToSetStruct(MainWindow _this, JObject bloodcatData)
+        public static Structures.BeatmapSet StandardizeToSetStruct(JObject bloodcatData)
         {
             var difficulties = new Dictionary<string, string>();
             foreach (var d in (JArray)bloodcatData["beatmaps"])
@@ -44,7 +44,7 @@ namespace NexDirect
                 difficulties.Add(d["name"].ToString(), d["mode"].ToString());
             }
 
-            return new Structures.BeatmapSet(_this,
+            return new Structures.BeatmapSet(
                 bloodcatData["id"].ToString(), bloodcatData["artist"].ToString(),
                 bloodcatData["title"].ToString(), bloodcatData["creator"].ToString(),
                 Tools.resolveRankingStatus(bloodcatData["status"].ToString()),
@@ -54,12 +54,12 @@ namespace NexDirect
         /// <summary>
         /// Shorthand to resolve a set ID to a BeatmapSet object
         /// </summary>
-        public static async Task<Structures.BeatmapSet> ResolveSetId(MainWindow _this, string beatmapSetId)
+        public static async Task<Structures.BeatmapSet> ResolveSetId(string beatmapSetId)
         {
             JArray results = await Search(beatmapSetId, null, null, "s");
             JObject map = results.Children<JObject>().FirstOrDefault(r => r["id"].ToString() == beatmapSetId);
             if (map == null) return null;
-            return StandardizeToSetStruct(_this, map);
+            return StandardizeToSetStruct(map);
         }
 
         /// <summary>

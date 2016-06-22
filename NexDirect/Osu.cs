@@ -76,7 +76,7 @@ namespace NexDirect
         /// <summary>
         /// Checks if cookies are still working.
         /// </summary>
-        public static async Task<CookieContainer> CheckLoginCookie(MainWindow _mw, StringDictionary _cookies)
+        public static async Task<CookieContainer> CheckLoginCookie(StringDictionary _cookies, string username, string password)
         {
             var cookies = new CookieContainer();
             var osuUri = new Uri("http://osu.ppy.sh");
@@ -97,11 +97,7 @@ namespace NexDirect
                     // try with creds to renew login
                     try
                     {
-                        StringDictionary newCookies = await LoginAndGetCookie(_mw.officialOsuUsername, _mw.officialOsuPassword);
-                        // new cookies!
-                        _mw.officialOsuCookies = await Task.Factory.StartNew(() => JsonConvert.SerializeObject(newCookies));
-                        Properties.Settings.Default.officialOsuCookies = _mw.officialOsuCookies;
-                        Properties.Settings.Default.Save();
+                        StringDictionary newCookies = await LoginAndGetCookie(username, password);
                         return cookies;
                     }
                     catch
@@ -116,7 +112,7 @@ namespace NexDirect
         /// <summary>
         /// Searches the official beatmap listing for beatmaps.
         /// </summary>
-        public static async Task<IEnumerable<Structures.BeatmapSet>> Search(MainWindow _mw, string query, string sRankedParam, string mModeParam)
+        public static async Task<IEnumerable<Structures.BeatmapSet>> Search(CookieContainer cookies, string query, string sRankedParam, string mModeParam)
         {
             if (sRankedParam == "0,-1,-2")
             {
@@ -139,7 +135,7 @@ namespace NexDirect
             qs["m"] = mModeParam;
             qs["r"] = sRankedParam;
 
-            string rawData = await GetRawWithCookies(_mw, "https://osu.ppy.sh/p/beatmaplist?" + qs.ToString());
+            string rawData = await GetRawWithCookies(cookies, "https://osu.ppy.sh/p/beatmaplist?" + qs.ToString());
 
             // Parse.
             var htmlDoc = new HtmlAgilityPack.HtmlDocument();
@@ -177,7 +173,7 @@ namespace NexDirect
                     rankStatus = "Pending/Graveyard";
                 }
 
-                return new Structures.BeatmapSet(_mw,
+                return new Structures.BeatmapSet(
                     b.Id,
                     TryGetNodeText(b, "div[@class='maintext']/span[@class='artist']"),
                     TryGetNodeText(b, "div[@class='maintext']/a[@class='title']"),
@@ -251,16 +247,16 @@ namespace NexDirect
         /// <summary>
         /// Resolves a beatmap set's ID to an object.
         /// </summary>
-        public static async Task<Structures.BeatmapSet> ResolveSetId(MainWindow _mw, string setId)
+        public static async Task<Structures.BeatmapSet> ResolveSetId(CookieContainer cookies, string setId)
         {
-            string rawData = await GetRawWithCookies(_mw, $"https://osu.ppy.sh/s/{setId}");
+            string rawData = await GetRawWithCookies(cookies, $"https://osu.ppy.sh/s/{setId}");
             if (rawData.Contains("looking for was not found")) return null;
 
             var htmlDoc = new HtmlAgilityPack.HtmlDocument();
             htmlDoc.OptionUseIdAttribute = true;
             htmlDoc.LoadHtml(rawData);
             HtmlAgilityPack.HtmlNode infoNode = htmlDoc.DocumentNode.SelectSingleNode("//table[@id='songinfo']");
-            return new Structures.BeatmapSet(_mw,
+            return new Structures.BeatmapSet(
                 setId,
                 infoNode.SelectSingleNode("tr[1]/td[2]/a").InnerText, // artist
                 infoNode.SelectSingleNode("tr[2]/td[2]/a").InnerText, // title
@@ -274,9 +270,9 @@ namespace NexDirect
         /// <summary>
         /// Gets raw data using preloaded cookies.
         /// </summary>
-        private static async Task<string> GetRawWithCookies(MainWindow _mw, string uri)
+        private static async Task<string> GetRawWithCookies(CookieContainer cookies, string uri)
         {
-            using (var handler = new HttpClientHandler() { CookieContainer = _mw.officialCookieJar })
+            using (var handler = new HttpClientHandler() { CookieContainer = cookies })
             using (var client = new HttpClient(handler))
             {
                 var res = await client.GetStringAsync(uri);

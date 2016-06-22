@@ -96,6 +96,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers.cs" />
     <Compile Include="Dialogs\OsuLogin.cs">
       <SubType>Form</SubType>
     </Compile>

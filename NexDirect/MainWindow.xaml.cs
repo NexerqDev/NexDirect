@@ -42,7 +42,6 @@ namespace NexDirect
         public WaveOut audioWaveOut = new WaveOut(); // For playing beatmap previews and stuff
         public WaveOut audioDoong = new WaveOut(); // Specific interface for playing doong, so if previews are playing it doesnt take over
         private System.Windows.Forms.NotifyIcon notifyIcon = null; // fullscreen overlay indicator
-        public string[] alreadyDownloaded;
         public System.Net.CookieContainer officialCookieJar; // for official osu
 
         public string osuFolder = Properties.Settings.Default.osuFolder;
@@ -92,7 +91,7 @@ namespace NexDirect
             CleanUpOldTemps();
             CheckOrPromptForSongsDir();
             LoadDoongPlayer(); // load into memory ready to play
-            ReloadAlreadyDownloadedMaps();
+            Helpers.ReloadAlreadyDownloaded(osuSongsFolder);
 
             if (!string.IsNullOrEmpty(uiBackground))
             {
@@ -132,7 +131,8 @@ namespace NexDirect
                 dynamic _beatmaps;
                 if (useOfficialOsu)
                 {
-                    var beatmapsData = await Osu.Search(this,
+                    var beatmapsData = await Osu.Search(
+                        officialCookieJar,
                         searchBox.Text,
                         (rankedStatusBox.SelectedItem as KVItem).Value,
                         (modeSelectBox.SelectedItem as KVItem).Value
@@ -147,7 +147,7 @@ namespace NexDirect
                         searchViaSelectBox.Visibility == Visibility.Hidden ? null : (searchViaSelectBox.SelectedItem as KVItem).Value
                     );
                     _beatmaps = new List<Structures.BeatmapSet>();
-                    foreach (JObject b in beatmapsData) _beatmaps.Add(Bloodcat.StandardizeToSetStruct(this, b));
+                    foreach (JObject b in beatmapsData) _beatmaps.Add(Bloodcat.StandardizeToSetStruct(b));
                 }
                 populateBeatmaps(_beatmaps);
             }
@@ -166,7 +166,7 @@ namespace NexDirect
                 searchingLoading.Visibility = Visibility.Visible;
                 var beatmapsData = await Bloodcat.Popular();
                 var _beatmaps = new List<Structures.BeatmapSet>();
-                foreach (JObject b in beatmapsData) _beatmaps.Add(Bloodcat.StandardizeToSetStruct(this, b));
+                foreach (JObject b in beatmapsData) _beatmaps.Add(Bloodcat.StandardizeToSetStruct(b));
                 populateBeatmaps(_beatmaps);
             }
             catch (Exception ex) { MessageBox.Show("There was an error loading the popular beatmaps...\n\n" + ex.ToString()); }
@@ -287,7 +287,7 @@ namespace NexDirect
             else
             {
                 // check
-                var resolvedSet = await Bloodcat.ResolveSetId(this, set.Id);
+                var resolvedSet = await Bloodcat.ResolveSetId(set.Id);
                 if (resolvedSet == null)
                 {
                     MessageBox.Show("Could not find the beatmap on Bloodcat. Cannot proceed to download :(");
@@ -340,7 +340,7 @@ namespace NexDirect
             finally
             {
                 downloadProgress.Remove(download);
-                if (downloadProgress.Count < 1) ReloadAlreadyDownloadedMaps(); // reload only when theres nothing left
+                if (downloadProgress.Count < 1) Helpers.ReloadAlreadyDownloaded(osuSongsFolder); // reload only when theres nothing left
             }
         }
 
@@ -416,10 +416,6 @@ namespace NexDirect
             else MessageBox.Show("Your NexDirect osu! folder registration has been updated.", "NexDirect - Saved");
         }
 
-        public void ReloadAlreadyDownloadedMaps()
-        {
-            alreadyDownloaded = Directory.GetDirectories(osuSongsFolder);
-        }
 
         private bool CheckAndPromptIfHaveMap(Structures.BeatmapSet set)
         {
@@ -453,7 +449,7 @@ namespace NexDirect
                 Structures.BeatmapSet set;
                 if (useOfficialOsu)
                 {
-                    set = await Osu.ResolveSetId(this, m.Groups[1].ToString());
+                    set = await Osu.ResolveSetId(officialCookieJar, m.Groups[1].ToString());
                     if (set == null)
                     {
                         MessageBox.Show("Could not find the beatmap on the official osu! directory. Cannot proceed to download :(");
@@ -462,7 +458,7 @@ namespace NexDirect
                 }
                 else
                 {
-                    set = await Bloodcat.ResolveSetId(this, m.Groups[1].ToString());
+                    set = await Bloodcat.ResolveSetId(m.Groups[1].ToString());
                     if (set == null)
                     {
                         MessageBox.Show("Could not find the beatmap on Bloodcat. Cannot proceed to download :(");

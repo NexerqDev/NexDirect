@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 
@@ -25,7 +27,7 @@ namespace NexDirect.Dialogs
 
             try
             {
-                System.Net.CookieContainer _cookies = await Osu.CheckLoginCookie(_parent, cookies);
+                System.Net.CookieContainer _cookies = await Osu.CheckLoginCookie(cookies, _parent.officialOsuUsername, _parent.officialOsuPassword);
 
                 if (_cookies == null)
                 {
@@ -40,7 +42,12 @@ namespace NexDirect.Dialogs
                     Close();
                     return;
                 }
+
+                // store to parent & just persist them incase something new changed
                 _parent.officialCookieJar = _cookies;
+                _parent.officialOsuCookies = await Task.Factory.StartNew(() => JsonConvert.SerializeObject(_cookies));
+                Properties.Settings.Default.officialOsuCookies = _parent.officialOsuCookies;
+                Properties.Settings.Default.Save();
             }
             catch (Exception ex)
             {
