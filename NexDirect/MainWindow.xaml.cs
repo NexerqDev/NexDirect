@@ -306,6 +306,7 @@ namespace NexDirect
                 download = Bloodcat.PrepareDownloadSet(set, beatmapMirror);
             }
 
+            if (download == null) return;
             downloadProgress.Add(download);
 
             // start dl
