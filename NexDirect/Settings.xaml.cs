@@ -157,12 +157,18 @@ namespace NexDirect
         {
             if (!loaded) return;
             (new Dialogs.OsuLogin(this, parent)).ShowDialog();
+
+            loaded = false;
             if (!parent.useOfficialOsu)
             {
-                loaded = false; // just stop it from running handler
+                // just stop it from running handler
                 officialDownloadBox.IsChecked = false;
-                loaded = true;
             }
+            else
+            {
+                officialDownloadBox.IsChecked = true;
+            }
+            loaded = true;
         }
 
         private void officialDownloadBox_Unchecked(object sender, RoutedEventArgs e)

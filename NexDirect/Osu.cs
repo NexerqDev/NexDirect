@@ -207,10 +207,10 @@ namespace NexDirect
         /// <summary>
         /// Checks headers of a beatmap set download to see if it has been taken down by DMCA.
         /// </summary>
-        public static async Task<bool> CheckIllegal(MainWindow _mw, Structures.BeatmapSet set)
+        public static async Task<bool> CheckIllegal(CookieContainer cookies, Structures.BeatmapSet set)
         {
             // Get status code - 302 REDIRECT = redirected to the real download, 200 OK = illegal page!
-            using (var handler = new HttpClientHandler() { CookieContainer = _mw.officialCookieJar, AllowAutoRedirect = false })
+            using (var handler = new HttpClientHandler() { CookieContainer = cookies, AllowAutoRedirect = false })
             using (var client = new HttpClient(handler))
             {
                 // HEAD request for the status code
@@ -229,23 +229,22 @@ namespace NexDirect
         /// <summary>
         /// Checks the DMCA of a map, then prepares a download object for it.
         /// </summary>
-        public static async Task<Structures.BeatmapDownload> PrepareDownloadSet(MainWindow _mw, Structures.BeatmapSet set)
+        public static async Task<Structures.BeatmapDownload> PrepareDownloadSet(CookieContainer cookies, Structures.BeatmapSet set, string backupBloodcatMirror)
         {
             try
             {
-                if (await CheckIllegal(_mw, set))
+                if (await CheckIllegal(cookies, set))
                 {
                     MessageBoxResult bloodcatAsk = MessageBox.Show("Sorry, this map seems like it has been taken down from the official osu! servers due to a DMCA request to them. Would you like to check if a copy off Bloodcat is available, and if so download it?", "NexDirect - Mirror?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     if (bloodcatAsk == MessageBoxResult.No) return null;
 
-                    _mw.DownloadBeatmapSet(set, true);
-                    return null;
+                    return Bloodcat.PrepareDownloadSet(set, backupBloodcatMirror);
                 }
             }
             catch { }
             
             var download = new Structures.BeatmapDownload(set, new Uri($"https://osu.ppy.sh/d/{set.Id}"));
-            download.DownloadClient.Headers.Add(HttpRequestHeader.Cookie, _mw.officialCookieJar.GetCookieHeader(new Uri("http://osu.ppy.sh"))); // use cookie auth
+            download.DownloadClient.Headers.Add(HttpRequestHeader.Cookie, cookies.GetCookieHeader(new Uri("http://osu.ppy.sh"))); // use cookie auth
             return download;
         }
 

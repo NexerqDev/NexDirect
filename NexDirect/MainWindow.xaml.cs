@@ -210,7 +210,7 @@ namespace NexDirect
             if (row == null) return;
             var beatmap = row as Structures.BeatmapSet;
 
-            DownloadBeatmapSet(beatmap, false);
+            DownloadBeatmapSet(beatmap);
         }
 
         private async void dataGrid_LeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -274,7 +274,7 @@ namespace NexDirect
             searchViaSelectBox.Items.Add(new KVItem("Normal (Title/Artist)", "o"));
         }
 
-        public async void DownloadBeatmapSet(Structures.BeatmapSet set, bool forcedBloodcat)
+        public async void DownloadBeatmapSet(Structures.BeatmapSet set)
         {
             // check for already downloading
             if (downloadProgress.Any(b => b.BeatmapSetId == set.Id))
@@ -283,7 +283,7 @@ namespace NexDirect
                 return;
             }
 
-            if (!forcedBloodcat && !CheckAndPromptIfHaveMap(set)) return;
+            if (!CheckAndPromptIfHaveMap(set)) return;
             else
             {
                 // check
@@ -297,9 +297,9 @@ namespace NexDirect
 
             // get dl obj
             Structures.BeatmapDownload download;
-            if (useOfficialOsu && !forcedBloodcat)
+            if (!fallbackActualOsu && useOfficialOsu)
             {
-                download = await Osu.PrepareDownloadSet(this, set);
+                download = await Osu.PrepareDownloadSet(officialCookieJar, set, beatmapMirror);
             }
             else
             {
@@ -471,7 +471,7 @@ namespace NexDirect
                 }
                 MessageBoxResult confirmPrompt = MessageBox.Show($"Are you sure you wish to download: {set.Artist} - {set.Title} (mapped by {set.Mapper})?", "NexDirect - Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (confirmPrompt == MessageBoxResult.No) return;
-                DownloadBeatmapSet(set, false);
+                DownloadBeatmapSet(set);
             });
         }
         
