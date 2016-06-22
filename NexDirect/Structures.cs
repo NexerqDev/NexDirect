@@ -109,45 +109,24 @@ namespace NexDirect
             }
             public string BeatmapSetId { get; set; }
             public WebClient DownloadClient { get; set; }
+            public Uri DownloadUri { get; set; }
             public string DownloadFileName { get; set; }
             public string TempDownloadPath { get; set; }
             public bool DownloadCancelled { get; set; }
 
-            public BeatmapDownload(BeatmapSet set, WebClient client, string osuFolder, NAudio.Wave.WaveOut doongPlayer, bool launchOsuAfter)
+            public BeatmapDownload(BeatmapSet set, Uri uri)
             {
                 BeatmapSetName = $"{set.Title} ({set.Mapper})";
                 ProgressPercent = "0";
                 BeatmapSetId = set.Id;
-                DownloadClient = client;
+                DownloadClient = new WebClient();
+                DownloadUri = uri;
                 DownloadFileName = Tools.sanitizeFilename($"{set.Id} {set.Artist} - {set.Title}.osz");
                 TempDownloadPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DownloadFileName + ".nexd");
 
                 // Attach events
-                DownloadClient.DownloadProgressChanged += (o, e) =>
-                {
-                    ProgressPercent = e.ProgressPercentage.ToString();
-                };
-                DownloadClient.DownloadFileCompleted += (o, e) =>
-                {
-                    if (e.Cancelled)
-                    {
-                        File.Delete(TempDownloadPath);
-                        return;
-                    }
-
-                    if (launchOsuAfter && Process.GetProcessesByName("osu!").Length > 0)
-                    {
-                        string newPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DownloadFileName);
-                        File.Move(TempDownloadPath, newPath); // rename to .osz
-                        Process.Start(Path.Combine(osuFolder, "osu!.exe"), newPath);
-                    }
-                    else
-                    {
-                        File.Move(TempDownloadPath, Path.Combine(osuFolder, "Songs", DownloadFileName));
-                    }
-
-                    doongPlayer.Play();
-                };
+                DownloadClient.DownloadProgressChanged += (o, e) => ProgressPercent = e.ProgressPercentage.ToString();
+                DownloadClient.DownloadFileCompleted += (o, e) => DownloadClient.Dispose();
             }
         }
     }

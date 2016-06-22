@@ -1,13 +1,9 @@
-﻿using NAudio.Wave;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using System.Web;
-using System.Windows;
 
 namespace NexDirect
 {
@@ -67,9 +63,9 @@ namespace NexDirect
         }
 
         /// <summary>
-        /// Downloads a set from bloodcat or mirror if defined
+        /// Prepares a download object for a set from bloodcat or mirror if defined
         /// </summary>
-        public static async Task DownloadSet(Structures.BeatmapSet set, string mirror, ObservableCollection<Structures.BeatmapDownload> downloadProgress, string osuFolder, WaveOut doongPlayer, bool launchOsu)
+        public static Structures.BeatmapDownload PrepareDownloadSet(Structures.BeatmapSet set, string mirror)
         {
             Uri downloadUri;
             if (string.IsNullOrEmpty(mirror))
@@ -81,22 +77,7 @@ namespace NexDirect
                 downloadUri = new Uri(mirror.Replace("%s", set.Id));
             }
 
-            using (var client = new WebClient())
-            {
-                var download = new Structures.BeatmapDownload(set, client, osuFolder, doongPlayer, launchOsu);
-                downloadProgress.Add(download);
-
-                try { await client.DownloadFileTaskAsync(downloadUri, download.TempDownloadPath); } // appdomain.etc is a WPF way of getting startup dir... stupid :(
-                catch (Exception ex)
-                {
-                    if (download.DownloadCancelled == true) return;
-                    MessageBox.Show($"An error has occured whilst downloading {set.Title} ({set.Mapper}).\n\n{ex.ToString()}");
-                }
-                finally
-                {
-                    downloadProgress.Remove(download);
-                }
-            }
+            return new Structures.BeatmapDownload(set, downloadUri);
         }
     }
 }

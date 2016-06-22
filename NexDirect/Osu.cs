@@ -11,7 +11,6 @@ using System.Collections;
 using System;
 using Newtonsoft.Json;
 using System.Web;
-using System.Collections.ObjectModel;
 
 namespace NexDirect
 {
@@ -228,36 +227,26 @@ namespace NexDirect
         }
 
         /// <summary>
-        /// Checks the DMCA of a map, then downloads it.
+        /// Checks the DMCA of a map, then prepares a download object for it.
         /// </summary>
-        public static async Task DownloadSet(MainWindow _mw, Structures.BeatmapSet set, ObservableCollection<Structures.BeatmapDownload> downloadProgress, string osuFolder, WaveOut doongPlayer, bool launchOsu)
+        public static async Task<Structures.BeatmapDownload> PrepareDownloadSet(MainWindow _mw, Structures.BeatmapSet set)
         {
-            if (await CheckIllegal(_mw, set))
+            try
             {
-                MessageBoxResult bloodcatAsk = MessageBox.Show("Sorry, this map seems like it has been taken down from the official osu! servers due to a DMCA request to them. Would you like to check if a copy off Bloodcat is available, and if so download it?", "NexDirect - Mirror?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                if (bloodcatAsk == MessageBoxResult.No) return;
-
-                _mw.DownloadBeatmapSet(set, true);
-                return;
-            }
-
-            using (var client = new WebClient())
-            {
-                var download = new Structures.BeatmapDownload(set, client, osuFolder, doongPlayer, launchOsu);
-                downloadProgress.Add(download);
-
-                client.Headers.Add(HttpRequestHeader.Cookie, _mw.officialCookieJar.GetCookieHeader(new Uri("http://osu.ppy.sh"))); // use cookie auth
-                try { await client.DownloadFileTaskAsync($"https://osu.ppy.sh/d/{set.Id}", download.TempDownloadPath); } // appdomain.etc is a WPF way of getting startup dir... stupid :(
-                catch (Exception ex)
+                if (await CheckIllegal(_mw, set))
                 {
-                    if (download.DownloadCancelled == true) return;
-                    MessageBox.Show($"An error has occured whilst downloading {set.Title} ({set.Mapper}).\n\n{ex.ToString()}");
-                }
-                finally
-                {
-                    downloadProgress.Remove(download);
+                    MessageBoxResult bloodcatAsk = MessageBox.Show("Sorry, this map seems like it has been taken down from the official osu! servers due to a DMCA request to them. Would you like to check if a copy off Bloodcat is available, and if so download it?", "NexDirect - Mirror?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    if (bloodcatAsk == MessageBoxResult.No) return null;
+
+                    _mw.DownloadBeatmapSet(set, true);
+                    return null;
                 }
             }
+            catch { }
+            
+            var download = new Structures.BeatmapDownload(set, new Uri($"https://osu.ppy.sh/d/{set.Id}"));
+            download.DownloadClient.Headers.Add(HttpRequestHeader.Cookie, _mw.officialCookieJar.GetCookieHeader(new Uri("http://osu.ppy.sh"))); // use cookie auth
+            return download;
         }
 
         /// <summary>

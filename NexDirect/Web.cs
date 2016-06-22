@@ -17,6 +17,11 @@ namespace NexDirect
             }
         }
 
+        public static async Task DownloadSet(Structures.BeatmapDownload download)
+        {
+            await download.DownloadClient.DownloadFileTaskAsync(download.DownloadUri, download.TempDownloadPath);
+        }
+
         public static void CancelDownload(Structures.BeatmapDownload statusObj)
         {
             statusObj.DownloadCancelled = true;

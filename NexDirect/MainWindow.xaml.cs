@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace NexDirect
 {
@@ -294,17 +295,52 @@ namespace NexDirect
                 }
             }
 
-            // start dl
+            // get dl obj
+            Structures.BeatmapDownload download;
             if (useOfficialOsu && !forcedBloodcat)
             {
-                await Osu.DownloadSet(this, set, downloadProgress, osuFolder, audioDoong, launchOsu);
+                download = await Osu.PrepareDownloadSet(this, set);
             }
             else
             {
-                await Bloodcat.DownloadSet(set, beatmapMirror, downloadProgress, osuFolder, audioDoong, launchOsu);
+                download = Bloodcat.PrepareDownloadSet(set, beatmapMirror);
             }
-            
-            if (downloadProgress.Count < 1) ReloadAlreadyDownloadedMaps(); // reload only when theres nothing left
+
+            downloadProgress.Add(download);
+
+            // start dl
+            try
+            {
+                await Web.DownloadSet(download);
+
+                if (launchOsu && Process.GetProcessesByName("osu!").Length > 0)
+                {
+                    string newPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, download.DownloadFileName);
+                    File.Move(download.TempDownloadPath, newPath); // rename to .osz
+                    Process.Start(Path.Combine(osuFolder, "osu!.exe"), newPath);
+                }
+                else
+                {
+                    File.Move(download.TempDownloadPath, Path.Combine(osuSongsFolder, download.DownloadFileName));
+                }
+
+                audioDoong.Play();
+            }
+            catch (Exception ex)
+            {
+                if (download.DownloadCancelled)
+                {
+                    File.Delete(download.TempDownloadPath);
+                    return;
+                }
+
+                MessageBox.Show($"An error has occured whilst downloading {set.Title} ({set.Mapper}).\n\n{ex.ToString()}");
+            }
+            finally
+            {
+                downloadProgress.Remove(download);
+                if (downloadProgress.Count < 1) ReloadAlreadyDownloadedMaps(); // reload only when theres nothing left
+            }
         }
 
         private void CleanUpOldTemps()
