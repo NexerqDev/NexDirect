@@ -2,12 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 
-namespace NexDirect
+namespace NexDirectLib
 {
     public class Structures
     {
@@ -35,7 +34,7 @@ namespace NexDirect
                 Mapper = mapper;
                 RankingStatus = rankStatus;
                 PreviewImage = new Uri($"http://b.ppy.sh/thumb/{Id}l.jpg");
-                AlreadyHave = Helpers.AlreadyDownloaded.Any(b => b.Contains(Id + " "));
+                AlreadyHave = MapsManager.Maps.Any(b => b.Contains(Id + " "));
                 Difficulties = difficulties.Select(d => new Difficulty(d.Key, d.Value));
 
                 if (bloodcatRaw != null)
@@ -97,36 +96,33 @@ namespace NexDirect
 
             private string _percent;
 
-            public string BeatmapSetName { get; set; }
-            public string ProgressPercent
+            public BeatmapSet Set { get; set; }
+            public WebClient Client { get; set; }
+            public Uri Location { get; set; }
+            public string Percent
             {
                 get { return _percent; }
                 set
                 {
                     _percent = value;
-                    Notify("ProgressPercent");
+                    Notify("Percent");
                 }
             }
-            public string BeatmapSetId { get; set; }
-            public WebClient DownloadClient { get; set; }
-            public Uri DownloadUri { get; set; }
-            public string DownloadFileName { get; set; }
-            public string TempDownloadPath { get; set; }
-            public bool DownloadCancelled { get; set; }
+            public bool Cancelled { get; set; }
+            public string FriendlyName => $"{Set.Title} ({Set.Mapper})";
+            public string FileName => Tools.sanitizeFilename($"{Set.Id} {Set.Artist} - {Set.Title}.osz");
+            public string TempPath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FileName + ".nexd");
 
             public BeatmapDownload(BeatmapSet set, Uri uri)
             {
-                BeatmapSetName = $"{set.Title} ({set.Mapper})";
-                ProgressPercent = "0";
-                BeatmapSetId = set.Id;
-                DownloadClient = new WebClient();
-                DownloadUri = uri;
-                DownloadFileName = Tools.sanitizeFilename($"{set.Id} {set.Artist} - {set.Title}.osz");
-                TempDownloadPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DownloadFileName + ".nexd");
+                Set = set;
+                Percent = "0";
+                Client = new WebClient();
+                Location = uri;
 
                 // Attach events
-                DownloadClient.DownloadProgressChanged += (o, e) => ProgressPercent = e.ProgressPercentage.ToString();
-                DownloadClient.DownloadFileCompleted += (o, e) => DownloadClient.Dispose();
+                Client.DownloadProgressChanged += (o, e) => Percent = e.ProgressPercentage.ToString();
+                Client.DownloadFileCompleted += (o, e) => Client.Dispose();
             }
         }
     }

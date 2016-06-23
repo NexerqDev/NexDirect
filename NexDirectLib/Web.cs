@@ -2,10 +2,13 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace NexDirect
+namespace NexDirectLib
 {
-    static class Web
+    public static class Web
     {
+        /// <summary>
+        /// Downloads content from a webpage and parses it as JSON
+        /// </summary>
         public static async Task<T> GetJson<T>(string url)
         {
             using (var client = new HttpClient())
@@ -15,17 +18,6 @@ namespace NexDirect
                 string body = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<T>(body);
             }
-        }
-
-        public static async Task DownloadSet(Structures.BeatmapDownload download)
-        {
-            await download.DownloadClient.DownloadFileTaskAsync(download.DownloadUri, download.TempDownloadPath);
-        }
-
-        public static void CancelDownload(Structures.BeatmapDownload statusObj)
-        {
-            statusObj.DownloadCancelled = true;
-            statusObj.DownloadClient.CancelAsync();
         }
     }
 }

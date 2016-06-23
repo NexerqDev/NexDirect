@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace NexDirect
+namespace NexDirectLib
 {
     public static class Bloodcat
     {
@@ -47,7 +47,7 @@ namespace NexDirect
             return new Structures.BeatmapSet(
                 bloodcatData["id"].ToString(), bloodcatData["artist"].ToString(),
                 bloodcatData["title"].ToString(), bloodcatData["creator"].ToString(),
-                Tools.resolveRankingStatus(bloodcatData["status"].ToString()),
+                ((Osu.RankingStatus)int.Parse(bloodcatData["status"].ToString())).ToString(),
                 difficulties, bloodcatData);
         }
 

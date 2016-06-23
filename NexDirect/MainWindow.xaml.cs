@@ -16,6 +16,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
+using NexDirectLib;
+
 namespace NexDirect
 {
     /// <summary>
@@ -23,29 +25,14 @@ namespace NexDirect
     /// </summary>
     public partial class MainWindow : Window
     {
-        // Import some hotkey stuff from user32.dll - once again have no idea how this stuff works but will try to understand soonTM
-        // https://stackoverflow.com/questions/11377977/global-hotkeys-in-wpf-working-from-every-window
-        [DllImport("User32.dll")]
-        private static extern bool RegisterHotKey(
-            [In] IntPtr hWnd,
-            [In] int id,
-            [In] uint fsModifiers,
-            [In] uint vk);
-        [DllImport("User32.dll")]
-        private static extern bool UnregisterHotKey(
-            [In] IntPtr hWnd,
-            [In] int id);
-
-        private HwndSource _source; // hotkey related ???
         public ObservableCollection<Structures.BeatmapSet> beatmaps = new ObservableCollection<Structures.BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
-        public ObservableCollection<Structures.BeatmapDownload> downloadProgress = new ObservableCollection<Structures.BeatmapDownload>();
         public WaveOut audioWaveOut = new WaveOut(); // For playing beatmap previews and stuff
         public WaveOut audioDoong = new WaveOut(); // Specific interface for playing doong, so if previews are playing it doesnt take over
         private System.Windows.Forms.NotifyIcon notifyIcon = null; // fullscreen overlay indicator
         public System.Net.CookieContainer officialCookieJar; // for official osu
 
         public string osuFolder = Properties.Settings.Default.osuFolder;
-        public string osuSongsFolder { get { return Path.Combine(osuFolder, "Songs"); } }
+        public string osuSongsFolder => Path.Combine(osuFolder, "Songs");
         public bool overlayMode = Properties.Settings.Default.overlayMode;
         public bool audioPreviews = Properties.Settings.Default.audioPreviews;
         public string beatmapMirror = Properties.Settings.Default.beatmapMirror;
@@ -61,7 +48,7 @@ namespace NexDirect
         {
             InitializeComponent();
             dataGrid.ItemsSource = beatmaps;
-            progressGrid.ItemsSource = downloadProgress;
+            progressGrid.ItemsSource = DownloadManager.Downloads;
             InitComboBoxes();
 
             // overlay mode window settings
@@ -91,7 +78,7 @@ namespace NexDirect
             CleanUpOldTemps();
             CheckOrPromptForSongsDir();
             LoadDoongPlayer(); // load into memory ready to play
-            Helpers.ReloadAlreadyDownloaded(osuSongsFolder);
+            MapsManager.Reload(osuSongsFolder);
 
             if (!string.IsNullOrEmpty(uiBackground))
             {
@@ -100,8 +87,10 @@ namespace NexDirect
 
             if (overlayMode)
             {
-                // register hotkey -- ID: 9000, 2|4: CONTROL|SHIFT, 36: HOME
-                RegisterHotKey((new WindowInteropHelper(this)).Handle, 9000, 2 | 4, 36);
+                // register hotkey, 2|4: CONTROL|SHIFT, 36: HOME
+                HotkeyManager.Register(HotkeyManager.GetRuntimeHandle(this), 2 | 4, 36);
+                // sub to hotkey press event
+                HotkeyManager.HotkeyPressed += HotkeyPressed;
             }
         }
 
@@ -206,7 +195,7 @@ namespace NexDirect
 
         private void dataGrid_DoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var row = Tools.getGridViewSelectedRowItem(sender, e);
+            var row = WinTools.getGridViewSelectedRowItem(sender, e);
             if (row == null) return;
             var beatmap = row as Structures.BeatmapSet;
 
@@ -217,13 +206,13 @@ namespace NexDirect
         {
             if (!audioPreviews) return;
 
-            var row = Tools.getGridViewSelectedRowItem(sender, e);
+            var row = WinTools.getGridViewSelectedRowItem(sender, e);
             if (row == null) return;
             var set = row as Structures.BeatmapSet;
 
             audioWaveOut.Stop(); // if already playing something just stop it
             await Task.Delay(150);
-            if (downloadProgress.Any(d => d.BeatmapSetId == set.Id)) return; // check for if already d/l'ing overlaps
+            if (DownloadManager.Downloads.Any(d => d.Set.Id == set.Id)) return; // check for if already d/l'ing overlaps
             Osu.PlayPreviewAudio(set, audioWaveOut);
         }
 
@@ -236,14 +225,14 @@ namespace NexDirect
 
         private void progressGrid_DoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var row = Tools.getGridViewSelectedRowItem(sender, e);
+            var row = WinTools.getGridViewSelectedRowItem(sender, e);
             if (row == null) return;
             var download = row as Structures.BeatmapDownload;
 
-            MessageBoxResult cancelPrompt = MessageBox.Show("Are you sure you wish to cancel the current download for: " + download.BeatmapSetName + "?", "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            MessageBoxResult cancelPrompt = MessageBox.Show("Are you sure you wish to cancel the current download for: " + download.FriendlyName + "?", "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (cancelPrompt == MessageBoxResult.No) return;
 
-            Web.CancelDownload(download);
+            DownloadManager.CancelDownload(download);
         }
 
         private void logoImage_MouseUp(object sender, MouseButtonEventArgs e)
@@ -277,7 +266,7 @@ namespace NexDirect
         public async void DownloadBeatmapSet(Structures.BeatmapSet set)
         {
             // check for already downloading
-            if (downloadProgress.Any(b => b.BeatmapSetId == set.Id))
+            if (DownloadManager.Downloads.Any(b => b.Set.Id == set.Id))
             {
                 MessageBox.Show("This beatmap is already being downloaded!");
                 return;
@@ -307,31 +296,30 @@ namespace NexDirect
             }
 
             if (download == null) return;
-            downloadProgress.Add(download);
 
             // start dl
             try
             {
-                await Web.DownloadSet(download);
+                await DownloadManager.DownloadSet(download);
 
                 if (launchOsu && Process.GetProcessesByName("osu!").Length > 0)
                 {
-                    string newPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, download.DownloadFileName);
-                    File.Move(download.TempDownloadPath, newPath); // rename to .osz
+                    string newPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, download.FileName);
+                    File.Move(download.TempPath, newPath); // rename to .osz
                     Process.Start(Path.Combine(osuFolder, "osu!.exe"), newPath);
                 }
                 else
                 {
-                    File.Move(download.TempDownloadPath, Path.Combine(osuSongsFolder, download.DownloadFileName));
+                    File.Move(download.TempPath, Path.Combine(osuSongsFolder, download.FileName));
                 }
 
                 audioDoong.Play();
             }
             catch (Exception ex)
             {
-                if (download.DownloadCancelled)
+                if (download.Cancelled)
                 {
-                    File.Delete(download.TempDownloadPath);
+                    File.Delete(download.TempPath);
                     return;
                 }
 
@@ -339,8 +327,7 @@ namespace NexDirect
             }
             finally
             {
-                downloadProgress.Remove(download);
-                if (downloadProgress.Count < 1) Helpers.ReloadAlreadyDownloaded(osuSongsFolder); // reload only when theres nothing left
+                if (DownloadManager.Downloads.Count < 1) MapsManager.Reload(osuSongsFolder); // reload only when theres nothing left
             }
         }
 
@@ -509,29 +496,12 @@ namespace NexDirect
             Visibility = IsVisible ? Visibility.Hidden : Visibility.Visible;
         }
 
-        // hotkey stuff
-        private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            if (msg == 0x0312) // WM_HOTKEY thing
-            {
-                if (wParam.ToInt32() == 9000) // hotkey ID -- we look for 9000
-                {
-                    HotkeyPressed();
-                    handled = true;
-                }
-            }
-            return IntPtr.Zero;
-        }
-
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
             if (overlayMode)
             {
-                // hotkey init stuff
-                var helper = new WindowInteropHelper(this);
-                _source = HwndSource.FromHwnd(helper.Handle);
-                _source.AddHook(HwndHook);
+                HotkeyManager.Init(HotkeyManager.GetRuntimeHandle(this));
             }
         }
 
@@ -540,9 +510,7 @@ namespace NexDirect
             if (overlayMode)
             {
                 // unload hotkey stuff
-                _source.RemoveHook(HwndHook);
-                _source = null;
-                UnregisterHotKey((new WindowInteropHelper(this)).Handle, 0);
+                HotkeyManager.Unregister(HotkeyManager.GetRuntimeHandle(this));
 
                 // unload tray icon to prevent it sticking there
                 notifyIcon.Visible = false;

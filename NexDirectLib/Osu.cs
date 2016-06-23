@@ -9,10 +9,9 @@ using System.Windows;
 using System.Collections.Specialized;
 using System.Collections;
 using System;
-using Newtonsoft.Json;
 using System.Web;
 
-namespace NexDirect
+namespace NexDirectLib
 {
     public static class Osu
     {
@@ -240,7 +239,7 @@ namespace NexDirect
             catch { }
             
             var download = new Structures.BeatmapDownload(set, new Uri($"https://osu.ppy.sh/d/{set.Id}"));
-            download.DownloadClient.Headers.Add(HttpRequestHeader.Cookie, cookies.GetCookieHeader(new Uri("http://osu.ppy.sh"))); // use cookie auth
+            download.Client.Headers.Add(HttpRequestHeader.Cookie, cookies.GetCookieHeader(new Uri("http://osu.ppy.sh"))); // use cookie auth
             return download;
         }
 
@@ -278,6 +277,19 @@ namespace NexDirect
                 var res = await client.GetStringAsync(uri);
                 return res;
             }
+        }
+
+        /// <summary>
+        /// Ranking Status codes (API-conformant)
+        /// </summary>
+        public enum RankingStatus
+        {
+            Qualified = 3,
+            Approved = 2,
+            Ranked = 1,
+            Pending = 0,
+            WIP = -1,
+            Graveyard = -2
         }
     }
 }

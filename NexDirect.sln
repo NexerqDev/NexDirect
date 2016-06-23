@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexDirect", "NexDirect\NexDirect.csproj", "{69361411-A413-4F51-9418-84CBDEA49337}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexDirectLib", "NexDirectLib\NexDirectLib.csproj", "{83EC2914-E0BA-4B33-8734-6D65D2ED1812}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{69361411-A413-4F51-9418-84CBDEA49337}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69361411-A413-4F51-9418-84CBDEA49337}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69361411-A413-4F51-9418-84CBDEA49337}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83EC2914-E0BA-4B33-8734-6D65D2ED1812}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83EC2914-E0BA-4B33-8734-6D65D2ED1812}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83EC2914-E0BA-4B33-8734-6D65D2ED1812}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83EC2914-E0BA-4B33-8734-6D65D2ED1812}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,6 +3,8 @@ using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using NexDirectLib;
+
 namespace NexDirect.Dialogs
 {
     public partial class OsuLogin : Form

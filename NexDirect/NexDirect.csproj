@@ -96,7 +96,6 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers.cs" />
     <Compile Include="Dialogs\OsuLogin.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -109,19 +108,16 @@
     <Compile Include="Dialogs\OsuLoginCheck.Designer.cs">
       <DependentUpon>OsuLoginCheck.cs</DependentUpon>
     </Compile>
-    <Compile Include="Osu.cs" />
-    <Compile Include="Structures.cs" />
-    <Compile Include="Web.cs" />
+    <Compile Include="HotkeyManager.cs" />
+    <Compile Include="SingleInstance.cs" />
+    <Compile Include="WinTools.cs" />
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Bloodcat.cs" />
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SingleInstance.cs" />
-    <Compile Include="Tools.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -208,6 +204,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NexDirectLib\NexDirectLib.csproj">
+      <Project>{83ec2914-e0ba-4b33-8734-6d65d2ed1812}</Project>
+      <Name>NexDirectLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
