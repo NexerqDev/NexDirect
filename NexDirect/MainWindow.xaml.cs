@@ -7,8 +7,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using NAudio.Wave;
-using System.Windows.Interop;
-using System.Runtime.InteropServices;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Text.RegularExpressions;
@@ -92,6 +90,8 @@ namespace NexDirect
                 // sub to hotkey press event
                 HotkeyManager.HotkeyPressed += HotkeyPressed;
             }
+
+            CheckForUpdates();
         }
 
         // Class for the selectboxes. Key/Value item so can just access the SelectedItem's value
@@ -195,7 +195,7 @@ namespace NexDirect
 
         private void dataGrid_DoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var row = WinTools.getGridViewSelectedRowItem(sender, e);
+            var row = WinTools.GetGridViewSelectedRowItem(sender, e);
             if (row == null) return;
             var beatmap = row as Structures.BeatmapSet;
 
@@ -206,7 +206,7 @@ namespace NexDirect
         {
             if (!audioPreviews) return;
 
-            var row = WinTools.getGridViewSelectedRowItem(sender, e);
+            var row = WinTools.GetGridViewSelectedRowItem(sender, e);
             if (row == null) return;
             var set = row as Structures.BeatmapSet;
 
@@ -225,7 +225,7 @@ namespace NexDirect
 
         private void progressGrid_DoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var row = WinTools.getGridViewSelectedRowItem(sender, e);
+            var row = WinTools.GetGridViewSelectedRowItem(sender, e);
             if (row == null) return;
             var download = row as Structures.BeatmapDownload;
 
@@ -488,6 +488,20 @@ namespace NexDirect
                 }
             }
             catch { } // meh doesnt exist
+        }
+
+        private async void CheckForUpdates()
+        {
+            // change version to github style semver
+            string version = WinTools.GetOwnVersion();
+            version = version.Substring(0, 5);
+
+            UpdateChecker.Update update = await UpdateChecker.Check(version);
+            if (update == null) return;
+
+            MessageBoxResult downloadNew = MessageBox.Show($"There is a new update available for NexDirect (version {update.Version}).\nIt was published on GitHub at {update.PublishedAt.ToString("g")}.\n\nOpen your browser now to download the latest update?", "NexDirect - Update Available", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (downloadNew == MessageBoxResult.No) return;
+            Process.Start(update.Url);
         }
 
         private void HotkeyPressed()
