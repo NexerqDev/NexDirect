@@ -121,11 +121,11 @@ namespace NexDirect
                 if (useOfficialOsu)
                 {
                     var beatmapsData = await Osu.Search(
-                        officialCookieJar,
-                        searchBox.Text,
-                        (rankedStatusBox.SelectedItem as KVItem).Value,
-                        (modeSelectBox.SelectedItem as KVItem).Value
-                    );
+                                            officialCookieJar,
+                                            searchBox.Text,
+                                            (rankedStatusBox.SelectedItem as KVItem).Value,
+                                            (modeSelectBox.SelectedItem as KVItem).Value
+                                        );
                     _beatmaps = beatmapsData;
                 }
                 else
@@ -140,6 +140,7 @@ namespace NexDirect
                 }
                 populateBeatmaps(_beatmaps);
             }
+            catch (Osu.SearchNotSupportedException) { MessageBox.Show("Sorry, this mode of Ranking search is currently not supported via the official osu! servers."); }
             catch (Exception ex) { MessageBox.Show("There was an error searching for beatmaps...\n\n" + ex.ToString()); }
             finally { searchingLoading.Visibility = Visibility.Hidden; }
         }
@@ -288,7 +289,17 @@ namespace NexDirect
             Structures.BeatmapDownload download;
             if (!fallbackActualOsu && useOfficialOsu)
             {
-                download = await Osu.PrepareDownloadSet(officialCookieJar, set, beatmapMirror);
+                try
+                {
+                    download = await Osu.PrepareDownloadSet(officialCookieJar, set);
+                }
+                catch (Osu.IllegalDownloadException)
+                {
+                    MessageBoxResult bloodcatAsk = MessageBox.Show("Sorry, this map seems like it has been taken down from the official osu! servers due to a DMCA request to them. Would you like to check if a copy off Bloodcat is available, and if so download it?", "NexDirect - Mirror?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    if (bloodcatAsk == MessageBoxResult.No) download = Bloodcat.PrepareDownloadSet(set, beatmapMirror);
+
+                    download = Bloodcat.PrepareDownloadSet(set, beatmapMirror);
+                }
             }
             else
             {
@@ -493,8 +504,8 @@ namespace NexDirect
         private async void CheckForUpdates()
         {
             // change version to github style semver
-            string version = WinTools.GetOwnVersion();
-            version = version.Substring(0, 5);
+            string[] versionParts = WinTools.GetOwnVersion().Split('.');
+            string version = $"{versionParts[0]}.{versionParts[1]}.{versionParts[2]}";
 
             UpdateChecker.Update update = await UpdateChecker.Check(version);
             if (update == null) return;

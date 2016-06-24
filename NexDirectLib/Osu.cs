@@ -115,8 +115,7 @@ namespace NexDirectLib
         {
             if (sRankedParam == "0,-1,-2")
             {
-                MessageBox.Show("Sorry, this mode of Ranking search is currently not supported via the official osu! servers.");
-                return null;
+                throw new SearchNotSupportedException();
             }
 
             // Standardize the bloodcat stuff to osu! query param
@@ -184,6 +183,8 @@ namespace NexDirectLib
             });
         }
 
+        public class SearchNotSupportedException : Exception { }
+
         /// <summary>
         /// Tries to get text from node.
         /// </summary>
@@ -224,24 +225,25 @@ namespace NexDirectLib
         /// <summary>
         /// Checks the DMCA of a map, then prepares a download object for it.
         /// </summary>
-        public static async Task<Structures.BeatmapDownload> PrepareDownloadSet(CookieContainer cookies, Structures.BeatmapSet set, string backupBloodcatMirror)
+        public static async Task<Structures.BeatmapDownload> PrepareDownloadSet(CookieContainer cookies, Structures.BeatmapSet set)
         {
+            bool illegalStatus = false;
             try
             {
-                if (await CheckIllegal(cookies, set))
-                {
-                    MessageBoxResult bloodcatAsk = MessageBox.Show("Sorry, this map seems like it has been taken down from the official osu! servers due to a DMCA request to them. Would you like to check if a copy off Bloodcat is available, and if so download it?", "NexDirect - Mirror?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                    if (bloodcatAsk == MessageBoxResult.No) return null;
-
-                    return Bloodcat.PrepareDownloadSet(set, backupBloodcatMirror);
-                }
+                illegalStatus = await CheckIllegal(cookies, set);
             }
             catch { }
+            if (illegalStatus)
+            {
+                throw new IllegalDownloadException();
+            }
             
             var download = new Structures.BeatmapDownload(set, new Uri($"https://osu.ppy.sh/d/{set.Id}"));
             download.Client.Headers.Add(HttpRequestHeader.Cookie, cookies.GetCookieHeader(new Uri("http://osu.ppy.sh"))); // use cookie auth
             return download;
         }
+
+        public class IllegalDownloadException : Exception { }
 
         /// <summary>
         /// Resolves a beatmap set's ID to an object.
