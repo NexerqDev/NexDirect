@@ -1,22 +1,35 @@
 ﻿using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Linq;
 
 namespace NexDirectLib
 {
     public static class UpdateChecker
     {
-        private const string API_URL = @"https://api.github.com/repos/nicholastay/NexDirect/releases/latest";
+        private const string API_URL = @"https://api.github.com/repos/nicholastay/NexDirect/releases";
 
         /// <summary>
         /// Checks the GitHub API if there is a new release against the current version provided
         /// </summary>
-        public static async Task<Update> Check(string currentVersion)
+        public static async Task<Update> Check(string currentVersion, Platform platform)
         {
             try
             {
-                var release = await Web.GetJson<JObject>(API_URL, $"NexDirect/${currentVersion}");
+                var releases = await Web.GetJson<JArray>(API_URL, $"NexDirect/${currentVersion}");
+
+                string lookupPlatform = null;
+                switch (platform)
+                {
+                    case Platform.Windows:
+                        lookupPlatform = "-win";
+                        break;
+                }
+
+                var release = (JObject)releases.FirstOrDefault(r => r["tag_name"].ToString().Contains(lookupPlatform));
+
                 string onlineVersion = release["tag_name"].ToString();
+                onlineVersion = onlineVersion.Replace(lookupPlatform, "");
                 if (onlineVersion[0] == 'v') onlineVersion = onlineVersion.Substring(1);
 
                 if (currentVersion == onlineVersion) return null;
@@ -40,6 +53,11 @@ namespace NexDirectLib
                 Url = url;
                 PublishedAt = published;
             }
+        }
+
+        public enum Platform
+        {
+            Windows
         }
     }
 }

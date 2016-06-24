@@ -507,7 +507,7 @@ namespace NexDirect
             string[] versionParts = WinTools.GetOwnVersion().Split('.');
             string version = $"{versionParts[0]}.{versionParts[1]}.{versionParts[2]}";
 
-            UpdateChecker.Update update = await UpdateChecker.Check(version);
+            UpdateChecker.Update update = await UpdateChecker.Check(version, UpdateChecker.Platform.Windows);
             if (update == null) return;
 
             MessageBoxResult downloadNew = MessageBox.Show($"There is a new update available for NexDirect (version {update.Version}).\nIt was published on GitHub at {update.PublishedAt.ToString("g")}.\n\nOpen your browser now to download the latest update?", "NexDirect - Update Available", MessageBoxButton.YesNo, MessageBoxImage.Question);
