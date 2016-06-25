@@ -12,7 +12,7 @@ namespace NexDirectLib
         /// <summary>
         /// Searches Bloodcat for a string with some params
         /// </summary>
-        public static async Task<JArray> Search(string query, string sRankedParam, string mModeParam, string cNumbersParam)
+        public static async Task<IEnumerable<Structures.BeatmapSet>> Search(string query, string sRankedParam, string mModeParam, string cNumbersParam)
         {
             // build query string -- https://stackoverflow.com/questions/17096201/build-query-string-for-system-net-httpclient-get
             var qs = HttpUtility.ParseQueryString(string.Empty);
@@ -22,7 +22,8 @@ namespace NexDirectLib
             if (mModeParam != null) qs["m"] = mModeParam;
             if (cNumbersParam != null) qs["c"] = cNumbersParam;
 
-            return await Web.GetJson<JArray>("http://bloodcat.com/osu/?" + qs.ToString());
+            var data = await Web.GetJson<JArray>("http://bloodcat.com/osu/?" + qs.ToString());
+            return data.Select(b => StandardizeToSetStruct((JObject)b));
         }
 
         /// <summary>
@@ -48,7 +49,8 @@ namespace NexDirectLib
                 bloodcatData["id"].ToString(), bloodcatData["artist"].ToString(),
                 bloodcatData["title"].ToString(), bloodcatData["creator"].ToString(),
                 ((Osu.RankingStatus)int.Parse(bloodcatData["status"].ToString())).ToString(),
-                difficulties, bloodcatData);
+                difficulties, bloodcatData
+            );
         }
 
         /// <summary>
@@ -56,10 +58,9 @@ namespace NexDirectLib
         /// </summary>
         public static async Task<Structures.BeatmapSet> ResolveSetId(string beatmapSetId)
         {
-            JArray results = await Search(beatmapSetId, null, null, "s");
-            JObject map = results.Children<JObject>().FirstOrDefault(r => r["id"].ToString() == beatmapSetId);
-            if (map == null) return null;
-            return StandardizeToSetStruct(map);
+            IEnumerable<Structures.BeatmapSet> results = await Search(beatmapSetId, null, null, "s");
+            Structures.BeatmapSet map = results.FirstOrDefault(r => r.Id == beatmapSetId);
+            return map;
         }
 
         /// <summary>

@@ -113,26 +113,22 @@ namespace NexDirect
             {
                 searchingLoading.Visibility = Visibility.Visible;
 
-                dynamic _beatmaps;
+                IEnumerable<Structures.BeatmapSet> _beatmaps;
                 if (useOfficialOsu)
                 {
-                    var beatmapsData = await Osu.Search(
-                                            officialCookieJar,
-                                            searchBox.Text,
-                                            (rankedStatusBox.SelectedItem as KVItem).Value,
-                                            (modeSelectBox.SelectedItem as KVItem).Value
-                                        );
-                    _beatmaps = beatmapsData;
+                    _beatmaps = await Osu.Search(officialCookieJar,
+                        searchBox.Text,
+                        (rankedStatusBox.SelectedItem as KVItem).Value,
+                        (modeSelectBox.SelectedItem as KVItem).Value
+                    );
                 }
                 else
                 {
-                    var beatmapsData = await Bloodcat.Search(searchBox.Text,
+                    _beatmaps = await Bloodcat.Search(searchBox.Text,
                         (rankedStatusBox.SelectedItem as KVItem).Value,
                         (modeSelectBox.SelectedItem as KVItem).Value,
                         searchViaSelectBox.Visibility == Visibility.Hidden ? null : (searchViaSelectBox.SelectedItem as KVItem).Value
                     );
-                    _beatmaps = new List<Structures.BeatmapSet>();
-                    foreach (JObject b in beatmapsData) _beatmaps.Add(Bloodcat.StandardizeToSetStruct(b));
                 }
                 populateBeatmaps(_beatmaps);
             }
