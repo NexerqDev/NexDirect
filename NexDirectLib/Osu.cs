@@ -12,12 +12,14 @@ using System.Web;
 
 namespace NexDirectLib
 {
+    using static Structures;
+
     public static class Osu
     {
         /// <summary>
         /// Plays preview audio of a specific beatmap set to the waveout interface
         /// </summary>
-        public static async void PlayPreviewAudio(Structures.BeatmapSet set)
+        public static async void PlayPreviewAudio(BeatmapSet set)
         {
             // kind of a hack.
             AudioManager.PreviewOut.Stop(); // if already playing something just stop it
@@ -116,7 +118,7 @@ namespace NexDirectLib
         /// <summary>
         /// Searches the official beatmap listing for beatmaps.
         /// </summary>
-        public static async Task<IEnumerable<Structures.BeatmapSet>> Search(CookieContainer cookies, string query, string sRankedParam, string mModeParam)
+        public static async Task<IEnumerable<BeatmapSet>> Search(CookieContainer cookies, string query, string sRankedParam, string mModeParam)
         {
             if (sRankedParam == "0,-1,-2")
             {
@@ -145,7 +147,7 @@ namespace NexDirectLib
             htmlDoc.OptionUseIdAttribute = true;
             htmlDoc.LoadHtml(rawData);
             HtmlAgilityPack.HtmlNodeCollection beatmapNodes = htmlDoc.DocumentNode.SelectNodes("//div[@class='beatmapListing']/div[@class='beatmap']");
-            if (beatmapNodes == null) return new List<Structures.BeatmapSet>(); // empty
+            if (beatmapNodes == null) return new List<BeatmapSet>(); // empty
             return beatmapNodes.Select(b => {
                 var difficulties = new Dictionary<string, string>();
                 try
@@ -176,7 +178,7 @@ namespace NexDirectLib
                     rankStatus = "Pending/Graveyard";
                 }
 
-                return new Structures.BeatmapSet(
+                return new BeatmapSet(
                     b.Id,
                     TryGetNodeText(b, "div[@class='maintext']/span[@class='artist']"),
                     TryGetNodeText(b, "div[@class='maintext']/a[@class='title']"),
@@ -208,7 +210,7 @@ namespace NexDirectLib
         /// <summary>
         /// Checks headers of a beatmap set download to see if it has been taken down by DMCA.
         /// </summary>
-        public static async Task<bool> CheckIllegal(CookieContainer cookies, Structures.BeatmapSet set)
+        public static async Task<bool> CheckIllegal(CookieContainer cookies, BeatmapSet set)
         {
             // Get status code - 302 REDIRECT = redirected to the real download, 200 OK = illegal page!
             using (var handler = new HttpClientHandler() { CookieContainer = cookies, AllowAutoRedirect = false })
@@ -230,7 +232,7 @@ namespace NexDirectLib
         /// <summary>
         /// Checks the DMCA of a map, then prepares a download object for it.
         /// </summary>
-        public static async Task<Structures.BeatmapDownload> PrepareDownloadSet(CookieContainer cookies, Structures.BeatmapSet set)
+        public static async Task<BeatmapDownload> PrepareDownloadSet(CookieContainer cookies, BeatmapSet set)
         {
             bool illegalStatus = false;
             try
@@ -243,7 +245,7 @@ namespace NexDirectLib
                 throw new IllegalDownloadException();
             }
             
-            var download = new Structures.BeatmapDownload(set, new Uri($"https://osu.ppy.sh/d/{set.Id}"));
+            var download = new BeatmapDownload(set, new Uri($"https://osu.ppy.sh/d/{set.Id}"));
             download.Client.Headers.Add(HttpRequestHeader.Cookie, cookies.GetCookieHeader(new Uri("http://osu.ppy.sh"))); // use cookie auth
             return download;
         }
@@ -253,7 +255,7 @@ namespace NexDirectLib
         /// <summary>
         /// Resolves a beatmap set's ID to an object.
         /// </summary>
-        public static async Task<Structures.BeatmapSet> ResolveSetId(CookieContainer cookies, string setId)
+        public static async Task<BeatmapSet> ResolveSetId(CookieContainer cookies, string setId)
         {
             string rawData = await GetRawWithCookies(cookies, $"https://osu.ppy.sh/s/{setId}");
             if (rawData.Contains("looking for was not found")) return null;
@@ -262,7 +264,7 @@ namespace NexDirectLib
             htmlDoc.OptionUseIdAttribute = true;
             htmlDoc.LoadHtml(rawData);
             HtmlAgilityPack.HtmlNode infoNode = htmlDoc.DocumentNode.SelectSingleNode("//table[@id='songinfo']");
-            return new Structures.BeatmapSet(
+            return new BeatmapSet(
                 setId,
                 infoNode.SelectSingleNode("tr[1]/td[2]/a").InnerText, // artist
                 infoNode.SelectSingleNode("tr[2]/td[2]/a").InnerText, // title

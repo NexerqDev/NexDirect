@@ -7,12 +7,14 @@ using System.Web;
 
 namespace NexDirectLib
 {
+    using static Structures;
+
     public static class Bloodcat
     {
         /// <summary>
         /// Searches Bloodcat for a string with some params
         /// </summary>
-        public static async Task<IEnumerable<Structures.BeatmapSet>> Search(string query, string sRankedParam, string mModeParam, string cNumbersParam)
+        public static async Task<IEnumerable<BeatmapSet>> Search(string query, string sRankedParam, string mModeParam, string cNumbersParam)
         {
             // build query string -- https://stackoverflow.com/questions/17096201/build-query-string-for-system-net-httpclient-get
             var qs = HttpUtility.ParseQueryString(string.Empty);
@@ -37,7 +39,7 @@ namespace NexDirectLib
         /// <summary>
         /// Standardizes Bloodcat JSON data to our central structure
         /// </summary>
-        public static Structures.BeatmapSet StandardizeToSetStruct(JObject bloodcatData)
+        public static BeatmapSet StandardizeToSetStruct(JObject bloodcatData)
         {
             var difficulties = new Dictionary<string, string>();
             foreach (var d in (JArray)bloodcatData["beatmaps"])
@@ -45,7 +47,7 @@ namespace NexDirectLib
                 difficulties.Add(d["name"].ToString(), d["mode"].ToString());
             }
 
-            return new Structures.BeatmapSet(
+            return new BeatmapSet(
                 bloodcatData["id"].ToString(), bloodcatData["artist"].ToString(),
                 bloodcatData["title"].ToString(), bloodcatData["creator"].ToString(),
                 ((Osu.RankingStatus)int.Parse(bloodcatData["status"].ToString())).ToString(),
@@ -56,17 +58,17 @@ namespace NexDirectLib
         /// <summary>
         /// Shorthand to resolve a set ID to a BeatmapSet object
         /// </summary>
-        public static async Task<Structures.BeatmapSet> ResolveSetId(string beatmapSetId)
+        public static async Task<BeatmapSet> ResolveSetId(string beatmapSetId)
         {
-            IEnumerable<Structures.BeatmapSet> results = await Search(beatmapSetId, null, null, "s");
-            Structures.BeatmapSet map = results.FirstOrDefault(r => r.Id == beatmapSetId);
+            IEnumerable<BeatmapSet> results = await Search(beatmapSetId, null, null, "s");
+            BeatmapSet map = results.FirstOrDefault(r => r.Id == beatmapSetId);
             return map;
         }
 
         /// <summary>
         /// Prepares a download object for a set from bloodcat or mirror if defined
         /// </summary>
-        public static Structures.BeatmapDownload PrepareDownloadSet(Structures.BeatmapSet set, string mirror)
+        public static BeatmapDownload PrepareDownloadSet(BeatmapSet set, string mirror)
         {
             Uri downloadUri;
             if (string.IsNullOrEmpty(mirror))
@@ -78,7 +80,7 @@ namespace NexDirectLib
                 downloadUri = new Uri(mirror.Replace("%s", set.Id));
             }
 
-            return new Structures.BeatmapDownload(set, downloadUri);
+            return new BeatmapDownload(set, downloadUri);
         }
     }
 }

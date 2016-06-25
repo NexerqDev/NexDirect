@@ -110,7 +110,7 @@ namespace NexDirectLib
             }
             public bool Cancelled { get; set; }
             public string FriendlyName => $"{Set.Title} ({Set.Mapper})";
-            public string FileName => Tools.sanitizeFilename($"{Set.Id} {Set.Artist} - {Set.Title}.osz");
+            public string FileName => Tools.SanitizeFilename($"{Set.Id} {Set.Artist} - {Set.Title}.osz");
             public string TempPath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FileName + ".nexd");
 
             public BeatmapDownload(BeatmapSet set, Uri uri)
