@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 
 using NexDirectLib;
+using static NexDirectLib.Structures;
 
 namespace NexDirect
 {
@@ -21,7 +22,7 @@ namespace NexDirect
     /// </summary>
     public partial class MainWindow : Window
     {
-        public ObservableCollection<Structures.BeatmapSet> beatmaps = new ObservableCollection<Structures.BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
+        public ObservableCollection<BeatmapSet> beatmaps = new ObservableCollection<BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
         private System.Windows.Forms.NotifyIcon notifyIcon = null; // fullscreen overlay indicator
         public System.Net.CookieContainer officialCookieJar; // for official osu
 
@@ -90,30 +91,13 @@ namespace NexDirect
             CheckForUpdates();
         }
 
-        // Class for the selectboxes. Key/Value item so can just access the SelectedItem's value
-        private class KVItem
-        {
-            public string Key { get; set; }
-            public string Value { get; set; }
-            public KVItem(string k, string v)
-            {
-                Key = k;
-                Value = v;
-            }
-
-            public override string ToString()
-            {
-                return Key;
-            }
-        }
-
         private async void searchButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 searchingLoading.Visibility = Visibility.Visible;
 
-                IEnumerable<Structures.BeatmapSet> _beatmaps;
+                IEnumerable<BeatmapSet> _beatmaps;
                 if (useOfficialOsu)
                 {
                     _beatmaps = await Osu.Search(officialCookieJar,
@@ -147,7 +131,7 @@ namespace NexDirect
             {
                 searchingLoading.Visibility = Visibility.Visible;
                 var beatmapsData = await Bloodcat.Popular();
-                var _beatmaps = new List<Structures.BeatmapSet>();
+                var _beatmaps = new List<BeatmapSet>();
                 foreach (JObject b in beatmapsData) _beatmaps.Add(Bloodcat.StandardizeToSetStruct(b));
                 populateBeatmaps(_beatmaps);
             }
@@ -177,10 +161,10 @@ namespace NexDirect
             }
         }
 
-        private void populateBeatmaps(IEnumerable<Structures.BeatmapSet> beatmapsData)
+        private void populateBeatmaps(IEnumerable<BeatmapSet> beatmapsData)
         {
             beatmaps.Clear();
-            foreach (Structures.BeatmapSet beatmap in beatmapsData)
+            foreach (BeatmapSet beatmap in beatmapsData)
             {
                 beatmaps.Add(beatmap);
             }
@@ -188,7 +172,7 @@ namespace NexDirect
 
         private void dataGrid_DoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var beatmap = WinTools.GetGridViewSelectedRowItem<Structures.BeatmapSet>(sender, e);
+            var beatmap = WinTools.GetGridViewSelectedRowItem<BeatmapSet>(sender, e);
             if (beatmap == null) return;
 
             DownloadBeatmapSet(beatmap);
@@ -198,7 +182,7 @@ namespace NexDirect
         {
             if (!audioPreviews) return;
 
-            var set = WinTools.GetGridViewSelectedRowItem<Structures.BeatmapSet>(sender, e);
+            var set = WinTools.GetGridViewSelectedRowItem<BeatmapSet>(sender, e);
             if (set == null) return;
 
             Osu.PlayPreviewAudio(set);
@@ -213,7 +197,7 @@ namespace NexDirect
 
         private void progressGrid_DoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var download = WinTools.GetGridViewSelectedRowItem<Structures.BeatmapDownload>(sender, e);
+            var download = WinTools.GetGridViewSelectedRowItem<BeatmapDownload>(sender, e);
             if (download == null) return;
 
             MessageBoxResult cancelPrompt = MessageBox.Show("Are you sure you wish to cancel the current download for: " + download.FriendlyName + "?", "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -250,7 +234,7 @@ namespace NexDirect
             searchViaSelectBox.Items.Add(new KVItem("Normal (Title/Artist)", "o"));
         }
 
-        public async void DownloadBeatmapSet(Structures.BeatmapSet set)
+        public async void DownloadBeatmapSet(BeatmapSet set)
         {
             // check for already downloading
             if (DownloadManager.Downloads.Any(b => b.Set.Id == set.Id))
@@ -272,7 +256,7 @@ namespace NexDirect
             }
 
             // get dl obj
-            Structures.BeatmapDownload download;
+            BeatmapDownload download;
             if (!fallbackActualOsu && useOfficialOsu)
             {
                 try
@@ -399,7 +383,7 @@ namespace NexDirect
         }
 
 
-        private bool CheckAndPromptIfHaveMap(Structures.BeatmapSet set)
+        private bool CheckAndPromptIfHaveMap(BeatmapSet set)
         {
             // check for already have
             if (set.AlreadyHave)
@@ -421,7 +405,7 @@ namespace NexDirect
             Match m = uriReg.Match(fullArgs);
             Application.Current.Dispatcher.Invoke(async () =>
             {
-                Structures.BeatmapSet set;
+                BeatmapSet set;
                 if (useOfficialOsu)
                 {
                     set = await Osu.ResolveSetId(officialCookieJar, m.Groups[1].ToString());
