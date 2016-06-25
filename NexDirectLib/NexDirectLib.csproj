@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AudioManager.cs" />
     <Compile Include="Bloodcat.cs" />
     <Compile Include="MapsManager.cs" />
     <Compile Include="DownloadManager.cs" />

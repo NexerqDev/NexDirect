@@ -6,12 +6,10 @@ using Newtonsoft.Json.Linq;
 using System.Collections.ObjectModel;
 using System.IO;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using NAudio.Wave;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Diagnostics;
 
 using NexDirectLib;
@@ -24,8 +22,6 @@ namespace NexDirect
     public partial class MainWindow : Window
     {
         public ObservableCollection<Structures.BeatmapSet> beatmaps = new ObservableCollection<Structures.BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
-        public WaveOut audioWaveOut = new WaveOut(); // For playing beatmap previews and stuff
-        public WaveOut audioDoong = new WaveOut(); // Specific interface for playing doong, so if previews are playing it doesnt take over
         private System.Windows.Forms.NotifyIcon notifyIcon = null; // fullscreen overlay indicator
         public System.Net.CookieContainer officialCookieJar; // for official osu
 
@@ -75,7 +71,7 @@ namespace NexDirect
         {
             CleanUpOldTemps();
             CheckOrPromptForSongsDir();
-            LoadDoongPlayer(); // load into memory ready to play
+            AudioManager.Init(Properties.Resources.doong); // load into memory ready to play
             MapsManager.Reload(osuSongsFolder);
 
             if (!string.IsNullOrEmpty(uiBackground))
@@ -196,39 +192,33 @@ namespace NexDirect
 
         private void dataGrid_DoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var row = WinTools.GetGridViewSelectedRowItem(sender, e);
-            if (row == null) return;
-            var beatmap = row as Structures.BeatmapSet;
+            var beatmap = WinTools.GetGridViewSelectedRowItem<Structures.BeatmapSet>(sender, e);
+            if (beatmap == null) return;
 
             DownloadBeatmapSet(beatmap);
         }
 
-        private async void dataGrid_LeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void dataGrid_LeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (!audioPreviews) return;
 
-            var row = WinTools.GetGridViewSelectedRowItem(sender, e);
-            if (row == null) return;
-            var set = row as Structures.BeatmapSet;
+            var set = WinTools.GetGridViewSelectedRowItem<Structures.BeatmapSet>(sender, e);
+            if (set == null) return;
 
-            audioWaveOut.Stop(); // if already playing something just stop it
-            await Task.Delay(150);
-            if (DownloadManager.Downloads.Any(d => d.Set.Id == set.Id)) return; // check for if already d/l'ing overlaps
-            Osu.PlayPreviewAudio(set, audioWaveOut);
+            Osu.PlayPreviewAudio(set);
         }
 
         private void dataGrid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             // shortcut to stop playing
             if (!audioPreviews) return;
-            audioWaveOut.Stop();
+            AudioManager.PreviewOut.Stop();
         }
 
         private void progressGrid_DoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var row = WinTools.GetGridViewSelectedRowItem(sender, e);
-            if (row == null) return;
-            var download = row as Structures.BeatmapDownload;
+            var download = WinTools.GetGridViewSelectedRowItem<Structures.BeatmapDownload>(sender, e);
+            if (download == null) return;
 
             MessageBoxResult cancelPrompt = MessageBox.Show("Are you sure you wish to cancel the current download for: " + download.FriendlyName + "?", "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (cancelPrompt == MessageBoxResult.No) return;
@@ -323,8 +313,6 @@ namespace NexDirect
                 {
                     File.Move(download.TempPath, Path.Combine(osuSongsFolder, download.FileName));
                 }
-
-                audioDoong.Play();
             }
             catch (Exception ex)
             {
@@ -426,13 +414,6 @@ namespace NexDirect
                 return true;
             }
             return true;
-        }
-
-        private void LoadDoongPlayer()
-        {
-            var reader = new WaveFileReader(Properties.Resources.doong);
-            audioDoong.Init(reader);
-            audioDoong.PlaybackStopped += (o, e) => reader.Position = 0;
         }
 
         Regex uriReg = new Regex(@"nexdirect:\/\/(\d+)\/");

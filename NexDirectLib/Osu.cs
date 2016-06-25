@@ -5,7 +5,6 @@ using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Windows;
 using System.Collections.Specialized;
 using System.Collections;
 using System;
@@ -18,8 +17,14 @@ namespace NexDirectLib
         /// <summary>
         /// Plays preview audio of a specific beatmap set to the waveout interface
         /// </summary>
-        public static async void PlayPreviewAudio(Structures.BeatmapSet set, WaveOut waveOut)
+        public static async void PlayPreviewAudio(Structures.BeatmapSet set)
         {
+            // kind of a hack.
+            AudioManager.PreviewOut.Stop(); // if already playing something just stop it
+            await Task.Delay(150);
+            if (DownloadManager.Downloads.Any(d => d.Set.Id == set.Id)) return; // check for if already d/l'ing overlaps
+
+            WaveOut waveOut = AudioManager.PreviewOut;
             using (var client = new HttpClient())
             {
                 try

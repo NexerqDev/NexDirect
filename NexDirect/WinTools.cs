@@ -16,6 +16,12 @@ namespace NexDirect
             return row.Item;
         }
 
+        static public T GetGridViewSelectedRowItem<T>(object sender, MouseButtonEventArgs e)
+        {
+            object item = GetGridViewSelectedRowItem(sender, e);
+            return item == null ? default(T) : (T)item;
+        }
+
         static public string GetOwnVersion()
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
