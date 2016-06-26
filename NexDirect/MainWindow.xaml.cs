@@ -14,6 +14,8 @@ using System.Diagnostics;
 
 using NexDirectLib;
 using static NexDirectLib.Structures;
+using System.Windows.Data;
+using System.Threading.Tasks;
 
 namespace NexDirect
 {
@@ -43,6 +45,7 @@ namespace NexDirect
             InitializeComponent();
             dataGrid.ItemsSource = beatmaps;
             progressGrid.ItemsSource = DownloadManager.Downloads;
+            DownloadManager.SpeedUpdated += DownloadManager_SpeedUpdated;
             InitComboBoxes();
 
             // overlay mode window settings
@@ -66,6 +69,15 @@ namespace NexDirect
             HandleURIArgs(startupArgs);
         }
 
+        private bool limitSpeedUpdates = false; // slow down
+        private async void DownloadManager_SpeedUpdated(DownloadManager.SpeedUpdatedEventArgs e)
+        {
+            if (limitSpeedUpdates && e.Speed != 0) return;
+            downloadSpeedLabel.Content = $"Average download speed (per download): {e.Speed.ToString("0.0")}kB/s"; // 0.0 = one dp
+            limitSpeedUpdates = true;
+            await Task.Delay(500);
+            limitSpeedUpdates = false;
+        }
 
         public void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
@@ -289,7 +301,9 @@ namespace NexDirect
                 }
                 else
                 {
-                    File.Move(download.TempPath, Path.Combine(osuSongsFolder, download.FileName));
+                    string path = Path.Combine(osuSongsFolder, download.FileName);
+                    if (File.Exists(path)) File.Delete(path); // overwrite if exist
+                    File.Move(download.TempPath, path);
                 }
             }
             catch (Exception ex)

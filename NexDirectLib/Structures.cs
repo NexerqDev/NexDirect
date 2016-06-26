@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -86,18 +87,26 @@ namespace NexDirectLib
 
             protected void Notify(string propName)
             {
-                if (PropertyChanged != null)
-                {
-                    PropertyChanged(this, new PropertyChangedEventArgs(propName));
-                }
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
             }
             #endregion
 
 
             private string _percent;
+            private float _speed;
 
             public BeatmapSet Set { get; set; }
             public WebClient Client { get; set; }
+            public float Speed // kB/s
+            {
+                get { return _speed; }
+                set
+                {
+                    _speed = value;
+                    Notify("Speed");
+                }
+            }
+            public Stopwatch SpeedTracker { get; set; }
             public Uri Location { get; set; }
             public string Percent
             {
@@ -118,11 +127,24 @@ namespace NexDirectLib
                 Set = set;
                 Percent = "0";
                 Client = new WebClient();
+                SpeedTracker = new Stopwatch();
+                Speed = 0;
                 Location = uri;
 
                 // Attach events
-                Client.DownloadProgressChanged += (o, e) => Percent = e.ProgressPercentage.ToString();
-                Client.DownloadFileCompleted += (o, e) => Client.Dispose();
+                Client.DownloadProgressChanged += (o, e) =>
+                {
+                    if (SpeedTracker.Elapsed.Seconds > 0)
+                    {
+                        Speed = (e.BytesReceived / 1000) / SpeedTracker.Elapsed.Seconds;
+                    }
+                    Percent = e.ProgressPercentage.ToString();
+                };
+                Client.DownloadFileCompleted += (o, e) =>
+                {
+                    Client.Dispose();
+                    SpeedTracker.Stop();
+                };
             }
         }
 

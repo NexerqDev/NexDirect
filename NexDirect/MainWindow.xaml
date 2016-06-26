@@ -46,8 +46,8 @@
         <Button x:Name="searchButton" Content="Search" Margin="0,23,200,0" BorderBrush="#FF5294A2" BorderThickness="3" FontSize="26.667" Click="searchButton_Click" IsDefault="True" Height="44" VerticalAlignment="Top" HorizontalAlignment="Right" Width="172"/>
         <DataGrid x:Name="progressGrid" Margin="0,23,10,26" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="progressGrid_DoubleClick" HeadersVisibility="Column" HorizontalAlignment="Right" Width="185">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding BeatmapSetName}" Header="Beatmap Set" Width="160"/>
-                <DataGridTextColumn Binding="{Binding ProgressPercent}" Header="%" Width="20"/>
+                <DataGridTextColumn Binding="{Binding FriendlyName}" Header="Beatmap Set" Width="160"/>
+                <DataGridTextColumn Binding="{Binding Percent}" Header="%" Width="20"/>
             </DataGrid.Columns>
         </DataGrid>
         <Image x:Name="logoImage" Margin="0,0,10,26" Source="Resources/logo.png" Opacity="0.5" Height="110" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="110" ToolTip="Click to enter settings menu..." Cursor="Hand" MouseUp="logoImage_MouseUp"/>
@@ -61,6 +61,7 @@
         <Button x:Name="popularLoadButton" Content="Load Popular Maps on Bloodcat" Height="25" Margin="0,72,200,0" VerticalAlignment="Top" Click="popularLoadButton_Click" HorizontalAlignment="Right" Width="203"/>
         <Label x:Name="searchViaLabel" Content="Search via: " Height="27" Margin="0,72,530,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="68" Visibility="Hidden"/>
         <ComboBox x:Name="searchViaSelectBox" Height="22" Margin="0,74,395,0" VerticalAlignment="Top" SelectedIndex="1" HorizontalAlignment="Right" Width="135" Visibility="Hidden"/>
+        <Label x:Name="downloadSpeedLabel" Content="Average download speed (per download): 0.0kB/s" HorizontalAlignment="Left" Height="26" Margin="924,538,0,0" VerticalAlignment="Top" Width="441" HorizontalContentAlignment="Right"/>
     </Grid>
 
 
