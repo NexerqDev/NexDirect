@@ -25,8 +25,8 @@ namespace NexDirect.Dialogs
 
             try
             {
-                System.Collections.Specialized.StringDictionary cookies = await Osu.LoginAndGetCookie(usernameBox.Text, passwordBox.Text);
-                _mw.officialOsuCookies = await Task.Factory.StartNew(() => JsonConvert.SerializeObject(cookies));
+                System.Net.CookieContainer _cookies = await Osu.LoginAndGetCookie(usernameBox.Text, passwordBox.Text);
+                _mw.officialOsuCookies = await Osu.SerializeCookies(_cookies);
                 _mw.fallbackActualOsu = true;
                 _mw.officialOsuUsername = usernameBox.Text;
                 _mw.officialOsuPassword = passwordBox.Text;

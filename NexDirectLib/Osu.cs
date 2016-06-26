@@ -12,10 +12,14 @@ using System.Web;
 
 namespace NexDirectLib
 {
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using static Structures;
 
     public static class Osu
     {
+        public static CookieContainer Cookies;
+
         /// <summary>
         /// Plays preview audio of a specific beatmap set to the waveout interface
         /// </summary>
@@ -46,9 +50,9 @@ namespace NexDirectLib
         }
 
         /// <summary>
-        /// Logs in to the official osu! website with a given username/password and returns cookies in a serializable format.
+        /// Logs in to the official osu! website with a given username/password and returns cookie container.
         /// </summary>
-        public static async Task<StringDictionary> LoginAndGetCookie(string username, string password)
+        public static async Task<CookieContainer> LoginAndGetCookie(string username, string password)
         {
             var _formData = new Dictionary<string, string>();
             _formData.Add("username", username);
@@ -67,30 +71,15 @@ namespace NexDirectLib
 
                 if (str.Contains("You have specified an incorrect")) throw new Exception("Invalid username/password");
 
-                var cookieStore = new StringDictionary(); // "serialized" format
-                foreach (Cookie c in handler.CookieContainer.GetCookies(new Uri("http://osu.ppy.sh")))
-                {
-                    if (!cookieStore.ContainsKey(c.Name)) // there are some duplicates
-                    {
-                        cookieStore.Add(c.Name, c.Value);
-                    }
-                }
-                return cookieStore;
+                return handler.CookieContainer;
             }
         }
 
         /// <summary>
-        /// Checks if cookies are still working.
+        /// Checks if persisted cookies are still working and if so, continue to use them in here.
         /// </summary>
-        public static async Task<CookieContainer> CheckLoginCookie(StringDictionary _cookies, string username, string password)
+        public static async Task<bool> CheckLoginCookie(CookieContainer cookies, string username, string password)
         {
-            var cookies = new CookieContainer();
-            var osuUri = new Uri("http://osu.ppy.sh");
-            foreach (DictionaryEntry c in _cookies)
-            {
-                cookies.Add(osuUri, new Cookie(c.Key.ToString(), c.Value.ToString()));
-            }
-
             using (var handler = new HttpClientHandler() { CookieContainer = cookies })
             using (var client = new HttpClient(handler))
             {
@@ -103,22 +92,55 @@ namespace NexDirectLib
                     // try with creds to renew login
                     try
                     {
-                        StringDictionary newCookies = await LoginAndGetCookie(username, password);
-                        return cookies;
+                        CookieContainer newCookies = await LoginAndGetCookie(username, password);
+                        Cookies = newCookies;
                     }
                     catch
                     {
-                        return null; // ok creds wrong
+                        return false; // ok creds wrong
                     }
                 }
-                return cookies;
+                else { Cookies = cookies; }
+                
+                return true;
             }
+        }
+
+        public static async Task<string> SerializeCookies(CookieContainer cookies)
+        {
+            var cookieStore = new StringDictionary(); // make it serializable
+            foreach (Cookie c in cookies.GetCookies(new Uri("http://osu.ppy.sh")))
+            {
+                if (!cookieStore.ContainsKey(c.Name)) // there are some duplicates
+                {
+                    cookieStore.Add(c.Name, c.Value);
+                }
+            }
+            return await Task.Factory.StartNew(() => JsonConvert.SerializeObject(cookieStore));
+        }
+
+        public static async Task<CookieContainer> DeserializeCookies(string _dcookies)
+        {
+            var _cookies = new StringDictionary();
+            var _dscookies = await Task.Factory.StartNew(() => JsonConvert.DeserializeObject(_dcookies));
+            foreach (var kv in (JArray)(_dscookies))
+            {
+                _cookies.Add(kv["Key"].ToString(), kv["Value"].ToString());
+            }
+
+            var cookies = new CookieContainer();
+            var osuUri = new Uri("http://osu.ppy.sh");
+            foreach (DictionaryEntry c in _cookies)
+            {
+                cookies.Add(osuUri, new Cookie(c.Key.ToString(), c.Value.ToString()));
+            }
+            return cookies;
         }
 
         /// <summary>
         /// Searches the official beatmap listing for beatmaps.
         /// </summary>
-        public static async Task<IEnumerable<BeatmapSet>> Search(CookieContainer cookies, string query, string sRankedParam, string mModeParam)
+        public static async Task<IEnumerable<BeatmapSet>> Search(string query, string sRankedParam, string mModeParam)
         {
             if (sRankedParam == "0,-1,-2")
             {
@@ -140,7 +162,7 @@ namespace NexDirectLib
             qs["m"] = mModeParam;
             qs["r"] = sRankedParam;
 
-            string rawData = await GetRawWithCookies(cookies, "https://osu.ppy.sh/p/beatmaplist?" + qs.ToString());
+            string rawData = await GetRawWithCookies("https://osu.ppy.sh/p/beatmaplist?" + qs.ToString());
 
             // Parse.
             var htmlDoc = new HtmlAgilityPack.HtmlDocument();
@@ -210,10 +232,10 @@ namespace NexDirectLib
         /// <summary>
         /// Checks headers of a beatmap set download to see if it has been taken down by DMCA.
         /// </summary>
-        public static async Task<bool> CheckIllegal(CookieContainer cookies, BeatmapSet set)
+        public static async Task<bool> CheckIllegal(BeatmapSet set)
         {
             // Get status code - 302 REDIRECT = redirected to the real download, 200 OK = illegal page!
-            using (var handler = new HttpClientHandler() { CookieContainer = cookies, AllowAutoRedirect = false })
+            using (var handler = new HttpClientHandler() { CookieContainer = Cookies, AllowAutoRedirect = false })
             using (var client = new HttpClient(handler))
             {
                 // HEAD request for the status code
@@ -232,12 +254,12 @@ namespace NexDirectLib
         /// <summary>
         /// Checks the DMCA of a map, then prepares a download object for it.
         /// </summary>
-        public static async Task<BeatmapDownload> PrepareDownloadSet(CookieContainer cookies, BeatmapSet set)
+        public static async Task<BeatmapDownload> PrepareDownloadSet(BeatmapSet set)
         {
             bool illegalStatus = false;
             try
             {
-                illegalStatus = await CheckIllegal(cookies, set);
+                illegalStatus = await CheckIllegal(set);
             }
             catch { }
             if (illegalStatus)
@@ -246,7 +268,7 @@ namespace NexDirectLib
             }
             
             var download = new BeatmapDownload(set, new Uri($"https://osu.ppy.sh/d/{set.Id}"));
-            download.Client.Headers.Add(HttpRequestHeader.Cookie, cookies.GetCookieHeader(new Uri("http://osu.ppy.sh"))); // use cookie auth
+            download.Client.Headers.Add(HttpRequestHeader.Cookie, Cookies.GetCookieHeader(new Uri("http://osu.ppy.sh"))); // use cookie auth
             return download;
         }
 
@@ -255,9 +277,9 @@ namespace NexDirectLib
         /// <summary>
         /// Resolves a beatmap set's ID to an object.
         /// </summary>
-        public static async Task<BeatmapSet> ResolveSetId(CookieContainer cookies, string setId)
+        public static async Task<BeatmapSet> ResolveSetId(string setId)
         {
-            string rawData = await GetRawWithCookies(cookies, $"https://osu.ppy.sh/s/{setId}");
+            string rawData = await GetRawWithCookies($"https://osu.ppy.sh/s/{setId}");
             if (rawData.Contains("looking for was not found")) return null;
 
             var htmlDoc = new HtmlAgilityPack.HtmlDocument();
@@ -278,9 +300,9 @@ namespace NexDirectLib
         /// <summary>
         /// Gets raw data using preloaded cookies.
         /// </summary>
-        private static async Task<string> GetRawWithCookies(CookieContainer cookies, string uri)
+        private static async Task<string> GetRawWithCookies(string uri)
         {
-            using (var handler = new HttpClientHandler() { CookieContainer = cookies })
+            using (var handler = new HttpClientHandler() { CookieContainer = Cookies })
             using (var client = new HttpClient(handler))
             {
                 var res = await client.GetStringAsync(uri);

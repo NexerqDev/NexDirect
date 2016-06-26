@@ -19,24 +19,29 @@ namespace NexDirect.Dialogs
             _parent = mw;
         }
 
-        private async void testCookies()
+        private async void TestCookies()
         {
-            var cookies = new System.Collections.Specialized.StringDictionary();
-            foreach (var kv in (JArray)Newtonsoft.Json.JsonConvert.DeserializeObject(_parent.officialOsuCookies))
+            System.Net.CookieContainer cookies = null;
+            try
             {
-                cookies.Add(kv["Key"].ToString(), kv["Value"].ToString());
+                cookies = await Osu.DeserializeCookies(_parent.officialOsuCookies);
+            }
+            catch
+            {
+                // Corrupted cookie store, deleting corruption
+                Properties.Settings.Default.officialOsuCookies = null;
+                Properties.Settings.Default.Save();
+                cookies = new System.Net.CookieContainer();
             }
 
             try
             {
-                System.Net.CookieContainer _cookies = await Osu.CheckLoginCookie(cookies, _parent.officialOsuUsername, _parent.officialOsuPassword);
-
-                if (_cookies == null)
+                if (!(await Osu.CheckLoginCookie(cookies, _parent.officialOsuUsername, _parent.officialOsuPassword)))
                 {
                     MessageBoxResult cookiePrompt = System.Windows.MessageBox.Show("There was an error logging in to your account. Maybe you have changed your password, etc... to update that click NO and visit settings.\nClick YES to retry connection, click NO to fall back to Bloodcat for this session.", "NexDirect - Error", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     if (cookiePrompt == MessageBoxResult.Yes)
                     {
-                        testCookies();
+                        TestCookies();
                         return;
                     }
                     _parent.useOfficialOsu = false;
@@ -46,14 +51,13 @@ namespace NexDirect.Dialogs
                 }
 
                 // store to parent & just persist them incase something new changed
-                _parent.officialCookieJar = _cookies;
-                _parent.officialOsuCookies = await Task.Factory.StartNew(() => JsonConvert.SerializeObject(_cookies));
+                _parent.officialOsuCookies = await Osu.SerializeCookies(Osu.Cookies);
                 Properties.Settings.Default.officialOsuCookies = _parent.officialOsuCookies;
                 Properties.Settings.Default.Save();
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show("There was an error connecting to osu! servers, falling back to Bloodcat for this session...\n" + ex.ToString());
+                System.Windows.MessageBox.Show("There was an error connecting to osu! servers, falling back to Bloodcat for this session...\n\n" + ex.ToString());
                 _parent.useOfficialOsu = false;
                 _parent.fallbackActualOsu = true;
             }
@@ -63,7 +67,7 @@ namespace NexDirect.Dialogs
 
         private void OsuLoginCheck_Shown(object sender, EventArgs e)
         {
-            testCookies();
+            TestCookies();
         }
     }
 }

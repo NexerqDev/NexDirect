@@ -24,7 +24,6 @@ namespace NexDirect
     {
         public ObservableCollection<BeatmapSet> beatmaps = new ObservableCollection<BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
         private System.Windows.Forms.NotifyIcon notifyIcon = null; // fullscreen overlay indicator
-        public System.Net.CookieContainer officialCookieJar; // for official osu
 
         public string osuFolder = Properties.Settings.Default.osuFolder;
         public string osuSongsFolder => Path.Combine(osuFolder, "Songs");
@@ -100,8 +99,7 @@ namespace NexDirect
                 IEnumerable<BeatmapSet> _beatmaps;
                 if (useOfficialOsu)
                 {
-                    _beatmaps = await Osu.Search(officialCookieJar,
-                        searchBox.Text,
+                    _beatmaps = await Osu.Search(searchBox.Text,
                         (rankedStatusBox.SelectedItem as KVItem).Value,
                         (modeSelectBox.SelectedItem as KVItem).Value
                     );
@@ -261,7 +259,7 @@ namespace NexDirect
             {
                 try
                 {
-                    download = await Osu.PrepareDownloadSet(officialCookieJar, set);
+                    download = await Osu.PrepareDownloadSet(set);
                 }
                 catch (Osu.IllegalDownloadException)
                 {
@@ -408,7 +406,7 @@ namespace NexDirect
                 BeatmapSet set;
                 if (useOfficialOsu)
                 {
-                    set = await Osu.ResolveSetId(officialCookieJar, m.Groups[1].ToString());
+                    set = await Osu.ResolveSetId(m.Groups[1].ToString());
                     if (set == null)
                     {
                         MessageBox.Show("Could not find the beatmap on the official osu! directory. Cannot proceed to download :(");
