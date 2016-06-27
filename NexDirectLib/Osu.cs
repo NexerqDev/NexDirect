@@ -9,11 +9,10 @@ using System.Collections.Specialized;
 using System.Collections;
 using System;
 using System.Web;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace NexDirectLib
-{
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
     using static Structures;
 
     public static class Osu

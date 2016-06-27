@@ -1,10 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Linq;
+using System;
 
 namespace NexDirectLib
 {
-    using System;
     using static Structures;
 
     public static class DownloadManager
