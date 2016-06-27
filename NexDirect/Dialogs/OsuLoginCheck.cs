@@ -36,24 +36,25 @@ namespace NexDirect.Dialogs
 
             try
             {
-                if (!(await Osu.CheckLoginCookie(cookies, _parent.officialOsuUsername, _parent.officialOsuPassword)))
-                {
-                    MessageBoxResult cookiePrompt = System.Windows.MessageBox.Show("There was an error logging in to your account. Maybe you have changed your password, etc... to update that click NO and visit settings.\nClick YES to retry connection, click NO to fall back to Bloodcat for this session.", "NexDirect - Error", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                    if (cookiePrompt == MessageBoxResult.Yes)
-                    {
-                        TestCookies();
-                        return;
-                    }
-                    _parent.useOfficialOsu = false;
-                    _parent.fallbackActualOsu = true;
-                    Close();
-                    return;
-                }
+                await Osu.CheckLoginCookie(cookies, _parent.officialOsuUsername, _parent.officialOsuPassword);
 
                 // store to parent & just persist them incase something new changed
                 _parent.officialOsuCookies = await Osu.SerializeCookies(Osu.Cookies);
                 Properties.Settings.Default.officialOsuCookies = _parent.officialOsuCookies;
                 Properties.Settings.Default.Save();
+            }
+            catch (Osu.InvalidPasswordException)
+            {
+                MessageBoxResult cookiePrompt = System.Windows.MessageBox.Show("There was an error logging in to your account. Maybe you have changed your password, etc... to update that click NO and visit settings.\nClick YES to retry connection, click NO to fall back to Bloodcat for this session.", "NexDirect - Error", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (cookiePrompt == MessageBoxResult.Yes)
+                {
+                    TestCookies();
+                    return;
+                }
+                _parent.useOfficialOsu = false;
+                _parent.fallbackActualOsu = true;
+                Close();
+                return;
             }
             catch (Exception ex)
             {

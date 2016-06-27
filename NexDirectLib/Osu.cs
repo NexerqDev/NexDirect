@@ -12,7 +12,7 @@ using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace NexDirectLib
+namespace NexDirectLib {
     using static Structures;
 
     public static class Osu
@@ -68,16 +68,18 @@ namespace NexDirectLib
                 response.EnsureSuccessStatusCode();
                 string str = await response.Content.ReadAsStringAsync();
 
-                if (str.Contains("You have specified an incorrect")) throw new Exception("Invalid username/password");
+                if (str.Contains("You have specified an incorrect")) throw new InvalidPasswordException();
 
                 return handler.CookieContainer;
             }
         }
 
+        public class InvalidPasswordException : Exception { }
+
         /// <summary>
         /// Checks if persisted cookies are still working and if so, continue to use them in here.
         /// </summary>
-        public static async Task<bool> CheckLoginCookie(CookieContainer cookies, string username, string password)
+        public static async Task CheckLoginCookie(CookieContainer cookies, string username, string password)
         {
             using (var handler = new HttpClientHandler() { CookieContainer = cookies })
             using (var client = new HttpClient(handler))
@@ -89,19 +91,10 @@ namespace NexDirectLib
                 if (str.Contains("Please login in order to access"))
                 {
                     // try with creds to renew login
-                    try
-                    {
-                        CookieContainer newCookies = await LoginAndGetCookie(username, password);
-                        Cookies = newCookies;
-                    }
-                    catch
-                    {
-                        return false; // ok creds wrong
-                    }
+                    CookieContainer newCookies = await LoginAndGetCookie(username, password);
+                    Cookies = newCookies;
                 }
                 else { Cookies = cookies; }
-                
-                return true;
             }
         }
 
@@ -231,7 +224,7 @@ namespace NexDirectLib
         /// <summary>
         /// Checks headers of a beatmap set download to see if it has been taken down by DMCA.
         /// </summary>
-        public static async Task<bool> CheckIllegal(BeatmapSet set)
+        public static async Task CheckIllegal(BeatmapSet set)
         {
             // Get status code - 302 REDIRECT = redirected to the real download, 200 OK = illegal page!
             using (var handler = new HttpClientHandler() { CookieContainer = Cookies, AllowAutoRedirect = false })
@@ -241,12 +234,9 @@ namespace NexDirectLib
                 try
                 {
                     HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, $"https://osu.ppy.sh/d/{set.Id}"));
-                    return response.StatusCode != HttpStatusCode.Redirect; // Check.
+                    if (response.StatusCode != HttpStatusCode.Redirect) throw new IllegalDownloadException(); // Check.
                 }
-                catch
-                {
-                    return true;
-                }
+                catch { }
             }
         }
 
@@ -255,17 +245,7 @@ namespace NexDirectLib
         /// </summary>
         public static async Task<BeatmapDownload> PrepareDownloadSet(BeatmapSet set)
         {
-            bool illegalStatus = false;
-            try
-            {
-                illegalStatus = await CheckIllegal(set);
-            }
-            catch { }
-            if (illegalStatus)
-            {
-                throw new IllegalDownloadException();
-            }
-            
+            await CheckIllegal(set);
             var download = new BeatmapDownload(set, new Uri($"https://osu.ppy.sh/d/{set.Id}"));
             download.Client.Headers.Add(HttpRequestHeader.Cookie, Cookies.GetCookieHeader(new Uri("http://osu.ppy.sh"))); // use cookie auth
             return download;

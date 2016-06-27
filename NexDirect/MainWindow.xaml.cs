@@ -14,7 +14,6 @@ using System.Diagnostics;
 
 using NexDirectLib;
 using static NexDirectLib.Structures;
-using System.Windows.Data;
 using System.Threading.Tasks;
 
 namespace NexDirect
@@ -254,16 +253,6 @@ namespace NexDirect
             }
 
             if (!CheckAndPromptIfHaveMap(set)) return;
-            else
-            {
-                // check
-                var resolvedSet = await Bloodcat.ResolveSetId(set.Id);
-                if (resolvedSet == null)
-                {
-                    MessageBox.Show("Could not find the beatmap on Bloodcat. Cannot proceed to download :(");
-                    return;
-                }
-            }
 
             // get dl obj
             BeatmapDownload download;
