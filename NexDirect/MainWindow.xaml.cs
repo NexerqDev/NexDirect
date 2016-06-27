@@ -407,24 +407,15 @@ namespace NexDirect
             Application.Current.Dispatcher.Invoke(async () =>
             {
                 BeatmapSet set;
-                if (useOfficialOsu)
+                if (useOfficialOsu) { set = await Osu.TryResolveSetId(m.Groups[1].ToString()); }
+                else { set = await Bloodcat.TryResolveSetId(m.Groups[1].ToString()); }
+
+                if (set == null)
                 {
-                    set = await Osu.ResolveSetId(m.Groups[1].ToString());
-                    if (set == null)
-                    {
-                        MessageBox.Show("Could not find the beatmap on the official osu! directory. Cannot proceed to download :(");
-                        return;
-                    }
+                    MessageBox.Show($"Could not find the beatmap on {(useOfficialOsu ? "the official osu! directory" : "Bloodcat")}. Cannot proceed to download :(");
+                    return;
                 }
-                else
-                {
-                    set = await Bloodcat.ResolveSetId(m.Groups[1].ToString());
-                    if (set == null)
-                    {
-                        MessageBox.Show("Could not find the beatmap on Bloodcat. Cannot proceed to download :(");
-                        return;
-                    }
-                }
+
                 MessageBoxResult confirmPrompt = MessageBox.Show($"Are you sure you wish to download: {set.Artist} - {set.Title} (mapped by {set.Mapper})?", "NexDirect - Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (confirmPrompt == MessageBoxResult.No) return;
                 DownloadBeatmapSet(set);

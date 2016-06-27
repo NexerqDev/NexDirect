@@ -254,26 +254,30 @@ namespace NexDirectLib {
         public class IllegalDownloadException : Exception { }
 
         /// <summary>
-        /// Resolves a beatmap set's ID to an object.
+        /// Tries to resolve a beatmap set's ID to an object.
         /// </summary>
-        public static async Task<BeatmapSet> ResolveSetId(string setId)
+        public static async Task<BeatmapSet> TryResolveSetId(string setId)
         {
-            string rawData = await GetRawWithCookies($"https://osu.ppy.sh/s/{setId}");
-            if (rawData.Contains("looking for was not found")) return null;
+            try
+            {
+                string rawData = await GetRawWithCookies($"https://osu.ppy.sh/s/{setId}");
+                if (rawData.Contains("looking for was not found")) return null;
 
-            var htmlDoc = new HtmlAgilityPack.HtmlDocument();
-            htmlDoc.OptionUseIdAttribute = true;
-            htmlDoc.LoadHtml(rawData);
-            HtmlAgilityPack.HtmlNode infoNode = htmlDoc.DocumentNode.SelectSingleNode("//table[@id='songinfo']");
-            return new BeatmapSet(
-                setId,
-                infoNode.SelectSingleNode("tr[1]/td[2]/a").InnerText, // artist
-                infoNode.SelectSingleNode("tr[2]/td[2]/a").InnerText, // title
-                infoNode.SelectSingleNode("tr[3]/td[2]/a").InnerText, // mapper
-                null,
-                new Dictionary<string, string>(),
-                null
-            );
+                var htmlDoc = new HtmlAgilityPack.HtmlDocument();
+                htmlDoc.OptionUseIdAttribute = true;
+                htmlDoc.LoadHtml(rawData);
+                HtmlAgilityPack.HtmlNode infoNode = htmlDoc.DocumentNode.SelectSingleNode("//table[@id='songinfo']");
+                return new BeatmapSet(
+                    setId,
+                    infoNode.SelectSingleNode("tr[1]/td[2]/a").InnerText, // artist
+                    infoNode.SelectSingleNode("tr[2]/td[2]/a").InnerText, // title
+                    infoNode.SelectSingleNode("tr[3]/td[2]/a").InnerText, // mapper
+                    null,
+                    new Dictionary<string, string>(),
+                    null
+                );
+            }
+            catch { return null; }
         }
 
         /// <summary>

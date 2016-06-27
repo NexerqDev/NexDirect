@@ -56,13 +56,17 @@ namespace NexDirectLib
         }
 
         /// <summary>
-        /// Shorthand to resolve a set ID to a BeatmapSet object
+        /// Shorthand to try and resolve a set ID to a BeatmapSet object
         /// </summary>
-        public static async Task<BeatmapSet> ResolveSetId(string beatmapSetId)
+        public static async Task<BeatmapSet> TryResolveSetId(string beatmapSetId)
         {
-            IEnumerable<BeatmapSet> results = await Search(beatmapSetId, null, null, "s");
-            BeatmapSet map = results.FirstOrDefault(r => r.Id == beatmapSetId);
-            return map;
+            try
+            {
+                IEnumerable<BeatmapSet> results = await Search(beatmapSetId, null, null, "s");
+                BeatmapSet map = results.FirstOrDefault(r => r.Id == beatmapSetId);
+                return map;
+            }
+            catch { return null; }
         }
 
         /// <summary>
