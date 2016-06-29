@@ -142,5 +142,17 @@ namespace NexDirect.Properties {
                 this["officialOsuPassword"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool configUpgradeRequired {
+            get {
+                return ((bool)(this["configUpgradeRequired"]));
+            }
+            set {
+                this["configUpgradeRequired"] = value;
+            }
+        }
     }
 }

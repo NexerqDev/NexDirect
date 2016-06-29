@@ -159,7 +159,7 @@ namespace NexDirect
             (new Dialogs.OsuLogin(this, parent)).ShowDialog();
 
             loaded = false;
-            if (!parent.useOfficialOsu)
+            if (!parent.fallbackActualOsu)
             {
                 // just stop it from running handler
                 officialDownloadBox.IsChecked = false;

@@ -456,11 +456,7 @@ namespace NexDirect
 
         private async void CheckForUpdates()
         {
-            // change version to github style semver
-            string[] versionParts = WinTools.GetOwnVersion().Split('.');
-            string version = $"{versionParts[0]}.{versionParts[1]}.{versionParts[2]}";
-
-            UpdateChecker.Update update = await UpdateChecker.Check(version, UpdateChecker.Platform.Windows);
+            UpdateChecker.Update update = await UpdateChecker.Check(WinTools.GetGitStyleVersion(), UpdateChecker.Platform.Windows);
             if (update == null) return;
 
             MessageBoxResult downloadNew = MessageBox.Show($"There is a new update available for NexDirect (version {update.Version}).\nIt was published on GitHub at {update.PublishedAt.ToString("g")}.\n\nOpen your browser now to download the latest update?", "NexDirect - Update Available", MessageBoxButton.YesNo, MessageBoxImage.Question);

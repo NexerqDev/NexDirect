@@ -28,5 +28,13 @@ namespace NexDirect
             FileVersionInfo info = FileVersionInfo.GetVersionInfo(assembly.Location);
             return info.FileVersion;
         }
+
+        static public string GetGitStyleVersion()
+        {
+            // change version to github style semver
+            string[] versionParts = GetOwnVersion().Split('.');
+            string version = $"{versionParts[0]}.{versionParts[1]}.{versionParts[2]}";
+            return version;
+        }
     }
 }
