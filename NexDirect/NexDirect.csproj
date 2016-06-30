@@ -111,6 +111,7 @@
     </Compile>
     <Compile Include="HotkeyManager.cs" />
     <Compile Include="SingleInstance.cs" />
+    <Compile Include="TrayManager.cs" />
     <Compile Include="WinTools.cs" />
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -11,10 +11,10 @@ using System.Windows.Media.Imaging;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 using NexDirectLib;
 using static NexDirectLib.Structures;
-using System.Threading.Tasks;
 
 namespace NexDirect
 {
@@ -24,7 +24,6 @@ namespace NexDirect
     public partial class MainWindow : Window
     {
         public ObservableCollection<BeatmapSet> beatmaps = new ObservableCollection<BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
-        private System.Windows.Forms.NotifyIcon notifyIcon = null; // fullscreen overlay indicator
 
         public string osuFolder = Properties.Settings.Default.osuFolder;
         public string osuSongsFolder => Path.Combine(osuFolder, "Songs");
@@ -32,6 +31,8 @@ namespace NexDirect
         public bool audioPreviews = Properties.Settings.Default.audioPreviews;
         public string beatmapMirror = Properties.Settings.Default.beatmapMirror;
         public string uiBackground = Properties.Settings.Default.customBgPath;
+        public bool minimizeToTray = Properties.Settings.Default.minimizeToTray;
+        public bool firstTrayMinimize = true;
         public bool launchOsu = Properties.Settings.Default.launchOsu;
         public bool useOfficialOsu = Properties.Settings.Default.useOfficialOsu;
         public string officialOsuCookies = Properties.Settings.Default.officialOsuCookies;
@@ -481,15 +482,16 @@ namespace NexDirect
 
         protected override void OnClosed(EventArgs e)
         {
-            if (overlayMode)
+            if (overlayMode || minimizeToTray)
             {
-                // unload hotkey stuff
-                HotkeyManager.Unregister(HotkeyManager.GetRuntimeHandle(this));
+                if (overlayMode)
+                {
+                    // unload hotkey stuff
+                    HotkeyManager.Unregister(HotkeyManager.GetRuntimeHandle(this));
+                }
 
                 // unload tray icon to prevent it sticking there
-                notifyIcon.Visible = false;
-                notifyIcon.Dispose();
-                notifyIcon = null;
+                TrayManager.Unload();
             }
             base.OnClosed(e);
         }
@@ -497,26 +499,69 @@ namespace NexDirect
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
-            if (overlayMode)
+            if (overlayMode || minimizeToTray)
             {
-                // https://stackoverflow.com/questions/1472633/wpf-application-that-only-has-a-tray-icon
-                notifyIcon = new System.Windows.Forms.NotifyIcon();
-                notifyIcon.DoubleClick += (o, e1) => { HotkeyPressed(); }; // it is like pressing the hotkey
-                notifyIcon.Icon = Properties.Resources.logo;
-                notifyIcon.Text = "NexDirect (Overlay Mode)";
-                notifyIcon.ContextMenu = new System.Windows.Forms.ContextMenu(new System.Windows.Forms.MenuItem[]
+                TrayManager.Init();
+                TrayManager.NotifyIconInteracted += (ex) =>
                 {
-                    new System.Windows.Forms.MenuItem("Show", (o, e1) => { HotkeyPressed(); }),
-                    new System.Windows.Forms.MenuItem("E&xit", (o, e1) => { Application.Current.Shutdown(); })
-                });
-                notifyIcon.Visible = true;
-                notifyIcon.ShowBalloonTip(1500, "NexDirect (Overlay Mode)", "Press CTRL+SHIFT+HOME to toggle the NexDirect overlay...", System.Windows.Forms.ToolTipIcon.Info);
+                    if (ex.Type == TrayManager.InteractionType.CtxExit)
+                    {
+                        Application.Current.Shutdown();
+                        return;
+                    }
+
+                    if (minimizeToTray && !overlayMode)
+                    {
+                        RestoreWindowFromTray();
+                    }
+                    else
+                    {
+                        HotkeyPressed();
+                    }
+                };
+
+                if (overlayMode)
+                {
+                    // Always show and ready to pop
+                    TrayManager.Icon.ShowBalloonTip(1500, "NexDirect (Overlay Mode)", "Press CTRL+SHIFT+HOME to toggle the NexDirect overlay...", System.Windows.Forms.ToolTipIcon.Info);
+                }
+                else
+                {
+                    // Hide by default, ready to go
+                    TrayManager.Icon.Visible = false;
+                }
             }
         }
 
         private void overlayModeExit_MouseUp(object sender, MouseButtonEventArgs e)
         {
             Application.Current.Shutdown();
+        }
+
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            if (minimizeToTray)
+            {
+                if (WindowState == WindowState.Minimized)
+                {
+                    TrayManager.Icon.Visible = true;
+                    Hide();
+
+                    if (firstTrayMinimize)
+                    {
+                        TrayManager.Icon.ShowBalloonTip(1500, "NexDirect", "NexDirect has been minimized to the tray. Double click the icon in the tray to restore.", System.Windows.Forms.ToolTipIcon.Info);
+                        firstTrayMinimize = false;
+                    }
+                }
+            }
+        }
+
+        public void RestoreWindowFromTray()
+        {
+            Show();
+            WindowState = WindowState.Normal; // get outta minimize
+            Activate(); // bring to front
+            Task.Delay(150).ContinueWith((a) => { TrayManager.Icon.Visible = false; }); // wait a little, accidental clicks of other tray icons
         }
     }
 }

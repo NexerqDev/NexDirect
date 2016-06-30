@@ -24,6 +24,7 @@ namespace NexDirect
             mirrorTextBox.Text = parent.beatmapMirror;
             launchOsuCheckbox.IsChecked = parent.launchOsu;
             officialDownloadBox.IsChecked = parent.useOfficialOsu;
+            useTrayCheckbox.IsChecked = parent.minimizeToTray;
             if (_parent.fallbackActualOsu) officialDownloadBox.IsChecked = true;
 
             if ((bool)officialDownloadBox.IsChecked)
@@ -184,6 +185,25 @@ namespace NexDirect
             Properties.Settings.Default.officialOsuPassword = "";
             Properties.Settings.Default.Save();
             MessageBox.Show("Disabled official osu! server downloads.");
+        }
+
+        private void useTrayCheckbox_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (!loaded) return;
+            parent.minimizeToTray = (bool)useTrayCheckbox.IsChecked;
+            Properties.Settings.Default.minimizeToTray = parent.minimizeToTray;
+            Properties.Settings.Default.Save();
+
+            // init the tray icon if not already
+            if (parent.minimizeToTray && !parent.overlayMode && !TrayManager.Loaded)
+            {
+                TrayManager.Init();
+                TrayManager.Icon.Visible = false;
+            }
+            else if (!parent.minimizeToTray && !parent.overlayMode && TrayManager.Loaded)
+            {
+                TrayManager.Unload();
+            }
         }
     }
 }
