@@ -57,6 +57,7 @@ namespace NexDirectLib
         {
             download.Cancelled = true;
             download.Client.CancelAsync();
+            Downloads.Remove(download);
         }
 
         private static void Downloads_SpeedUpdateHandler()
