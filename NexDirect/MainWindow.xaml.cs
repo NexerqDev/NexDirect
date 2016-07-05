@@ -270,6 +270,38 @@ namespace NexDirect
 
                     download = Bloodcat.PrepareDownloadSet(set, beatmapMirror);
                 }
+                catch (Osu.CookiesExpiredException)
+                {
+                    try // try renew
+                    {
+                        System.Net.CookieContainer _cookies = await Osu.LoginAndGetCookie(officialOsuUsername, officialOsuPassword);
+                        Properties.Settings.Default.officialOsuCookies = officialOsuCookies = await Osu.SerializeCookies(_cookies);
+                        Osu.Cookies = _cookies;
+                        Properties.Settings.Default.Save(); // success
+                        download = await Osu.PrepareDownloadSet(set);
+                    }
+                    catch (Osu.InvalidPasswordException)
+                    {
+                        MessageBoxResult fallback = MessageBox.Show("It seems like your osu! login password has changed. Press yes to fallback the session to Bloodcat for now and you can go update your password, or press no to permanently use Bloodcat. You will have to retry the download again either way.", "NexDirect - Download Error", MessageBoxButton.YesNo, MessageBoxImage.Error);
+                        if (fallback == MessageBoxResult.Yes)
+                        {
+                            // just fallback
+                            useOfficialOsu = false;
+                            fallbackActualOsu = true;
+                            return;
+                        }
+                        else
+                        {
+                            // disable perma
+                            Properties.Settings.Default.useOfficialOsu = useOfficialOsu = false;
+                            Properties.Settings.Default.officialOsuCookies = officialOsuCookies = null;
+                            Properties.Settings.Default.officialOsuUsername = officialOsuUsername = "";
+                            Properties.Settings.Default.officialOsuPassword = officialOsuPassword = "";
+                            Properties.Settings.Default.Save();
+                            return;
+                        }
+                    }
+                }
             }
             else
             {

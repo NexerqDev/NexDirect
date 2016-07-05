@@ -207,13 +207,14 @@ namespace NexDirectLib {
         public class SearchNotSupportedException : Exception { }
 
         /// <summary>
-        /// Tries to get text from node.
+        /// Tries to get text from node and escapes it from HTML.
         /// </summary>
         private static string TryGetNodeText(HtmlAgilityPack.HtmlNode node, string xpath)
         {
             try
             {
-                return node.SelectSingleNode(xpath).InnerText;
+                string txt = node.SelectSingleNode(xpath).InnerText;
+                return HttpUtility.HtmlDecode(txt);
             }
             catch
             {
@@ -226,17 +227,14 @@ namespace NexDirectLib {
         /// </summary>
         public static async Task CheckIllegal(BeatmapSet set)
         {
-            // Get status code - 302 REDIRECT = redirected to the real download, 200 OK = illegal page!
+            // Get status code - 302 REDIRECT = redirected to the real download OR redirected to login, 200 OK = illegal page!
             using (var handler = new HttpClientHandler() { CookieContainer = Cookies, AllowAutoRedirect = false })
             using (var client = new HttpClient(handler))
             {
                 // HEAD request for the status code
-                try
-                {
-                    HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, $"https://osu.ppy.sh/d/{set.Id}"));
-                    if (response.StatusCode != HttpStatusCode.Redirect) throw new IllegalDownloadException(); // Check.
-                }
-                catch { }
+                HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, $"https://osu.ppy.sh/d/{set.Id}"));
+                if (response.StatusCode != HttpStatusCode.Redirect) throw new IllegalDownloadException(); // Check.
+                if (response.Headers.Location.AbsoluteUri.Contains("/ucp.php?mode=login")) throw new CookiesExpiredException(); // Redirected to login.
             }
         }
 
@@ -252,6 +250,7 @@ namespace NexDirectLib {
         }
 
         public class IllegalDownloadException : Exception { }
+        public class CookiesExpiredException : Exception { }
 
         /// <summary>
         /// Tries to resolve a beatmap set's ID to an object.
@@ -269,9 +268,9 @@ namespace NexDirectLib {
                 HtmlAgilityPack.HtmlNode infoNode = htmlDoc.DocumentNode.SelectSingleNode("//table[@id='songinfo']");
                 return new BeatmapSet(
                     setId,
-                    infoNode.SelectSingleNode("tr[1]/td[2]/a").InnerText, // artist
-                    infoNode.SelectSingleNode("tr[2]/td[2]/a").InnerText, // title
-                    infoNode.SelectSingleNode("tr[3]/td[2]/a").InnerText, // mapper
+                    HttpUtility.HtmlDecode(infoNode.SelectSingleNode("tr[1]/td[2]/a").InnerText), // artist
+                    HttpUtility.HtmlDecode(infoNode.SelectSingleNode("tr[2]/td[2]/a").InnerText), // title
+                    HttpUtility.HtmlDecode(infoNode.SelectSingleNode("tr[3]/td[2]/a").InnerText), // mapper
                     null,
                     new Dictionary<string, string>(),
                     null
