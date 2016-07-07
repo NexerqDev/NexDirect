@@ -156,6 +156,9 @@ namespace NexDirectLib {
 
             string rawData = await GetRawWithCookies("https://osu.ppy.sh/p/beatmaplist?" + qs.ToString());
 
+            // Check if still logged in
+            if (rawData.Contains("Please enter your credentials")) throw new CookiesExpiredException();
+
             // Parse.
             var htmlDoc = new HtmlAgilityPack.HtmlDocument();
             htmlDoc.OptionUseIdAttribute = true;
