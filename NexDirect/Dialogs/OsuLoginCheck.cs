@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows;
 using System.Windows.Forms;
 

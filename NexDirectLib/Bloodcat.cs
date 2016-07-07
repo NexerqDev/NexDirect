@@ -31,9 +31,10 @@ namespace NexDirectLib
         /// <summary>
         /// Retrieves front page popular data from Bloodcat
         /// </summary>
-        public static async Task<JArray> Popular()
+        public static async Task<IEnumerable<BeatmapSet>> Popular()
         {
-            return await Web.GetJson<JArray>("http://bloodcat.com/osu/popular.php?mod=json");
+            var data = await Web.GetJson<JArray>("http://bloodcat.com/osu/popular.php?mod=json");
+            return data.Select(b => StandardizeToSetStruct((JObject)b));
         }
 
         /// <summary>

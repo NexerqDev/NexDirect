@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Windows;
 
@@ -77,11 +76,15 @@ namespace NexDirect
 
         private void setCustomBgButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new CommonOpenFileDialog();
-            CommonFileDialogResult result = dialog.ShowDialog();
+            var dialog = new OpenFileDialog();
 
             string filename;
-            try
+            if (!(bool)dialog.ShowDialog())
+            {
+                // take it as clear - catch dialog.FileName cancel button
+                filename = "";
+            }
+            else
             {
                 if (string.IsNullOrEmpty(dialog.FileName))
                 {
@@ -89,11 +92,6 @@ namespace NexDirect
                     return;
                 }
                 filename = dialog.FileName;
-            }
-            catch
-            {
-                // take it as clear - catch dialog.FileName cancel button
-                filename = "";
             }
 
             parent.uiBackground = filename;

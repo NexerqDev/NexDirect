@@ -21,5 +21,7 @@ namespace NexDirectLib
             if (!DownloadCompleteSoundEnabled) return;
             NotificationOut.Play();
         }
+
+        public static void ForceStopPreview() => PreviewOut.Stop();
     }
 }

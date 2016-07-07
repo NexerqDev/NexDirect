@@ -2,10 +2,8 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using Newtonsoft.Json.Linq;
 using System.Collections.ObjectModel;
 using System.IO;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Text.RegularExpressions;
@@ -15,6 +13,7 @@ using System.Threading.Tasks;
 
 using NexDirectLib;
 using static NexDirectLib.Structures;
+using WPFFolderBrowser;
 
 namespace NexDirect
 {
@@ -145,10 +144,8 @@ namespace NexDirect
             try
             {
                 searchingLoading.Visibility = Visibility.Visible;
-                var beatmapsData = await Bloodcat.Popular();
-                var _beatmaps = new List<BeatmapSet>();
-                foreach (JObject b in beatmapsData) _beatmaps.Add(Bloodcat.StandardizeToSetStruct(b));
-                populateBeatmaps(_beatmaps);
+                var beatmaps = await Bloodcat.Popular();
+                populateBeatmaps(beatmaps);
             }
             catch (Exception ex) { MessageBox.Show("There was an error loading the popular beatmaps...\n\n" + ex.ToString()); }
             finally { searchingLoading.Visibility = Visibility.Hidden; }
@@ -207,7 +204,7 @@ namespace NexDirect
         {
             // shortcut to stop playing
             if (!audioPreviews) return;
-            AudioManager.PreviewOut.Stop();
+            AudioManager.ForceStopPreview();
         }
 
         private void progressGrid_DoubleClick(object sender, MouseButtonEventArgs e)
@@ -392,31 +389,28 @@ namespace NexDirect
 
             while (string.IsNullOrEmpty(osuFolder))
             {
-                var dialog = new CommonOpenFileDialog();
-                dialog.IsFolderPicker = true;
-                CommonFileDialogResult result = dialog.ShowDialog();
-
-                try
+                var dialog = new WPFFolderBrowserDialog();
+                if (!(bool)dialog.ShowDialog())
                 {
-                    if (!string.IsNullOrEmpty(dialog.FileName))
+                    // ShowDialog returns false on no folder picked
+                    MessageBox.Show("You need to select your osu! folder, please try again!", "NexDirect - Error");
+                    continue;
+                }
+
+                if (!string.IsNullOrEmpty(dialog.FileName))
+                {
+                    if (File.Exists(Path.Combine(dialog.FileName, "osu!.exe")))
                     {
-                        if (File.Exists(Path.Combine(dialog.FileName, "osu!.exe")))
-                        {
-                            osuFolder = dialog.FileName;
-                        }
-                        else
-                        {
-                            MessageBox.Show("This does not seem like a valid osu! songs folder. Please try again.", "NexDirect - Error");
-                        }
+                        osuFolder = dialog.FileName;
                     }
                     else
                     {
-                        MessageBox.Show("Could not detect your osu! folder being selected. Please try again.", "NexDirect - Error");
+                        MessageBox.Show("This does not seem like a valid osu! songs folder. Please try again.", "NexDirect - Error");
                     }
                 }
-                catch // catch thrown error on dialog.FileName access when nothing selected
+                else
                 {
-                    MessageBox.Show("You need to select your osu! folder, please try again!", "NexDirect - Error");
+                    MessageBox.Show("Could not detect your osu! folder being selected. Please try again.", "NexDirect - Error");
                 }
             }
 
