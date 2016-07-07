@@ -12,7 +12,8 @@ namespace NexDirect
         static public object GetGridViewSelectedRowItem(object sender, MouseButtonEventArgs e)
         {
             DataGridRow row = ItemsControl.ContainerFromElement((DataGrid)sender, e.OriginalSource as DependencyObject) as DataGridRow;
-            if (row == null) return null;
+            if (row == null)
+                return null;
             return row.Item;
         }
 

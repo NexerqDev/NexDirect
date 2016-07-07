@@ -8,12 +8,12 @@ namespace NexDirect.Dialogs
 {
     public partial class OsuLoginCheck : Form
     {
-        private MainWindow _parent;
+        private MainWindow _mw;
 
         public OsuLoginCheck(MainWindow mw)
         {
             InitializeComponent();
-            _parent = mw;
+            _mw = mw;
         }
 
         private async void TestCookies()
@@ -21,7 +21,7 @@ namespace NexDirect.Dialogs
             System.Net.CookieContainer cookies = null;
             try
             {
-                cookies = await Osu.DeserializeCookies(_parent.officialOsuCookies);
+                cookies = await Osu.DeserializeCookies(_mw.officialOsuCookies);
             }
             catch
             {
@@ -33,11 +33,11 @@ namespace NexDirect.Dialogs
 
             try
             {
-                await Osu.CheckLoginCookie(cookies, _parent.officialOsuUsername, _parent.officialOsuPassword);
+                await Osu.CheckLoginCookie(cookies, _mw.officialOsuUsername, _mw.officialOsuPassword);
 
                 // store to parent & just persist them incase something new changed
-                _parent.officialOsuCookies = await Osu.SerializeCookies(Osu.Cookies);
-                Properties.Settings.Default.officialOsuCookies = _parent.officialOsuCookies;
+                _mw.officialOsuCookies = await Osu.SerializeCookies(Osu.Cookies);
+                Properties.Settings.Default.officialOsuCookies = _mw.officialOsuCookies;
                 Properties.Settings.Default.Save();
             }
             catch (Osu.InvalidPasswordException)
@@ -48,16 +48,16 @@ namespace NexDirect.Dialogs
                     TestCookies();
                     return;
                 }
-                _parent.useOfficialOsu = false;
-                _parent.fallbackActualOsu = true;
+                _mw.useOfficialOsu = false;
+                _mw.fallbackActualOsu = true;
                 Close();
                 return;
             }
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show("There was an error connecting to osu! servers, falling back to Bloodcat for this session...\n\n" + ex.ToString());
-                _parent.useOfficialOsu = false;
-                _parent.fallbackActualOsu = true;
+                _mw.useOfficialOsu = false;
+                _mw.fallbackActualOsu = true;
             }
 
             Close();

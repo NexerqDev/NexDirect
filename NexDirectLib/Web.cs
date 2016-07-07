@@ -14,7 +14,8 @@ namespace NexDirectLib
         {
             using (var client = new HttpClient())
             {
-                if (!string.IsNullOrEmpty(userAgent)) client.DefaultRequestHeaders.Add("User-Agent", userAgent);
+                if (!string.IsNullOrEmpty(userAgent))
+                    client.DefaultRequestHeaders.Add("User-Agent", userAgent);
                 var response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 string body = await response.Content.ReadAsStringAsync();

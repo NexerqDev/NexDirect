@@ -30,9 +30,11 @@ namespace NexDirectLib
 
                 string onlineVersion = release["tag_name"].ToString();
                 onlineVersion = onlineVersion.Replace(lookupPlatform, "");
-                if (onlineVersion[0] == 'v') onlineVersion = onlineVersion.Substring(1);
+                if (onlineVersion[0] == 'v')
+                    onlineVersion = onlineVersion.Substring(1);
 
-                if (currentVersion == onlineVersion) return null;
+                if (currentVersion == onlineVersion)
+                    return null;
 
                 string releaseUrl = release["html_url"].ToString();
                 DateTime publishedAt = release["published_at"].ToObject<DateTime>();

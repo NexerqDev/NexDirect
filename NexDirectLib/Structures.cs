@@ -135,9 +135,8 @@ namespace NexDirectLib
                 Client.DownloadProgressChanged += (o, e) =>
                 {
                     if (SpeedTracker.Elapsed.Seconds > 0)
-                    {
                         Speed = (e.BytesReceived / 1000) / SpeedTracker.Elapsed.Seconds;
-                    }
+
                     Percent = e.ProgressPercentage.ToString();
                 };
                 Client.DownloadFileCompleted += (o, e) =>

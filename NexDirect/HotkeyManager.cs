@@ -13,11 +13,13 @@ namespace NexDirect
             [In] IntPtr hWnd,
             [In] int id,
             [In] uint fsModifiers,
-            [In] uint vk);
+            [In] uint vk
+        );
         [DllImport("User32.dll")]
         private static extern bool UnregisterHotKey(
             [In] IntPtr hWnd,
-            [In] int id);
+            [In] int id
+        );
 
         private static HwndSource _source; // hotkey related ???
         private static bool registered;
@@ -35,7 +37,8 @@ namespace NexDirect
 
         public static bool Register(IntPtr handle, uint modifiers, uint vk)
         {
-            if (registered || !init) return false;
+            if (registered || !init)
+                return false;
 
             try
             {
@@ -48,7 +51,8 @@ namespace NexDirect
 
         public static bool Unregister(IntPtr handle)
         {
-            if (!registered) return false;
+            if (!registered)
+                return false;
             UnregisterHotKey(handle, 0);
             registered = false;
             return true;

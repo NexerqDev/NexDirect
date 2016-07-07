@@ -26,8 +26,9 @@ namespace NexDirectLib {
         {
             // kind of a hack.
             AudioManager.PreviewOut.Stop(); // if already playing something just stop it
-            await Task.Delay(150);
-            if (DownloadManager.Downloads.Any(d => d.Set.Id == set.Id)) return; // check for if already d/l'ing overlaps
+            await Task.Delay(250);
+            if (DownloadManager.Downloads.Any(d => d.Set.Id == set.Id))
+                return; // check for if already d/l'ing overlaps
 
             WaveOut waveOut = AudioManager.PreviewOut;
             using (var client = new HttpClient())
@@ -68,7 +69,8 @@ namespace NexDirectLib {
                 response.EnsureSuccessStatusCode();
                 string str = await response.Content.ReadAsStringAsync();
 
-                if (str.Contains("You have specified an incorrect")) throw new InvalidPasswordException();
+                if (str.Contains("You have specified an incorrect"))
+                    throw new InvalidPasswordException();
 
                 return handler.CookieContainer;
             }
@@ -94,7 +96,10 @@ namespace NexDirectLib {
                     CookieContainer newCookies = await LoginAndGetCookie(username, password);
                     Cookies = newCookies;
                 }
-                else { Cookies = cookies; }
+                else
+                {
+                    Cookies = cookies;
+                }
             }
         }
 
@@ -104,9 +109,7 @@ namespace NexDirectLib {
             foreach (Cookie c in cookies.GetCookies(new Uri("http://osu.ppy.sh")))
             {
                 if (!cookieStore.ContainsKey(c.Name)) // there are some duplicates
-                {
                     cookieStore.Add(c.Name, c.Value);
-                }
             }
             return await Task.Factory.StartNew(() => JsonConvert.SerializeObject(cookieStore));
         }
@@ -116,16 +119,13 @@ namespace NexDirectLib {
             var _cookies = new StringDictionary();
             var _dscookies = await Task.Factory.StartNew(() => JsonConvert.DeserializeObject(_dcookies));
             foreach (var kv in (JArray)(_dscookies))
-            {
                 _cookies.Add(kv["Key"].ToString(), kv["Value"].ToString());
-            }
 
             var cookies = new CookieContainer();
             var osuUri = new Uri("http://osu.ppy.sh");
             foreach (DictionaryEntry c in _cookies)
-            {
                 cookies.Add(osuUri, new Cookie(c.Key.ToString(), c.Value.ToString()));
-            }
+
             return cookies;
         }
 
@@ -135,16 +135,19 @@ namespace NexDirectLib {
         public static async Task<IEnumerable<BeatmapSet>> Search(string query, string sRankedParam, string mModeParam)
         {
             if (sRankedParam == "0,-1,-2")
-            {
                 throw new SearchNotSupportedException();
-            }
 
             // Standardize the bloodcat stuff to osu! query param
-            if (sRankedParam == "1,2") sRankedParam = "0";
-            else if (sRankedParam == "3") sRankedParam = "11";
-            else sRankedParam = "4";
+            if (sRankedParam == "1,2")
+                sRankedParam = "0";
+            else if (sRankedParam == "3")
+                sRankedParam = "11";
+            else
+                sRankedParam ="4";
 
-            if (mModeParam == null) mModeParam = "-1"; // modes are all g except for "All"
+            // modes are all g except for "All"
+            if (mModeParam == null)
+                mModeParam = "-1";
 
 
             // Search time. Need to use cookies.
@@ -157,14 +160,16 @@ namespace NexDirectLib {
             string rawData = await GetRawWithCookies("https://osu.ppy.sh/p/beatmaplist?" + qs.ToString());
 
             // Check if still logged in
-            if (rawData.Contains("Please enter your credentials")) throw new CookiesExpiredException();
+            if (rawData.Contains("Please enter your credentials"))
+                throw new CookiesExpiredException();
 
             // Parse.
             var htmlDoc = new HtmlAgilityPack.HtmlDocument();
             htmlDoc.OptionUseIdAttribute = true;
             htmlDoc.LoadHtml(rawData);
             HtmlAgilityPack.HtmlNodeCollection beatmapNodes = htmlDoc.DocumentNode.SelectNodes("//div[@class='beatmapListing']/div[@class='beatmap']");
-            if (beatmapNodes == null) return new List<BeatmapSet>(); // empty
+            if (beatmapNodes == null)
+                return new List<BeatmapSet>(); // empty
             return beatmapNodes.Select(b => {
                 var difficulties = new Dictionary<string, string>();
                 try
@@ -174,26 +179,27 @@ namespace NexDirectLib {
                     {
                         string _d = d.Attributes["class"].Value.Replace("diffIcon ", "");
 
-                        if (_d.Contains("-t")) _d = "1"; // taiko
-                        else if (_d.Contains("-f")) _d = "2"; // ctb
-                        else if (_d.Contains("-m")) _d = "3"; // mania
-                        else _d = "0"; // standard
+                        if (_d.Contains("-t"))
+                            _d = "1"; // taiko
+                        else if (_d.Contains("-f"))
+                            _d = "2"; // ctb
+                        else if (_d.Contains("-m"))
+                            _d = "3"; // mania
+                        else
+                            _d = "0"; // standard
 
                         difficulties.Add(i.ToString(), _d);
                         i++;
                     }
-                } catch { } // rip
+                }
+                catch { } // rip
 
                 // we can only base this off that green/red bar, lol
                 string rankStatus;
                 if (b.SelectSingleNode("div[@class='right-aligned']/div[@class='rating']") != null)
-                {
                     rankStatus = "Ranked/Approved/Qualified";
-                }
                 else
-                {
                     rankStatus = "Pending/Graveyard";
-                }
 
                 return new BeatmapSet(
                     b.Id,
@@ -219,10 +225,7 @@ namespace NexDirectLib {
                 string txt = node.SelectSingleNode(xpath).InnerText;
                 return HttpUtility.HtmlDecode(txt);
             }
-            catch
-            {
-                return "<Unknown>";
-            }
+            catch { return "<Unknown>"; }
         }
 
         /// <summary>
@@ -236,8 +239,11 @@ namespace NexDirectLib {
             {
                 // HEAD request for the status code
                 HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, $"https://osu.ppy.sh/d/{set.Id}"));
-                if (response.StatusCode != HttpStatusCode.Redirect) throw new IllegalDownloadException(); // Check.
-                if (response.Headers.Location.AbsoluteUri.Contains("/ucp.php?mode=login")) throw new CookiesExpiredException(); // Redirected to login.
+
+                if (response.StatusCode != HttpStatusCode.Redirect)
+                    throw new IllegalDownloadException(); // Check.
+                if (response.Headers.Location.AbsoluteUri.Contains("/ucp.php?mode=login"))
+                    throw new CookiesExpiredException(); // Redirected to login.
             }
         }
 

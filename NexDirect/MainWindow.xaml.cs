@@ -61,9 +61,7 @@ namespace NexDirect
             }
 
             if (useOfficialOsu)
-            {
                 (new Dialogs.OsuLoginCheck(this)).ShowDialog();
-            }
 
             HandleURIArgs(startupArgs);
         }
@@ -71,7 +69,8 @@ namespace NexDirect
         private bool limitSpeedUpdates = false; // slow down
         private async void DownloadManager_SpeedUpdated(DownloadManager.SpeedUpdatedEventArgs e)
         {
-            if (limitSpeedUpdates && e.Speed != 0) return;
+            if (limitSpeedUpdates && e.Speed != 0)
+                return;
             downloadSpeedLabel.Content = $"Average download speed (per download): {e.Speed.ToString("0.0")}kB/s"; // 0.0 = one dp
             limitSpeedUpdates = true;
             await Task.Delay(500);
@@ -86,9 +85,7 @@ namespace NexDirect
             MapsManager.Reload(osuSongsFolder);
 
             if (!string.IsNullOrEmpty(uiBackground))
-            {
                 SetFormCustomBackground(uiBackground);
-            }
 
             if (overlayMode)
             {
@@ -155,7 +152,8 @@ namespace NexDirect
         private void searchBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             // not for official osu search
-            if (useOfficialOsu) return;
+            if (useOfficialOsu)
+                return;
 
             // if only numbers show the search via, just like the bloodcat website
             if (onlyNumbersReg.IsMatch(searchBox.Text))
@@ -177,25 +175,26 @@ namespace NexDirect
         {
             beatmaps.Clear();
             foreach (BeatmapSet beatmap in beatmapsData)
-            {
                 beatmaps.Add(beatmap);
-            }
         }
 
         private void dataGrid_DoubleClick(object sender, MouseButtonEventArgs e)
         {
             var beatmap = WinTools.GetGridViewSelectedRowItem<BeatmapSet>(sender, e);
-            if (beatmap == null) return;
+            if (beatmap == null)
+                return;
 
             DownloadBeatmapSet(beatmap);
         }
 
         private void dataGrid_LeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (!audioPreviews) return;
+            if (!audioPreviews)
+                return;
 
             var set = WinTools.GetGridViewSelectedRowItem<BeatmapSet>(sender, e);
-            if (set == null) return;
+            if (set == null)
+                return;
 
             Osu.PlayPreviewAudio(set);
         }
@@ -203,17 +202,20 @@ namespace NexDirect
         private void dataGrid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             // shortcut to stop playing
-            if (!audioPreviews) return;
+            if (!audioPreviews)
+                return;
             AudioManager.ForceStopPreview();
         }
 
         private void progressGrid_DoubleClick(object sender, MouseButtonEventArgs e)
         {
             var download = WinTools.GetGridViewSelectedRowItem<BeatmapDownload>(sender, e);
-            if (download == null) return;
+            if (download == null)
+                return;
 
             MessageBoxResult cancelPrompt = MessageBox.Show("Are you sure you wish to cancel the current download for: " + download.FriendlyName + "?", "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            if (cancelPrompt == MessageBoxResult.No) return;
+            if (cancelPrompt == MessageBoxResult.No)
+                return;
 
             DownloadManager.CancelDownload(download);
         }
@@ -255,7 +257,8 @@ namespace NexDirect
                 return;
             }
 
-            if (!CheckAndPromptIfHaveMap(set)) return;
+            if (!CheckAndPromptIfHaveMap(set))
+                return;
 
             // get dl obj
             BeatmapDownload download;
@@ -268,13 +271,15 @@ namespace NexDirect
                 catch (Osu.IllegalDownloadException)
                 {
                     MessageBoxResult bloodcatAsk = MessageBox.Show("Sorry, this map seems like it has been taken down from the official osu! servers due to a DMCA request to them. Would you like to check if a copy off Bloodcat is available, and if so download it?", "NexDirect - Mirror?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                    if (bloodcatAsk == MessageBoxResult.No) download = Bloodcat.PrepareDownloadSet(set, beatmapMirror);
+                    if (bloodcatAsk == MessageBoxResult.No)
+                        download = Bloodcat.PrepareDownloadSet(set, beatmapMirror);
 
                     download = Bloodcat.PrepareDownloadSet(set, beatmapMirror);
                 }
                 catch (Osu.CookiesExpiredException)
                 {
-                    if (await TryRenewOsuCookies()) download = await Osu.PrepareDownloadSet(set);
+                    if (await TryRenewOsuCookies())
+                        download = await Osu.PrepareDownloadSet(set);
                     return;
                 }
             }
@@ -283,7 +288,8 @@ namespace NexDirect
                 download = Bloodcat.PrepareDownloadSet(set, beatmapMirror);
             }
 
-            if (download == null) return;
+            if (download == null)
+                return;
 
             // start dl
             try
@@ -315,7 +321,8 @@ namespace NexDirect
             }
             finally
             {
-                if (DownloadManager.Downloads.Count < 1) MapsManager.Reload(osuSongsFolder); // reload only when theres nothing left
+                if (DownloadManager.Downloads.Count < 1)
+                    MapsManager.Reload(osuSongsFolder); // reload only when theres nothing left
             }
         }
 
@@ -358,9 +365,7 @@ namespace NexDirect
             {
                 string[] cleanup = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.nexd", SearchOption.TopDirectoryOnly);
                 foreach (string c in cleanup)
-                {
                     File.Delete(c);
-                }
             }
             catch { } // dont really care as we are just getting rid of temp files, doesnt matter if it screws up
         }
@@ -376,7 +381,8 @@ namespace NexDirect
             else if (!string.IsNullOrEmpty(osuFolder))
             {
                 // just verify this folder actually still exists
-                if (Directory.Exists(osuFolder)) return;
+                if (Directory.Exists(osuFolder))
+                    return;
                 newSetup = false;
                 osuFolder = "";
                 MessageBox.Show("Your osu! songs folder seems to have moved... please reselect the new one!", "NexDirect - Folder Update");
@@ -400,13 +406,9 @@ namespace NexDirect
                 if (!string.IsNullOrEmpty(dialog.FileName))
                 {
                     if (File.Exists(Path.Combine(dialog.FileName, "osu!.exe")))
-                    {
                         osuFolder = dialog.FileName;
-                    }
                     else
-                    {
                         MessageBox.Show("This does not seem like a valid osu! songs folder. Please try again.", "NexDirect - Error");
-                    }
                 }
                 else
                 {
@@ -417,8 +419,10 @@ namespace NexDirect
             Properties.Settings.Default.osuFolder = osuFolder;
             Properties.Settings.Default.Save();
 
-            if (newSetup == true) MessageBox.Show("Welcome to NexDirect! Your folder has been registered and we are ready to go!", "NexDirect - Welcome");
-            else MessageBox.Show("Your NexDirect osu! folder registration has been updated.", "NexDirect - Saved");
+            if (newSetup == true)
+                MessageBox.Show("Welcome to NexDirect! Your folder has been registered and we are ready to go!", "NexDirect - Welcome");
+            else
+                MessageBox.Show("Your NexDirect osu! folder registration has been updated.", "NexDirect - Saved");
         }
 
 
@@ -428,7 +432,8 @@ namespace NexDirect
             if (set.AlreadyHave)
             {
                 MessageBoxResult prompt = MessageBox.Show($"You already have this beatmap {set.Title} ({set.Mapper}). Do you wish to redownload it?", "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                if (prompt == MessageBoxResult.No) return false;
+                if (prompt == MessageBoxResult.No)
+                    return false;
 
                 return true;
             }
@@ -445,8 +450,10 @@ namespace NexDirect
             Application.Current.Dispatcher.Invoke(async () =>
             {
                 BeatmapSet set;
-                if (useOfficialOsu) { set = await Osu.TryResolveSetId(m.Groups[1].ToString()); }
-                else { set = await Bloodcat.TryResolveSetId(m.Groups[1].ToString()); }
+                if (useOfficialOsu)
+                    set = await Osu.TryResolveSetId(m.Groups[1].ToString());
+                else
+                    set = await Bloodcat.TryResolveSetId(m.Groups[1].ToString());
 
                 if (set == null)
                 {
@@ -455,7 +462,8 @@ namespace NexDirect
                 }
 
                 MessageBoxResult confirmPrompt = MessageBox.Show($"Are you sure you wish to download: {set.Artist} - {set.Title} (mapped by {set.Mapper})?", "NexDirect - Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (confirmPrompt == MessageBoxResult.No) return;
+                if (confirmPrompt == MessageBoxResult.No)
+                    return;
                 DownloadBeatmapSet(set);
             });
         }
@@ -470,9 +478,7 @@ namespace NexDirect
                 myBrush.Color = Color.FromRgb(255, 255, 255);
                 Background = myBrush;
                 foreach (var element in changedElements)
-                {
                     element.Opacity = 1;
-                }
                 return;
             }
 
@@ -485,9 +491,7 @@ namespace NexDirect
                 myBrush.Stretch = Stretch.UniformToFill;
                 Background = myBrush;
                 foreach (var element in changedElements)
-                {
                     element.Opacity = 0.85;
-                }
             }
             catch { } // meh doesnt exist
         }
@@ -495,10 +499,12 @@ namespace NexDirect
         private async void CheckForUpdates()
         {
             UpdateChecker.Update update = await UpdateChecker.Check(WinTools.GetGitStyleVersion(), UpdateChecker.Platform.Windows);
-            if (update == null) return;
+            if (update == null)
+                return;
 
             MessageBoxResult downloadNew = MessageBox.Show($"There is a new update available for NexDirect (version {update.Version}).\nIt was published on GitHub at {update.PublishedAt.ToString("g")}.\n\nOpen your browser now to download the latest update?", "NexDirect - Update Available", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (downloadNew == MessageBoxResult.No) return;
+            if (downloadNew == MessageBoxResult.No)
+                return;
             Process.Start(update.Url);
         }
 
@@ -512,9 +518,7 @@ namespace NexDirect
         {
             base.OnSourceInitialized(e);
             if (overlayMode)
-            {
                 HotkeyManager.Init(HotkeyManager.GetRuntimeHandle(this));
-            }
         }
 
         protected override void OnClosed(EventArgs e)
@@ -522,10 +526,7 @@ namespace NexDirect
             if (overlayMode || minimizeToTray)
             {
                 if (overlayMode)
-                {
-                    // unload hotkey stuff
-                    HotkeyManager.Unregister(HotkeyManager.GetRuntimeHandle(this));
-                }
+                    HotkeyManager.Unregister(HotkeyManager.GetRuntimeHandle(this)); // unload hotkey stuff
 
                 // unload tray icon to prevent it sticking there
                 TrayManager.Unload();
@@ -548,32 +549,19 @@ namespace NexDirect
                     }
 
                     if (minimizeToTray && !overlayMode)
-                    {
                         RestoreWindowFromTray();
-                    }
                     else
-                    {
                         HotkeyPressed();
-                    }
                 };
 
-                if (overlayMode)
-                {
-                    // Always show and ready to pop
+                if (overlayMode) // Always show and ready to pop
                     TrayManager.Icon.ShowBalloonTip(1500, "NexDirect (Overlay Mode)", "Press CTRL+SHIFT+HOME to toggle the NexDirect overlay...", System.Windows.Forms.ToolTipIcon.Info);
-                }
                 else
-                {
-                    // Hide by default, ready to go
-                    TrayManager.Icon.Visible = false;
-                }
+                    TrayManager.Icon.Visible = false; // Hide by default, ready to go
             }
         }
 
-        private void overlayModeExit_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            Application.Current.Shutdown();
-        }
+        private void overlayModeExit_MouseUp(object sender, MouseButtonEventArgs e) => Application.Current.Shutdown();
 
         private void Window_StateChanged(object sender, EventArgs e)
         {

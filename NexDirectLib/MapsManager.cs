@@ -15,9 +15,7 @@ namespace NexDirectLib
             string[] _files = Directory.GetFiles(songsFolder);
             var files = new List<string>();
             foreach (string file in _files)
-            {
                 if (file.Contains(".osz")) files.Add(file);
-            }
 
             Maps = folders.Concat(files);
         }

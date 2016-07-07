@@ -20,9 +20,12 @@ namespace NexDirectLib
             var qs = HttpUtility.ParseQueryString(string.Empty);
             qs["mod"] = "json";
             qs["q"] = query;
-            if (sRankedParam != null) qs["s"] = sRankedParam;
-            if (mModeParam != null) qs["m"] = mModeParam;
-            if (cNumbersParam != null) qs["c"] = cNumbersParam;
+            if (sRankedParam != null)
+                qs["s"] = sRankedParam;
+            if (mModeParam != null)
+                qs["m"] = mModeParam;
+            if (cNumbersParam != null)
+                qs["c"] = cNumbersParam;
 
             var data = await Web.GetJson<JArray>("http://bloodcat.com/osu/?" + qs.ToString());
             return data.Select(b => StandardizeToSetStruct((JObject)b));
@@ -44,9 +47,7 @@ namespace NexDirectLib
         {
             var difficulties = new Dictionary<string, string>();
             foreach (var d in (JArray)bloodcatData["beatmaps"])
-            {
                 difficulties.Add(d["name"].ToString(), d["mode"].ToString());
-            }
 
             return new BeatmapSet(
                 bloodcatData["id"].ToString(), bloodcatData["artist"].ToString(),
@@ -77,13 +78,9 @@ namespace NexDirectLib
         {
             Uri downloadUri;
             if (string.IsNullOrEmpty(mirror))
-            {
                 downloadUri = new Uri("http://bloodcat.com/osu/s/" + set.Id);
-            }
             else
-            {
                 downloadUri = new Uri(mirror.Replace("%s", set.Id));
-            }
 
             return new BeatmapDownload(set, downloadUri);
         }

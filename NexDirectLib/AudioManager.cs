@@ -18,7 +18,8 @@ namespace NexDirectLib
 
         public static void OnDownloadComplete()
         {
-            if (!DownloadCompleteSoundEnabled) return;
+            if (!DownloadCompleteSoundEnabled)
+                return;
             NotificationOut.Play();
         }
 

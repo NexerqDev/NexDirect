@@ -9,28 +9,31 @@ namespace NexDirect
     /// </summary>
     public partial class Settings : Window
     {
-        MainWindow parent;
+        MainWindow _mw;
         bool loaded = false;
 
-        public Settings(MainWindow _parent)
+        public Settings(MainWindow mw)
         {
             InitializeComponent();
 
-            parent = _parent;
+            _mw = mw;
 
-            overlayModeCheckbox.IsChecked = parent.overlayMode;
-            audioPreviewsCheckbox.IsChecked = parent.audioPreviews;
-            mirrorTextBox.Text = parent.beatmapMirror;
-            launchOsuCheckbox.IsChecked = parent.launchOsu;
-            officialDownloadBox.IsChecked = parent.useOfficialOsu;
-            useTrayCheckbox.IsChecked = parent.minimizeToTray;
-            if (_parent.fallbackActualOsu) officialDownloadBox.IsChecked = true;
+            overlayModeCheckbox.IsChecked = _mw.overlayMode;
+            audioPreviewsCheckbox.IsChecked = _mw.audioPreviews;
+            mirrorTextBox.Text = _mw.beatmapMirror;
+            launchOsuCheckbox.IsChecked = _mw.launchOsu;
+            officialDownloadBox.IsChecked = _mw.useOfficialOsu;
+            useTrayCheckbox.IsChecked = _mw.minimizeToTray;
+
+            if (_mw.fallbackActualOsu)
+                officialDownloadBox.IsChecked = true;
 
             if ((bool)officialDownloadBox.IsChecked)
             {
                 officialLoggedInAs.Visibility = Visibility.Visible;
                 officialLoggedInAs.Content = "Currently logged in as: " + Properties.Settings.Default.officialOsuUsername;
-                if (_parent.fallbackActualOsu) officialLoggedInAs.Content += " (falling back to Bloodcat)";
+                if (_mw.fallbackActualOsu)
+                    officialLoggedInAs.Content += " (falling back to Bloodcat)";
             }
 
             loaded = true;
@@ -38,13 +41,14 @@ namespace NexDirect
 
         private void changeFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            parent.osuFolder = "forced_update";
-            parent.CheckOrPromptForSongsDir();
+            _mw.osuFolder = "forced_update";
+            _mw.CheckOrPromptForSongsDir();
         }
 
         private void overlayModeCheckbox_Checked(object sender, RoutedEventArgs e)
         {
-            if (!loaded) return;
+            if (!loaded)
+                return;
             Properties.Settings.Default.overlayMode = true;
             Properties.Settings.Default.Save();
             MessageBox.Show("Overlay mode has been enabled. A restart of NexDirect is required for changes to take effect.", "NexDirect - Updated");
@@ -52,7 +56,8 @@ namespace NexDirect
 
         private void overlayModeCheckbox_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (!loaded) return;
+            if (!loaded)
+                return;
             Properties.Settings.Default.overlayMode = false;
             Properties.Settings.Default.Save();
             MessageBox.Show("Overlay mode has been disabled. A restart of NexDirect is required for changes to take effect.", "NexDirect - Updated");
@@ -60,16 +65,17 @@ namespace NexDirect
 
         private void audioPreviewsCheckbox_Toggled(object sender, RoutedEventArgs e)
         {
-            if (!loaded) return;
-            parent.audioPreviews = (bool)audioPreviewsCheckbox.IsChecked; // IsChecked is already the new value
-            Properties.Settings.Default.audioPreviews = parent.audioPreviews;
+            if (!loaded)
+                return;
+            _mw.audioPreviews = (bool)audioPreviewsCheckbox.IsChecked; // IsChecked is already the new value
+            Properties.Settings.Default.audioPreviews = _mw.audioPreviews;
             Properties.Settings.Default.Save();
         }
 
         private void mirrorSaveButton_Click(object sender, RoutedEventArgs e)
         {
-            parent.beatmapMirror = mirrorTextBox.Text;
-            Properties.Settings.Default.beatmapMirror = parent.beatmapMirror;
+            _mw.beatmapMirror = mirrorTextBox.Text;
+            Properties.Settings.Default.beatmapMirror = _mw.beatmapMirror;
             Properties.Settings.Default.Save();
             MessageBox.Show("New mirror has been saved.", "NexDirect - Updated");
         }
@@ -94,29 +100,33 @@ namespace NexDirect
                 filename = dialog.FileName;
             }
 
-            parent.uiBackground = filename;
-            Properties.Settings.Default.customBgPath = parent.uiBackground;
+            _mw.uiBackground = filename;
+            Properties.Settings.Default.customBgPath = _mw.uiBackground;
             Properties.Settings.Default.Save();
 
-            if (!string.IsNullOrEmpty(filename)) MessageBox.Show("New custom background saved.", "NexDirect - Updated");
-            else MessageBox.Show("Custom background removed.", "NexDirect - Updated");
-            parent.SetFormCustomBackground(parent.uiBackground);
+            if (!string.IsNullOrEmpty(filename))
+                MessageBox.Show("New custom background saved.", "NexDirect - Updated");
+            else
+                MessageBox.Show("Custom background removed.", "NexDirect - Updated");
+
+            _mw.SetFormCustomBackground(_mw.uiBackground);
         }
 
         private void clearBgButton_Click(object sender, RoutedEventArgs e)
         {
-            parent.uiBackground = "";
-            Properties.Settings.Default.customBgPath = parent.uiBackground;
+            _mw.uiBackground = "";
+            Properties.Settings.Default.customBgPath = _mw.uiBackground;
             Properties.Settings.Default.Save();
             MessageBox.Show("Custom background cleared.", "NexDirect - Updated");
-            parent.SetFormCustomBackground(null);
+            _mw.SetFormCustomBackground(null);
         }
 
         private void launchOsuCheckbox_Toggled(object sender, RoutedEventArgs e)
         {
-            if (!loaded) return;
-            parent.launchOsu = (bool)launchOsuCheckbox.IsChecked;
-            Properties.Settings.Default.launchOsu = parent.launchOsu;
+            if (!loaded)
+                return;
+            _mw.launchOsu = (bool)launchOsuCheckbox.IsChecked;
+            Properties.Settings.Default.launchOsu = _mw.launchOsu;
             Properties.Settings.Default.Save();
         }
 
@@ -134,48 +144,38 @@ namespace NexDirect
                     key.SetValue("URL Protocol", "");
 
                     using (RegistryKey iconKey = key.CreateSubKey(@"DefaultIcon"))
-                    {
                         iconKey.SetValue("", $"{appLocation},1");
-                    }
 
                     using (RegistryKey shellOpenKey = key.CreateSubKey(@"shell\open\command"))
-                    {
                         shellOpenKey.SetValue("", $"\"{appLocation}\" \"%1\"");
-                    }
                 }
 
                 MessageBox.Show("The URI Scheme handler was registered successfully.");
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"An error occured whilst registering the handler...\n{ex.ToString()}");
-            }
+            catch (Exception ex) {  MessageBox.Show($"An error occured whilst registering the handler...\n\n{ex.ToString()}"); }
         }
 
         private void officialDownloadBox_Checked(object sender, RoutedEventArgs e)
         {
-            if (!loaded) return;
-            (new Dialogs.OsuLogin(this, parent)).ShowDialog();
+            if (!loaded)
+                return;
+            (new Dialogs.OsuLogin(this, _mw)).ShowDialog();
 
-            loaded = false;
-            if (!parent.fallbackActualOsu)
-            {
-                // just stop it from running handler
+            loaded = false; // just stop it from running handler
+            if (!_mw.fallbackActualOsu)
                 officialDownloadBox.IsChecked = false;
-            }
             else
-            {
                 officialDownloadBox.IsChecked = true;
-            }
             loaded = true;
         }
 
         private void officialDownloadBox_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (!loaded) return;
-            parent.useOfficialOsu = false;
-            parent.officialOsuCookies = null;
-            if (parent.fallbackActualOsu) parent.fallbackActualOsu = false;
+            if (!loaded)
+                return;
+            _mw.useOfficialOsu = false;
+            _mw.officialOsuCookies = null;
+            if (_mw.fallbackActualOsu) _mw.fallbackActualOsu = false;
             officialLoggedInAs.Visibility = Visibility.Hidden;
             Properties.Settings.Default.useOfficialOsu = false;
             Properties.Settings.Default.officialOsuCookies = null;
@@ -187,18 +187,19 @@ namespace NexDirect
 
         private void useTrayCheckbox_Toggled(object sender, RoutedEventArgs e)
         {
-            if (!loaded) return;
-            parent.minimizeToTray = (bool)useTrayCheckbox.IsChecked;
-            Properties.Settings.Default.minimizeToTray = parent.minimizeToTray;
+            if (!loaded)
+                return;
+            _mw.minimizeToTray = (bool)useTrayCheckbox.IsChecked;
+            Properties.Settings.Default.minimizeToTray = _mw.minimizeToTray;
             Properties.Settings.Default.Save();
 
             // init the tray icon if not already
-            if (parent.minimizeToTray && !parent.overlayMode && !TrayManager.Loaded)
+            if (_mw.minimizeToTray && !_mw.overlayMode && !TrayManager.Loaded)
             {
                 TrayManager.Init();
                 TrayManager.Icon.Visible = false;
             }
-            else if (!parent.minimizeToTray && !parent.overlayMode && TrayManager.Loaded)
+            else if (!_mw.minimizeToTray && !_mw.overlayMode && TrayManager.Loaded)
             {
                 TrayManager.Unload();
             }

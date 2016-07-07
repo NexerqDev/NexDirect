@@ -30,7 +30,8 @@ namespace NexDirectLib
                     foreach (var _d in e.NewItems)
                     {
                         var d = _d as BeatmapDownload;
-                        if (d == null) continue;
+                        if (d == null)
+                            continue;
                         d.PropertyChanged += (o1, e1) =>
                         {
                             if (e1.PropertyName == "Speed")
@@ -63,13 +64,10 @@ namespace NexDirectLib
         private static void Downloads_SpeedUpdateHandler()
         {
             if (Downloads.Count > 0)
-            {
                 Speed = Downloads.Select(d => d.Speed).Sum() / Downloads.Count;
-            }
             else
-            {
                 Speed = 0;
-            }
+
             SpeedUpdated(new SpeedUpdatedEventArgs(Speed));
         }
     }

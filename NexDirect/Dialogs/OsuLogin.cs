@@ -38,14 +38,8 @@ namespace NexDirect.Dialogs
                 Close();
                 return;
             }
-            catch (Osu.InvalidPasswordException)
-            {
-                MessageBox.Show("You have specified an incorrect password. Please try again.");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("There was an error logging in to the osu! servers...\n" + ex);
-            }
+            catch (Osu.InvalidPasswordException) { MessageBox.Show("You have specified an incorrect password. Please try again."); }
+            catch (Exception ex) { MessageBox.Show("There was an error logging in to the osu! servers...\n\n" + ex); }
 
             button1.Enabled = true;
         }
