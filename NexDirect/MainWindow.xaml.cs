@@ -39,12 +39,17 @@ namespace NexDirect
         public string officialOsuUsername = Properties.Settings.Default.officialOsuUsername;
         public string officialOsuPassword = Properties.Settings.Default.officialOsuPassword;
 
+        private System.Windows.Controls.Control[] dynamicElements;
+
         public MainWindow(string[] startupArgs)
         {
             InitializeComponent();
             dataGrid.ItemsSource = beatmaps;
             progressGrid.ItemsSource = DownloadManager.Downloads;
             DownloadManager.SpeedUpdated += DownloadManager_SpeedUpdated;
+
+            System.Windows.Controls.Control[] _dynamicElements = { searchBox, searchButton, popularLoadButton, rankedStatusBox, modeSelectBox, progressGrid, dataGrid };
+            dynamicElements = _dynamicElements;
             InitComboBoxes();
 
             // overlay mode window settings
@@ -444,15 +449,21 @@ namespace NexDirect
             return true;
         }
 
-        Regex uriReg = new Regex(@"nexdirect:\/\/(\d+)\/");
+        private bool uriHandling = false; // one at a time please
+        private Regex uriReg = new Regex(@"nexdirect:\/\/(\d+)\/");
         public void HandleURIArgs(IList<string> args)
         {
-            if (args.Count < 1) return; // no args
+            if (args.Count < 1 || uriHandling)
+                return; // no args or handling
             string fullArgs = string.Join(" ", args);
 
             Match m = uriReg.Match(fullArgs);
             Application.Current.Dispatcher.Invoke(async () =>
             {
+                uriHandling = true;
+                foreach (var element in dynamicElements)
+                    element.IsEnabled = false;
+
                 BeatmapSet set;
                 if (useOfficialOsu)
                     set = await Osu.TryResolveSetId(m.Groups[1].ToString());
@@ -462,26 +473,28 @@ namespace NexDirect
                 if (set == null)
                 {
                     MessageBox.Show($"Could not find the beatmap on {(useOfficialOsu ? "the official osu! directory" : "Bloodcat")}. Cannot proceed to download :(");
-                    return;
+                }
+                else
+                {
+                    MessageBoxResult confirmPrompt = MessageBox.Show($"Are you sure you wish to download: {set.Artist} - {set.Title} (mapped by {set.Mapper})?", "NexDirect - Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (confirmPrompt != MessageBoxResult.No)
+                        DownloadBeatmapSet(set);
                 }
 
-                MessageBoxResult confirmPrompt = MessageBox.Show($"Are you sure you wish to download: {set.Artist} - {set.Title} (mapped by {set.Mapper})?", "NexDirect - Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (confirmPrompt == MessageBoxResult.No)
-                    return;
-                DownloadBeatmapSet(set);
+                foreach (var element in dynamicElements)
+                    element.IsEnabled = true;
+                uriHandling = false;
             });
         }
         
         public void SetFormCustomBackground(string inPath)
         {
-            dynamic[] changedElements = { searchBox, searchButton, popularLoadButton, rankedStatusBox, modeSelectBox, progressGrid, dataGrid };
-
             if (inPath == null)
             {
                 SolidColorBrush myBrush = new SolidColorBrush();
                 myBrush.Color = Color.FromRgb(255, 255, 255);
                 Background = myBrush;
-                foreach (var element in changedElements)
+                foreach (var element in dynamicElements)
                     element.Opacity = 1;
                 return;
             }
@@ -494,7 +507,7 @@ namespace NexDirect
                 myBrush.ImageSource = new BitmapImage(file);
                 myBrush.Stretch = Stretch.UniformToFill;
                 Background = myBrush;
-                foreach (var element in changedElements)
+                foreach (var element in dynamicElements)
                     element.Opacity = 0.85;
             }
             catch { } // meh doesnt exist
