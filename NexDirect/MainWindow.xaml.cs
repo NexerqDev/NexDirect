@@ -272,7 +272,11 @@ namespace NexDirect
                 {
                     MessageBoxResult bloodcatAsk = MessageBox.Show("Sorry, this map seems like it has been taken down from the official osu! servers due to a DMCA request to them. Would you like to check if a copy off Bloodcat is available, and if so download it?", "NexDirect - Mirror?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     if (bloodcatAsk == MessageBoxResult.No)
-                        download = Bloodcat.PrepareDownloadSet(set, beatmapMirror);
+                        return;
+
+                    BeatmapSet newSet = await Bloodcat.TryResolveSetId(set.Id);
+                    if (newSet == null)
+                        MessageBox.Show("Sorry, this map could not be found on Bloodcat. Download has been aborted.", "NexDirect - Could not find beatmap", MessageBoxButton.OK, MessageBoxImage.Error);
 
                     download = Bloodcat.PrepareDownloadSet(set, beatmapMirror);
                 }
