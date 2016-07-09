@@ -45,13 +45,15 @@ namespace NexDirectLib
             };
         }
 
-        public static async Task DownloadSet(BeatmapDownload download)
+        public static async Task DownloadSet(BeatmapDownload download, bool playAudioNotif = true)
         {
             Downloads.Add(download);
             download.SpeedTracker.Start(); // start the speed tracking
             await download.Client.DownloadFileTaskAsync(download.Location, download.TempPath);
             Downloads.Remove(download);
-            AudioManager.OnDownloadComplete();
+
+            if (playAudioNotif)
+                AudioManager.OnDownloadComplete();
         }
 
         public static void CancelDownload(BeatmapDownload download)

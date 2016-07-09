@@ -47,19 +47,7 @@ namespace NexDirect
         public bool SignalExternalCommandLineArgs(IList<string> args)
         {
             MainWindow _MainWindow = (MainWindow)Current.MainWindow; // get the mainwin instance
-            if (_MainWindow.minimizeToTray)
-            {
-                _MainWindow.RestoreWindowFromTray();
-            }
-            else
-            {
-                // focus
-                if (MainWindow.WindowState == WindowState.Minimized)
-                {
-                    MainWindow.WindowState = WindowState.Normal;
-                }
-                MainWindow.Activate();
-            }
+            _MainWindow.RestoreWindow();
 
             args.RemoveAt(0); // args includes the executing path, lets remove that
             _MainWindow.HandleURIArgs(args);

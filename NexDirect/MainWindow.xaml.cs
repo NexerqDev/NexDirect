@@ -317,6 +317,8 @@ namespace NexDirect
                     if (File.Exists(path)) File.Delete(path); // overwrite if exist
                     File.Move(download.TempPath, path);
                 }
+
+                TrayManager.Pop($"Download complete: {set.Artist} - {set.Title} <{set.Mapper}>");
             }
             catch (Exception ex)
             {
@@ -540,42 +542,35 @@ namespace NexDirect
 
         protected override void OnClosed(EventArgs e)
         {
-            if (overlayMode || minimizeToTray)
-            {
-                if (overlayMode)
-                    HotkeyManager.Unregister(HotkeyManager.GetRuntimeHandle(this)); // unload hotkey stuff
+            if (overlayMode)
+                HotkeyManager.Unregister(HotkeyManager.GetRuntimeHandle(this)); // unload hotkey stuff
 
-                // unload tray icon to prevent it sticking there
-                TrayManager.Unload();
-            }
+            // unload tray icon to prevent it sticking there
+            TrayManager.Unload();
             base.OnClosed(e);
         }
 
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
-            if (overlayMode || minimizeToTray)
+
+            TrayManager.Init();
+            TrayManager.NotifyIconInteracted += (ex) =>
             {
-                TrayManager.Init();
-                TrayManager.NotifyIconInteracted += (ex) =>
+                if (ex.Type == TrayManager.InteractionType.CtxExit)
                 {
-                    if (ex.Type == TrayManager.InteractionType.CtxExit)
-                    {
-                        Application.Current.Shutdown();
-                        return;
-                    }
+                    Application.Current.Shutdown();
+                    return;
+                }
 
-                    if (minimizeToTray && !overlayMode)
-                        RestoreWindowFromTray();
-                    else
-                        HotkeyPressed();
-                };
-
-                if (overlayMode) // Always show and ready to pop
-                    TrayManager.Icon.ShowBalloonTip(1500, "NexDirect (Overlay Mode)", "Press CTRL+SHIFT+HOME to toggle the NexDirect overlay...", System.Windows.Forms.ToolTipIcon.Info);
+                if (overlayMode)
+                    HotkeyPressed();
                 else
-                    TrayManager.Icon.Visible = false; // Hide by default, ready to go
-            }
+                    RestoreWindow();
+            };
+
+            if (overlayMode) // Always show and ready to pop
+                TrayManager.Pop("Press CTRL+SHIFT+HOME to toggle the NexDirect overlay...", "NexDirect (Overlay Mode)");
         }
 
         private void overlayModeExit_MouseUp(object sender, MouseButtonEventArgs e) => Application.Current.Shutdown();
@@ -586,7 +581,6 @@ namespace NexDirect
             {
                 if (WindowState == WindowState.Minimized)
                 {
-                    TrayManager.Icon.Visible = true;
                     Hide();
 
                     if (firstTrayMinimize)
@@ -598,12 +592,11 @@ namespace NexDirect
             }
         }
 
-        public void RestoreWindowFromTray()
+        public void RestoreWindow()
         {
             Show();
             WindowState = WindowState.Normal; // get outta minimize
             Activate(); // bring to front
-            Task.Delay(150).ContinueWith((a) => { TrayManager.Icon.Visible = false; }); // wait a little, accidental clicks of other tray icons
         }
     }
 }

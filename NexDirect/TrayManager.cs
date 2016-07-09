@@ -22,6 +22,7 @@ namespace NexDirect
             Icon = new NotifyIcon();
             Icon.Icon = Properties.Resources.logo;
             Icon.Text = "NexDirect";
+            Icon.BalloonTipText = "NexDirect";
             Icon.DoubleClick += (o, e1) => NotifyIconInteracted(new NotifyIconInteractedArgs(InteractionType.DoubleClick));
             Icon.ContextMenu = new ContextMenu(new MenuItem[]
             {
@@ -39,6 +40,8 @@ namespace NexDirect
             Icon = null;
             Loaded = false;
         }
+
+        public static void Pop(string message, string title = "NexDirect", int timeout = 750, ToolTipIcon icon = ToolTipIcon.Info) => Icon.ShowBalloonTip(timeout, title, message, icon);
 
         public enum InteractionType
         {

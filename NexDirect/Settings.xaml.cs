@@ -192,17 +192,6 @@ namespace NexDirect
             _mw.minimizeToTray = (bool)useTrayCheckbox.IsChecked;
             Properties.Settings.Default.minimizeToTray = _mw.minimizeToTray;
             Properties.Settings.Default.Save();
-
-            // init the tray icon if not already
-            if (_mw.minimizeToTray && !_mw.overlayMode && !TrayManager.Loaded)
-            {
-                TrayManager.Init();
-                TrayManager.Icon.Visible = false;
-            }
-            else if (!_mw.minimizeToTray && !_mw.overlayMode && TrayManager.Loaded)
-            {
-                TrayManager.Unload();
-            }
         }
     }
 }
