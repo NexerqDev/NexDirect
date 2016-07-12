@@ -383,7 +383,7 @@ namespace NexDirect
         }
 
         private const string osuRegKey = @"SOFTWARE\Classes\osu!";
-        private Regex osuValueRegex = new Regex(@"""(.*)"" ""%1""");
+        private Regex osuValueRegex = new Regex(@"""(.*)\\osu!\.exe"" ""%1""");
         public void CheckOrPromptForSongsDir()
         {
             bool newSetup = true;
@@ -422,7 +422,7 @@ namespace NexDirect
                                 Match m = osuValueRegex.Match(osuValue);
                                 if (!String.IsNullOrEmpty(m.Value))
                                 {
-                                    string theFolder = Path.GetFullPath(Path.Combine(m.Groups[1].ToString(), @"..\")); // up a folder from the .exe
+                                    string theFolder = m.Groups[1].ToString();
                                     MessageBoxResult mbr = MessageBox.Show($"We have attempted to auto-detect your osu! folder and seemed to have found it here:\n{theFolder}\n\nIs this the right path, and would you like to save it as the configuration?", "NexDirect - Found Path", MessageBoxButton.YesNo, MessageBoxImage.Question);
                                     if (mbr == MessageBoxResult.Yes)
                                         osuFolder = theFolder;
