@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using NexDirectLib;
 using static NexDirectLib.Structures;
 using WPFFolderBrowser;
+using Microsoft.Win32;
 
 namespace NexDirect
 {
@@ -381,6 +382,8 @@ namespace NexDirect
             catch { } // dont really care as we are just getting rid of temp files, doesnt matter if it screws up
         }
 
+        private const string osuRegKey = @"SOFTWARE\Classes\osu!";
+        private Regex osuValueRegex = new Regex(@"""(.*)"" ""%1""");
         public void CheckOrPromptForSongsDir()
         {
             bool newSetup = true;
@@ -401,7 +404,33 @@ namespace NexDirect
             else
             {
                 MessageBox.Show("Welcome to NexDirect: the cheap man's o--!direct. (we don't name names here.)", "NexDirect - First Time Welcome");
-                MessageBox.Show("It seems like it is your first time here. Please point towards your osu! directory so we can get the beatmap download location set up.", "NexDirect - First Time Setup");
+                MessageBox.Show("It seems like it is your first time here. We will first try to auto-detect your osu! folder, but if we cannot find it, please point towards your osu! directory so we can get the beatmap download location set up.", "NexDirect - First Time Setup");
+            }
+
+            if (newSetup)
+            {
+                // attempt auto-detection via osu! uri registry keys
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey(osuRegKey, false))
+                {
+                    if (key != null && key.GetValue("", "").ToString() == "osu! beatmap") // make sure key exists and the GetValue() of the default is indeed for osu! beatmap
+                    {
+                        using (RegistryKey cmdKey = key.OpenSubKey(@"shell\open\command"))
+                        {
+                            string osuValue;
+                            if ((osuValue = (string)cmdKey.GetValue("", null)) != null)
+                            {
+                                Match m = osuValueRegex.Match(osuValue);
+                                if (!String.IsNullOrEmpty(m.Value))
+                                {
+                                    string theFolder = Path.GetFullPath(Path.Combine(m.Groups[1].ToString(), @"..\")); // up a folder from the .exe
+                                    MessageBoxResult mbr = MessageBox.Show($"We have attempted to auto-detect your osu! folder and seemed to have found it here:\n{theFolder}\n\nIs this the right path, and would you like to save it as the configuration?", "NexDirect - Found Path", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                                    if (mbr == MessageBoxResult.Yes)
+                                        osuFolder = theFolder;
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             while (string.IsNullOrEmpty(osuFolder))
@@ -460,6 +489,9 @@ namespace NexDirect
             string fullArgs = string.Join(" ", args);
 
             Match m = uriReg.Match(fullArgs);
+            if (String.IsNullOrEmpty(m.Value)) // no match found
+                return;
+
             Application.Current.Dispatcher.Invoke(async () =>
             {
                 uriHandling = true;
