@@ -5,7 +5,7 @@ using System;
 
 namespace NexDirectLib
 {
-    using static Structures;
+    using Structures;
 
     public static class DownloadManager
     {

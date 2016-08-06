@@ -7,7 +7,7 @@ using System.Web;
 
 namespace NexDirectLib
 {
-    using static Structures;
+    using Structures;
 
     public static class Bloodcat
     {

@@ -12,8 +12,9 @@ using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace NexDirectLib {
-    using static Structures;
+namespace NexDirectLib
+{
+    using Structures;
 
     public static class Osu
     {

@@ -12,7 +12,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 
 using NexDirectLib;
-using static NexDirectLib.Structures;
+using NexDirectLib.Structures;
 using WPFFolderBrowser;
 using Microsoft.Win32;
 
