@@ -6,7 +6,7 @@ using System;
 namespace NexDirectLib
 {
     using Structures;
-
+    using System.IO;
     public static class DownloadManager
     {
         public static ObservableCollection<BeatmapDownload> Downloads = new ObservableCollection<BeatmapDownload>();
@@ -49,9 +49,28 @@ namespace NexDirectLib
         {
             Downloads.Add(download);
             download.SpeedTracker.Start(); // start the speed tracking
-            await download.Client.DownloadFileTaskAsync(download.Location, download.TempPath);
-            Downloads.Remove(download);
 
+            try
+            {
+                await download.Client.DownloadFileTaskAsync(download.Location, download.TempPath);
+            }
+            catch (Exception ex)
+            {
+                if (download.Cancelled)
+                {
+                    File.Delete(download.TempPath);
+                    return;
+                }
+                throw ex;
+            }
+            finally
+            {
+                Downloads.Remove(download); // cleanup regardless
+
+                if (Downloads.Count < 1)
+                    MapsManager.Reload(); // reload only when theres nothing left
+            }
+                
             if (playAudioNotif)
                 AudioManager.OnDownloadComplete();
         }

@@ -88,7 +88,7 @@ namespace NexDirect
             CleanUpOldTemps();
             CheckOrPromptForSongsDir();
             AudioManager.Init(Properties.Resources.doong); // load into memory ready to play
-            MapsManager.Reload(osuSongsFolder);
+            MapsManager.Init(osuSongsFolder);
 
             if (!string.IsNullOrEmpty(uiBackground))
                 SetFormCustomBackground(uiBackground);
@@ -323,18 +323,7 @@ namespace NexDirect
             }
             catch (Exception ex)
             {
-                if (download.Cancelled)
-                {
-                    File.Delete(download.TempPath);
-                    return;
-                }
-
                 MessageBox.Show($"An error has occured whilst downloading {set.Title} ({set.Mapper}).\n\n{ex.ToString()}");
-            }
-            finally
-            {
-                if (DownloadManager.Downloads.Count < 1)
-                    MapsManager.Reload(osuSongsFolder); // reload only when theres nothing left
             }
         }
 

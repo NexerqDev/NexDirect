@@ -8,7 +8,15 @@ namespace NexDirectLib
     {
         public static IEnumerable<string> Maps;
 
-        public static void Reload(string songsFolder)
+        private static string songsFolder;
+
+        public static void Init(string sf)
+        {
+            songsFolder = sf;
+            Reload();
+        }
+
+        public static void Reload()
         {
             string[] folders = Directory.GetDirectories(songsFolder);
 
