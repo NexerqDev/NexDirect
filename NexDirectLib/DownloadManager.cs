@@ -25,7 +25,7 @@ namespace NexDirectLib
             // hack?! idk
             Downloads.CollectionChanged += (o, e) =>
             {
-                if (Downloads.Count > 0)
+                if (Downloads.Count > 0 && e.NewItems != null)
                 {
                     foreach (var _d in e.NewItems)
                     {
