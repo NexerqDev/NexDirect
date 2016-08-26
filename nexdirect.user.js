@@ -2,7 +2,7 @@
 // @name         NexDirect v2
 // @namespace    http://nicholastay.github.io/
 // @homepage     https://github.com/nicholastay/NexDirect
-// @version      0.2.0
+// @version      0.2.1
 // @icon         https://raw.githubusercontent.com/nicholastay/NexDirect/master/Designs/logo.png
 // @description  Adds download button to page to use NexDirect & replaces the heart button on the listings -- You must visit the Settings panel (the logo in the bottom right) and register the URI scheme before you are able to use this script.
 // @author       Nicholas Tay (Nexerq / @n2468txd) <nexerq@gmail.com>
@@ -21,7 +21,7 @@
     var miniIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAMAAAC6V+0/AAAB/lBMVEVYVaFeW6VfW6VhXqZiXqdiX6dnZKpqZ6udm8ienMihn8qhoMujoMujocurqdCvrdKysNS1tNbLyuLOzOPOzeTQz+TQz+XX1uja2erc2+vd3Oze3ezf3u3o5/Lr6vTs7PXt7PT6+v39/f7///9qZ6tqZ6ugnspqZqtqZ6tnZKpqZ6tqZ6t3dLKLib5oZapqZ6tqZ6tqZ6t7ebVnZKpqZ6tqZ6tqZ6tua65hXaZqZ6tiX6diX6dnZKpqZ6tqZ6tqZ6tmYqlqZ6tqZ6tqZ6tkYKijoctqZ6ujoctjYKfe3exqZ6tqZ6tqZqtqZ6tqZ6thXqZqZ6ujocujoctqZ6tqZ6tqZ6tqZ6tiX6dqZ6tqZ6uenMlqZ6uenMlqZ6tqZ6tqZ6tlYahqZ6tqZ6thXqZqZ6thXqZqZ6tqZ6tqZ6tqZ6tmZKpqZ6tqZqtqZ6tqZ6tqZ6tqZ6ujocujoctqZ6tqZ6tqZ6tqZ6toZatqZ6tqZqtqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tiX6dqZ6tiX6dqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tiX6dqZ6tiX6dqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tqZ6tmY6lmY6lqZ6tqZ6tqZ6tjYKdjYKdqZ6tiX6dqZ6vz5SM6AAAAqHRSTlMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAgIDAwQEBQUGBwcICQsMDA8REhQUFxgYGRobHBwdHh8iIyQlJSkqKy8zNDg7PEBBRkdISUtSVFRWWl5fYWJoaWtub3R5enx/f4GEjY6PkZSVlpeXrKyusLGys7S3t7i6u73AwcLDxMbM0tPU1NbW2tzd3+bq6+zu8PLz9vf3+Pn8/f4dXUYzAAABLklEQVQY02NQxgIYgFiOmxcIggrdQRSnCERQkomFlZW1ecUkayDFwAcRlGZT19ZiD120stuSXYWZHyqo6ZMSbcket3xlmxM7TFDGOGflrAht9oyVK6vhKqVsKmfPLbVk169buTIfJijk0TO5a4ofu1nxypUrUwUggoL+02sz5qcZ2jf1da9cFqMEFlQLn1sQ0Nvi7NVf79a+cqEnWFA3YUm6bd7cyOAZJbYdKxeABRWNshbHGgTPLEmak926cmkUWLu8efmcEBW7qmllcyauXJkMsUjCoWGqL7th4vye5StX5kKdJObS1+nIruLdOX/lygqYj0QtMuNN2NlVS1aurNGCCcrq6OlrsLOHzVvZZcoO97s4IyjoGldMsEIKOgUuHmDoBha5ggKZQxgiiAEAP3ZkllNXL9cAAAAASUVORK5CYII=";
 	
     function welcome() {
-    	console.log("%cWelcome to NexDirect.", "font-size: 35px; line-height: 38px; font-weight: bold; color: white; text-shadow: 0 0 5px green;")
+    	console.log("%cWelcome to NexDirect.", "font-size: 35px; line-height: 38px; font-weight: bold; color: white; text-shadow: 0 0 5px green;");
     }
 
 	function log(t) {
@@ -140,15 +140,15 @@
     	var path = window.location.pathname;
 
     	if (newSite) {
-    		if (path.indexOf("/beatmapsets") === 0) {
-    			if (!firstLoad)
-    				log("----- PAGE CHANGE - beatmap sets -----");
-    			injectNewListingPage(true);
-    		}
-    		else if (path.indexOf("/s/") === 0 || path.indexOf("/b/") === 0) {
+			if (/\/beatmapsets\/(\d+)/.test(path)) {
     			if (!firstLoad)
     				log("----- PAGE CHANGE - beatmap page -----");
     			injectNewDownloadPage();
+    		}
+    		else if (path.indexOf("/beatmapsets") === 0) {
+    			if (!firstLoad)
+    				log("----- PAGE CHANGE - beatmap sets -----");
+    			injectNewListingPage(true);
     		}
 
     		if (firstLoad) { // new site uses turbolinks, so use this to check page changes
