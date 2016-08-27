@@ -271,7 +271,7 @@
             var scrolled = document.scrollingElement.scrollTop;
         
             var interv = setInterval(function() {
-                if ((increments >= 0 && scrolled >= toY) || scrolled <= toY) // increm >= 0 scroll down, else up
+                if ((increments >= 0 && scrolled >= toY) || (increments < 0 && scrolled <= toY)) // increm >= 0 scroll down, else up
                     clearInterval(interv);
         
                 window.scrollBy(0, increments);
