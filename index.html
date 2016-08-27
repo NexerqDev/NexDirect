@@ -178,11 +178,11 @@
                 
                 <div id="scrolldown-info">
                     Scroll down for more information!<br>
-                    <img src="img/down-arr.png" height="15px">
+                    <img src="img/down-arr.png" height="15px" style="cursor: pointer;" id="scrollDownInfo">
                 </div>
             </div>
 
-            <div class="special" style="background-color: rgba(50, 195, 240, 0.7);">
+            <div class="special" id="startBottom" style="background-color: rgba(50, 195, 240, 0.7);">
                 <div class="container">
                     <div class="row">
                         <div class="four columns">
@@ -258,6 +258,24 @@
         <script type="text/javascript" src="vendor/js/jquery-3.0.0.slim.min.js"></script>
         <script type="text/javascript" src="vendor/js/jquery.slick-1.6.0.min.js"></script>
         <script>
+        // scrolling
+        var $scrollBtn = $('#scrollDownInfo');
+        $scrollBtn.click(function() {
+            basicAnimScroll($('#startBottom').offset().top - 21, 5, 2);
+        });
+        // very basic func i wrote ...
+        function basicAnimScroll(toY, increments, intervalLen) {
+            var scrolled = document.scrollingElement.scrollTop;
+        
+            var interv = setInterval(function() {
+                if (scrolled >= toY)
+                    clearInterval(interv);
+        
+                window.scrollBy(0, increments);
+                scrolled += increments;
+            }, intervalLen);
+        }
+        
         var $show = $('.slickshow');
         $show.slick({
             infinite: true,
