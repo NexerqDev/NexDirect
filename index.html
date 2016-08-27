@@ -240,6 +240,9 @@
                 <div class="container" style="text-align: center; padding: 15px 0">
                     <div class="row">
                         What's to lose? Give it a try today (and expect to stay forever! :>)<br>
+                        <span id="scrollToTop" style="font-size: 9pt; text-decoration: underline; cursor: pointer;">
+                            (back to top)
+                        </span>
                     </div>
                 </div>
             </div>
@@ -259,16 +262,16 @@
         <script type="text/javascript" src="vendor/js/jquery.slick-1.6.0.min.js"></script>
         <script>
         // scrolling
-        var $scrollBtn = $('#scrollDownInfo');
-        $scrollBtn.click(function() {
-            basicAnimScroll($('#startBottom').offset().top - 21, 5, 2);
-        });
+        var $scrollDownBtn = $('#scrollDownInfo');
+        $scrollDownBtn.click(function() { basicAnimScroll($('#startBottom').offset().top - 21, 5, 2); });
+        var $scrollTopBtn = $('#scrollToTop');
+        $scrollTopBtn.click(function() { basicAnimScroll(0, -11, 1); });
         // very basic func i wrote ...
         function basicAnimScroll(toY, increments, intervalLen) {
             var scrolled = document.scrollingElement.scrollTop;
         
             var interv = setInterval(function() {
-                if (scrolled >= toY)
+                if ((increments >= 0 && scrolled >= toY) || scrolled <= toY) // increm >= 0 scroll down, else up
                     clearInterval(interv);
         
                 window.scrollBy(0, increments);
