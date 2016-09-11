@@ -15,7 +15,7 @@ using Newtonsoft.Json.Linq;
 namespace NexDirectLib
 {
     using Structures;
-
+    using System.Text.RegularExpressions;
     public static class Osu
     {
         public static CookieContainer Cookies;
@@ -265,16 +265,34 @@ namespace NexDirectLib
         /// <summary>
         /// Tries to resolve a beatmap set's ID to an object.
         /// </summary>
-        public static async Task<BeatmapSet> TryResolveSetId(string setId)
+        public static Task<BeatmapSet> TryResolveSetId(string setId)
+            => resolveThing($"https://osu.ppy.sh/s/{setId}");
+
+        /// <summary>
+        /// Tries to resolve a beatmap's ID to an object.
+        /// </summary>
+        public static Task<BeatmapSet> TryResolveBeatmapId(string bmId)
+            => resolveThing($"https://osu.ppy.sh/b/{bmId}");
+
+        private static Regex setIdRegex = new Regex(@"playBeatmapPreview\((\d+)\)");
+        /// <summary>
+        /// Resolve... thing. (beatmap page.)
+        /// </summary>
+        public static async Task<BeatmapSet> resolveThing(string url)
         {
             try
             {
-                string rawData = await GetRawWithCookies($"https://osu.ppy.sh/s/{setId}");
+                string rawData = await GetRawWithCookies(url);
                 if (rawData.Contains("looking for was not found")) return null;
 
                 var htmlDoc = new HtmlAgilityPack.HtmlDocument();
                 htmlDoc.OptionUseIdAttribute = true;
                 htmlDoc.LoadHtml(rawData);
+
+                // get the set id
+                string setIdInfo = HttpUtility.HtmlDecode(htmlDoc.DocumentNode.SelectSingleNode("//div[@class='posttext']/a").Attributes["onclick"].Value);
+                string setId = setIdRegex.Match(setIdInfo).Groups[1].ToString();
+
                 HtmlAgilityPack.HtmlNode infoNode = htmlDoc.DocumentNode.SelectSingleNode("//table[@id='songinfo']");
                 return new BeatmapSet(
                     setId,

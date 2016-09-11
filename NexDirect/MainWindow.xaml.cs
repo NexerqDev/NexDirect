@@ -470,7 +470,7 @@ namespace NexDirect
         }
 
         private bool uriHandling = false; // one at a time please
-        private Regex uriReg = new Regex(@"nexdirect:\/\/(\d+)\/");
+        private Regex uriReg = new Regex(@"nexdirect:\/\/(\d+)\/(b?)");
         public void HandleURIArgs(IList<string> args)
         {
             if (args.Count < 1 || uriHandling)
@@ -480,6 +480,7 @@ namespace NexDirect
             Match m = uriReg.Match(fullArgs);
             if (String.IsNullOrEmpty(m.Value)) // no match found
                 return;
+            bool isSetId = m.Groups[2].ToString() != "b";
 
             Application.Current.Dispatcher.Invoke(async () =>
             {
@@ -488,10 +489,21 @@ namespace NexDirect
                     element.IsEnabled = false;
 
                 BeatmapSet set;
-                if (useOfficialOsu)
-                    set = await Osu.TryResolveSetId(m.Groups[1].ToString());
+                if (isSetId)
+                {
+                    if (useOfficialOsu)
+                        set = await Osu.TryResolveSetId(m.Groups[1].ToString());
+                    else
+                        set = await Bloodcat.TryResolveSetId(m.Groups[1].ToString());
+                }
                 else
-                    set = await Bloodcat.TryResolveSetId(m.Groups[1].ToString());
+                {
+                    if (useOfficialOsu)
+                        set = await Osu.TryResolveBeatmapId(m.Groups[1].ToString());
+                    else
+                        set = await Bloodcat.TryBeatmapId(m.Groups[1].ToString());
+                }
+                
 
                 if (set == null)
                 {
