@@ -25,13 +25,14 @@ namespace NexDirectLinker
             string dwItem1,
             IntPtr dwItem2);
 
-        const string nexDirectLoc = @"C:\Users\Nicholas\Documents\Visual Studio 2015\Projects\NexDirect\NexDirect\bin\Debug\NexDirect.exe";
-        const string linkerLoc = @"C:\Users\Nicholas\Documents\Visual Studio 2015\Projects\NexDirect\NexDirectLinker\bin\Debug\NexDirectLinker.exe";
         static Regex osuReg = new Regex(@"^https?:\/\/osu\.ppy\.sh\/(s|b)\/(\d+)", RegexOptions.IgnoreCase);
         static void Main(string[] args)
         {
             if (args.Length < 1)
+            {
                 InitialSetup();
+                Environment.Exit(0);
+            }
 
             String link = String.Join(" ", args);
             if (ProcessParent.ParentProcessUtilities.GetParentProcess().ProcessName != "osu!")
@@ -52,14 +53,33 @@ namespace NexDirectLinker
 
         static void RunOsu(string url)
         {
-            Process.Start(new ProcessStartInfo(nexDirectLoc, url));
-            Environment.Exit(0);
+            string loc = TryGetNexdirectLocation();
+            if (loc != null)
+            {
+                Process.Start(new ProcessStartInfo(loc, url));
+                Environment.Exit(0);
+            }
         }
 
         static void RunBrowser(string url)
         {
             Process.Start(new ProcessStartInfo("chrome.exe", url));
             Environment.Exit(0);
+        }
+
+        static string TryGetNexdirectLocation()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Classes\nexdirect\DefaultIcon")) // we taking the easy way out
+                    return key.GetValue("").ToString().Replace(",1", "");
+            }
+            catch
+            {
+                MessageBox.Show("You have not configured the URI handler in NexDirect itself! Please open NexDirect, open the settings menu and enable it before trying again.");
+                Environment.Exit(1);
+                return null;
+            }
         }
 
         // consts for assocchanged shell call
@@ -78,6 +98,9 @@ namespace NexDirectLinker
             if (m == MessageBoxResult.No)
                 return;
 
+            // try see if nexdirect even exists
+            TryGetNexdirectLocation();
+
             // setup progids
             try
             {
@@ -91,8 +114,9 @@ namespace NexDirectLinker
                     //    capibilitySubkey.SetValue("ApplicationName", "NexDirectLinker");
                     //}
 
+                    string appLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
                     using (RegistryKey shellOpenKey = key.CreateSubKey(@"shell\open\command"))
-                        shellOpenKey.SetValue("", $"\"{linkerLoc}\" \"%1\"");
+                        shellOpenKey.SetValue("", $"\"{appLocation}\" \"%1\"");
                 }
             }
             catch (Exception ex) { MessageBox.Show($"An error occured whilst registering the progid...\n\n{ex.ToString()}"); return; }
@@ -159,8 +183,6 @@ namespace NexDirectLinker
             // prompt to change as default browser ~ https://msdn.microsoft.com/en-us/library/windows/desktop/cc144154(v=vs.85).aspx#install
             //SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_DWORD | SHCNF_FLUSH, null, IntPtr.Zero);
             //Thread.Sleep(350);
-
-            Environment.Exit(0);
         }
     }
 }
