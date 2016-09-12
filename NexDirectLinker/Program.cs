@@ -49,7 +49,7 @@ namespace NexDirectLinker
 
         static void RunBrowser(string url)
         {
-            Process.Start(new ProcessStartInfo("chrome.exe", url));
+            Process.Start(new ProcessStartInfo(GetOriginalBrowserLocation(), url));
             Environment.Exit(0);
         }
 
@@ -68,6 +68,13 @@ namespace NexDirectLinker
             }
         }
 
+        static string GetOriginalBrowserLocation()
+        {
+            using (RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\NexerqDev\NexDirect\Linker"))
+                return key.GetValue("BrowserPath").ToString();
+        }
+
+        static Regex shellOpenGet = new Regex("\"(.*?)\"");
         static void InitialSetup()
         {
             if (!UacHelper.IsProcessElevated)
@@ -82,6 +89,28 @@ namespace NexDirectLinker
 
             // try see if nexdirect even exists
             TryGetNexdirectLocation();
+
+            // get their default browser
+            try
+            {
+                // fetch the set progid as default browser
+                string progid;
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice"))
+                    progid = key.GetValue("ProgId").ToString();
+
+                if (progid != "NexDirectLinker.Url") // already setup but they might want to resetup, so skip this section if it already setup.
+                {
+                    string browserPath;
+                    // based on the progid retrieve the goods
+                    using (RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Classes\" + progid + @"\shell\open\command"))
+                        browserPath = shellOpenGet.Match(key.GetValue("").ToString()).Groups[1].ToString();
+
+                    // persist.
+                    using (RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\NexerqDev\NexDirect\Linker"))
+                        key.SetValue("BrowserPath", browserPath);
+                }
+            }
+            catch (Exception ex) { MessageBox.Show($"An error occured whilst getting the original browser...\n\n{ex.ToString()}"); return; }
 
             // setup progids
             try
