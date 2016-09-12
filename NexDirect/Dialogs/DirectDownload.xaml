@@ -1,0 +1,21 @@
+﻿<Window x:Class="NexDirect.Dialogs.DirectDownload"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NexDirect.Dialogs"
+        mc:Ignorable="d"
+        Title="DirectDownload" Height="323" Width="608" Topmost="True" ResizeMode="NoResize">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="9*"/>
+            <ColumnDefinition Width="5*"/>
+        </Grid.ColumnDefinitions>
+        <Image x:Name="previewImage" HorizontalAlignment="Left" Height="145" Margin="183,39,0,0" VerticalAlignment="Top" Width="244" Stretch="UniformToFill" Grid.ColumnSpan="2"/>
+        <Label x:Name="songInfoLabel" Content="Label" HorizontalAlignment="Left" Height="26" Margin="150,185,0,0" VerticalAlignment="Top" Width="309" HorizontalContentAlignment="Center" Grid.ColumnSpan="2"/>
+        <Button x:Name="downloadBtn" Content="Download" HorizontalAlignment="Left" Height="25" Margin="166,215,0,0" VerticalAlignment="Top" Width="279" Grid.ColumnSpan="2"/>
+        <Button x:Name="button" Content="Beatmap Page" HorizontalAlignment="Left" Height="25" Margin="166,245,0,0" VerticalAlignment="Top" Width="279" Grid.ColumnSpan="2" RenderTransformOrigin="0.505,1.76" Click="button_Click"/>
+        <Button x:Name="previewBtn" Content="Play Preview" HorizontalAlignment="Left" Height="21" Margin="13,10,0,0" VerticalAlignment="Top" Width="192" Grid.Column="1" Click="previewBtn_Click"/>
+
+    </Grid>
+</Window>
