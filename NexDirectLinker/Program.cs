@@ -1,16 +1,10 @@
 ﻿using CosmosKey.Utils;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace NexDirectLinker
@@ -74,10 +68,6 @@ namespace NexDirectLinker
             }
         }
 
-        // consts for assocchanged shell call
-        const long SHCNE_ASSOCCHANGED = 0x08000000;
-        const uint SHCNF_DWORD = 3;
-        const uint SHCNF_FLUSH = 0x1000;
         static void InitialSetup()
         {
             if (!UacHelper.IsProcessElevated)
@@ -99,12 +89,6 @@ namespace NexDirectLinker
                 using (RegistryKey key = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\NexDirectLinker.Url"))
                 {
                     key.SetValue("", "NexDirectLinker http interceptor");
-
-                    //using (RegistryKey capibilitySubkey = key.CreateSubKey(@"Capabilities"))
-                    //{
-                    //    capibilitySubkey.SetValue("ApplicationDescription", "Intercepts browser requests so that relevant ones can be sent to NexDirect.");
-                    //    capibilitySubkey.SetValue("ApplicationName", "NexDirectLinker");
-                    //}
 
                     string appLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
                     using (RegistryKey shellOpenKey = key.CreateSubKey(@"shell\open\command"))
@@ -171,7 +155,7 @@ namespace NexDirectLinker
             if (fail)
                 return;
 
-            MessageBox.Show("OK");
+            MessageBox.Show("OK - now you can go to the 'Default Programs' page and set NexDirectLinker as your new default browser!");
         }
     }
 }
