@@ -41,6 +41,7 @@ namespace NexDirect
         public string officialOsuPassword = Properties.Settings.Default.officialOsuPassword;
 
         private System.Windows.Controls.Control[] dynamicElements;
+        private bool startupHide = false;
 
         public MainWindow(string[] startupArgs)
         {
@@ -69,7 +70,7 @@ namespace NexDirect
             if (useOfficialOsu)
                 (new Dialogs.OsuLoginCheck(this)).ShowDialog();
 
-            HandleURIArgs(startupArgs);
+            startupHide = HandleURIArgs(startupArgs);
         }
 
         private bool limitSpeedUpdates = false; // slow down
@@ -100,6 +101,10 @@ namespace NexDirect
                 // sub to hotkey press event
                 HotkeyManager.HotkeyPressed += HotkeyPressed;
             }
+
+            
+            if (startupHide == true) // can only do this stuff when LOADED.
+                HideWindow(); // the uri handler is handling, lets just lay low in the background
 
             CheckForUpdates();
         }
@@ -607,6 +612,9 @@ namespace NexDirect
         private void overlayModeExit_MouseUp(object sender, MouseButtonEventArgs e) => Application.Current.Shutdown();
 
         private void Window_StateChanged(object sender, EventArgs e)
+            => stateChangeHandle();
+
+        private void stateChangeHandle()
         {
             if (minimizeToTray)
             {
@@ -628,6 +636,12 @@ namespace NexDirect
             Show();
             WindowState = WindowState.Normal; // get outta minimize
             Activate(); // bring to front
+        }
+
+        public void HideWindow() // opposite of above
+        {
+            WindowState = WindowState.Minimized;
+            stateChangeHandle(); // same logic
         }
     }
 }
