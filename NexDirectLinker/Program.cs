@@ -17,14 +17,6 @@ namespace NexDirectLinker
 {
     class Program
     {
-        // shell command import from the windows shell for default program updates
-        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
-        static extern void SHChangeNotify(
-            long wEventId,
-            uint uFlags,
-            string dwItem1,
-            IntPtr dwItem2);
-
         static Regex osuReg = new Regex(@"^https?:\/\/osu\.ppy\.sh\/(s|b)\/(\d+)", RegexOptions.IgnoreCase);
         static void Main(string[] args)
         {
@@ -180,9 +172,6 @@ namespace NexDirectLinker
                 return;
 
             MessageBox.Show("OK");
-            // prompt to change as default browser ~ https://msdn.microsoft.com/en-us/library/windows/desktop/cc144154(v=vs.85).aspx#install
-            //SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_DWORD | SHCNF_FLUSH, null, IntPtr.Zero);
-            //Thread.Sleep(350);
         }
     }
 }
