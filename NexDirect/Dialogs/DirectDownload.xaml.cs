@@ -38,10 +38,17 @@ namespace NexDirect.Dialogs
         }
 
         private void downloadBtn_Click(object sender, RoutedEventArgs e)
+            => onDownloadClick();
+
+        private void downloadViewBtn_Click(object sender, RoutedEventArgs e)
+            => onDownloadClick(true);
+
+        private void onDownloadClick(bool restore = false)
         {
             AudioManager.ForceStopPreview();
             _mw.DownloadBeatmapSet(set);
-            _mw.RestoreWindow();
+            if (restore)
+                _mw.RestoreWindow();
             Close();
         }
 
