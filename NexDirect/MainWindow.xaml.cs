@@ -506,15 +506,9 @@ namespace NexDirect
                 
 
                 if (set == null)
-                {
                     MessageBox.Show($"Could not find the beatmap on {(useOfficialOsu ? "the official osu! directory" : "Bloodcat")}. Cannot proceed to download :(");
-                }
                 else
-                {
-                    MessageBoxResult confirmPrompt = MessageBox.Show($"Are you sure you wish to download: {set.Artist} - {set.Title} (mapped by {set.Mapper})?", "NexDirect - Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                    if (confirmPrompt != MessageBoxResult.No)
-                        DownloadBeatmapSet(set);
-                }
+                    (new Dialogs.DirectDownload(this, set)).ShowDialog();
 
                 foreach (var element in dynamicElements)
                     element.IsEnabled = true;

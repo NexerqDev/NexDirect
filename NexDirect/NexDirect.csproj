@@ -101,6 +101,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dialogs\DirectDownload.xaml.cs">
+      <DependentUpon>DirectDownload.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\OsuLogin.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -124,6 +127,10 @@
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
+    <Page Include="Dialogs\DirectDownload.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
