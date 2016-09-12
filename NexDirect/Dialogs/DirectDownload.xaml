@@ -13,9 +13,10 @@
         </Grid.ColumnDefinitions>
         <Image x:Name="previewImage" HorizontalAlignment="Left" Height="145" Margin="183,39,0,0" VerticalAlignment="Top" Width="244" Stretch="UniformToFill" Grid.ColumnSpan="2"/>
         <Label x:Name="songInfoLabel" Content="Label" HorizontalAlignment="Left" Height="26" Margin="150,185,0,0" VerticalAlignment="Top" Width="309" HorizontalContentAlignment="Center" Grid.ColumnSpan="2"/>
-        <Button x:Name="downloadBtn" Content="Download" HorizontalAlignment="Left" Height="25" Margin="166,215,0,0" VerticalAlignment="Top" Width="279" Grid.ColumnSpan="2" Click="downloadBtn_Click"/>
+        <Button x:Name="downloadBtn" Content="Download" HorizontalAlignment="Left" Height="25" Margin="20,216,0,0" VerticalAlignment="Top" Width="279" Click="downloadBtn_Click"/>
         <Button x:Name="button" Content="Beatmap Page" HorizontalAlignment="Left" Height="25" Margin="166,245,0,0" VerticalAlignment="Top" Width="279" Grid.ColumnSpan="2" RenderTransformOrigin="0.505,1.76" Click="button_Click"/>
         <Button x:Name="previewBtn" Content="Play Preview" HorizontalAlignment="Left" Height="21" Margin="13,10,0,0" VerticalAlignment="Top" Width="192" Grid.Column="1" Click="previewBtn_Click"/>
+        <Button x:Name="downloadViewBtn" Content="Download and Open Main NexDirect window" HorizontalAlignment="Left" Height="25" Margin="309,216,0,0" VerticalAlignment="Top" Width="279" Click="downloadViewBtn_Click" Grid.ColumnSpan="2"/>
 
     </Grid>
 </Window>
