@@ -41,6 +41,7 @@ namespace NexDirect.Dialogs
         {
             AudioManager.ForceStopPreview();
             _mw.DownloadBeatmapSet(set);
+            _mw.RestoreWindow();
             Close();
         }
 
@@ -52,6 +53,16 @@ namespace NexDirect.Dialogs
         private void button_Click(object sender, RoutedEventArgs e)
         {
             Process.Start($"https://osu.ppy.sh/s/{set.Id}");
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            AudioManager.ForceStopPreview();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            Activate();
         }
     }
 }
