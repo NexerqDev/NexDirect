@@ -43,6 +43,18 @@ namespace NexDirect.Dialogs
         private void downloadViewBtn_Click(object sender, RoutedEventArgs e)
             => onDownloadClick(true);
 
+        private void previewBtn_Click(object sender, RoutedEventArgs e)
+            => Osu.PlayPreviewAudio(set);
+
+        private void button_Click(object sender, RoutedEventArgs e)
+            => Process.Start($"https://osu.ppy.sh/s/{set.Id}");
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+            => AudioManager.ForceStopPreview();
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+            => Activate();
+
         private void onDownloadClick(bool restore = false)
         {
             AudioManager.ForceStopPreview();
@@ -50,26 +62,6 @@ namespace NexDirect.Dialogs
             if (restore)
                 _mw.RestoreWindow();
             Close();
-        }
-
-        private void previewBtn_Click(object sender, RoutedEventArgs e)
-        {
-            Osu.PlayPreviewAudio(set);
-        }
-
-        private void button_Click(object sender, RoutedEventArgs e)
-        {
-            Process.Start($"https://osu.ppy.sh/s/{set.Id}");
-        }
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            AudioManager.ForceStopPreview();
-        }
-
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            Activate();
         }
     }
 }
