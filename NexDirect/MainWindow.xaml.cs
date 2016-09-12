@@ -471,15 +471,15 @@ namespace NexDirect
 
         private bool uriHandling = false; // one at a time please
         private Regex uriReg = new Regex(@"nexdirect:\/\/(\d+)\/(b?)");
-        public void HandleURIArgs(IList<string> args)
+        public bool HandleURIArgs(IList<string> args)
         {
             if (args.Count < 1 || uriHandling)
-                return; // no args or handling
+                return false; // no args or handling
             string fullArgs = string.Join(" ", args);
 
             Match m = uriReg.Match(fullArgs);
             if (String.IsNullOrEmpty(m.Value)) // no match found
-                return;
+                return false;
             bool isSetId = m.Groups[2].ToString() != "b";
 
             Application.Current.Dispatcher.Invoke(async () =>
@@ -514,6 +514,8 @@ namespace NexDirect
                     element.IsEnabled = true;
                 uriHandling = false;
             });
+
+            return true;
         }
         
         public void SetFormCustomBackground(string inPath)
