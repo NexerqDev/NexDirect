@@ -47,10 +47,13 @@ namespace NexDirect
         public bool SignalExternalCommandLineArgs(IList<string> args)
         {
             MainWindow _MainWindow = (MainWindow)Current.MainWindow; // get the mainwin instance
-            _MainWindow.RestoreWindow();
 
             args.RemoveAt(0); // args includes the executing path, lets remove that
-            _MainWindow.HandleURIArgs(args);
+            bool handled = _MainWindow.HandleURIArgs(args);
+
+            if (!handled)
+                _MainWindow.RestoreWindow();
+
             return true;
         }
 
