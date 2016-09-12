@@ -305,6 +305,8 @@ namespace NexDirect
             try
             {
                 await DownloadManager.DownloadSet(download);
+                if (download.Cancelled)
+                    return;
 
                 if (launchOsu && Process.GetProcessesByName("osu!").Length > 0)
                 {
