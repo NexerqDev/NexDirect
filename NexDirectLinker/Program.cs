@@ -70,8 +70,7 @@ namespace NexDirectLinker
 
         static string GetOriginalBrowserLocation()
         {
-            using (RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\NexerqDev\NexDirect\Linker"))
-                return key.GetValue("BrowserPath").ToString();
+            return Properties.Settings.Default.browserPath;
         }
 
         static Regex shellOpenGet = new Regex("\"(.*?)\"");
@@ -106,8 +105,8 @@ namespace NexDirectLinker
                         browserPath = shellOpenGet.Match(key.GetValue("").ToString()).Groups[1].ToString();
 
                     // persist.
-                    using (RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\NexerqDev\NexDirect\Linker"))
-                        key.SetValue("BrowserPath", browserPath);
+                    Properties.Settings.Default.browserPath = browserPath;
+                    Properties.Settings.Default.Save();
                 }
             }
             catch (Exception ex) { MessageBox.Show($"An error occured whilst getting the original browser...\n\n{ex.ToString()}"); return; }
