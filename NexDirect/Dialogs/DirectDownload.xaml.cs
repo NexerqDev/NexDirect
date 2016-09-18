@@ -34,7 +34,24 @@ namespace NexDirect.Dialogs
 
             Title = $"{set.Artist} - {set.Title} <{set.Mapper}> :: NexDirect Download";
             previewImage.Source = new BitmapImage(bs.PreviewImage);
-            songInfoLabel.Content = $"{set.Artist} - {set.Title} (mapped by {set.Mapper})";
+            songInfoLabel.Content = $"{set.Artist} - {set.Title}";
+            mapperInfoLabel.Content = $"(mapped by {set.Mapper})";
+
+            if (_mw.overlayMode)
+                initOverlayMode();
+        }
+
+        private void initOverlayMode()
+        {
+            Opacity = 0.88;
+            Topmost = true;
+            WindowStyle = WindowStyle.None;
+            Height = SystemParameters.PrimaryScreenHeight;
+            AllowsTransparency = true;
+
+            // Reposition to very right - wpf only has left/top properties so calculate.
+            Left = SystemParameters.PrimaryScreenWidth - Width;
+            Top = 0;
         }
 
         private void downloadBtn_Click(object sender, RoutedEventArgs e)
@@ -63,5 +80,8 @@ namespace NexDirect.Dialogs
                 _mw.RestoreWindow();
             Close();
         }
+
+        private void cancelButton_Click(object sender, RoutedEventArgs e)
+            => Close();
     }
 }
