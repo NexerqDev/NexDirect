@@ -37,7 +37,7 @@ namespace NexDirect.Dialogs
             songInfoLabel.Content = $"{set.Artist} - {set.Title}";
             mapperInfoLabel.Content = $"(mapped by {set.Mapper})";
 
-            if (_mw.overlayMode)
+            if (_mw.overlayMode && Process.GetProcessesByName("osu!").Length > 0) // overlay & only if osu! is open.
                 initOverlayMode();
         }
 
