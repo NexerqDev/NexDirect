@@ -5,13 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NexDirect.Dialogs"
         mc:Ignorable="d"
-        Title="DirectDownload" Height="323" Width="608" Topmost="True" ResizeMode="NoResize" Closing="Window_Closing" Loaded="Window_Loaded">
-    <Grid>
-        <Image x:Name="previewImage" HorizontalAlignment="Left" Height="145" Margin="183,39,0,0" VerticalAlignment="Top" Width="244" Stretch="UniformToFill" Grid.ColumnSpan="2"/>
-        <Label x:Name="songInfoLabel" Content="Label" HorizontalAlignment="Left" Height="26" Margin="138,185,0,0" VerticalAlignment="Top" Width="309" HorizontalContentAlignment="Center"/>
-        <Button x:Name="downloadBtn" Content="Download" HorizontalAlignment="Left" Height="25" Margin="10,216,0,0" VerticalAlignment="Top" Width="279" Click="downloadBtn_Click"/>
-        <Button x:Name="button" Content="Beatmap Page" HorizontalAlignment="Left" Height="25" Margin="155,245,0,0" VerticalAlignment="Top" Width="279" RenderTransformOrigin="0.505,1.76" Click="button_Click"/>
-        <Button x:Name="previewBtn" Content="Play Preview" HorizontalAlignment="Left" Height="21" Margin="385,10,0,0" VerticalAlignment="Top" Width="192" Click="previewBtn_Click"/>
-        <Button x:Name="downloadViewBtn" Content="Download and Open Main NexDirect window" HorizontalAlignment="Left" Height="25" Margin="298,216,0,0" VerticalAlignment="Top" Width="279" Click="downloadViewBtn_Click"/>
+        Title="DirectDownload" Height="377.221" Width="313.659" Topmost="True" ResizeMode="NoResize" Closing="Window_Closing" Loaded="Window_Loaded">
+    <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,4,1" Width="294" Height="336">
+        <Image x:Name="previewImage" Margin="17,0,21,143" Stretch="UniformToFill" Height="136" VerticalAlignment="Bottom"/>
+        <Label x:Name="songInfoLabel" Content="Label" Height="26" Margin="1,0,12,118" VerticalAlignment="Bottom" HorizontalContentAlignment="Center"/>
+        <Button x:Name="downloadBtn" Content="Download" Height="25" Margin="8,0,12,72" VerticalAlignment="Bottom" Click="downloadBtn_Click"/>
+        <Button x:Name="button" Content="Beatmap Page" Height="25" Margin="8,0,12,12" VerticalAlignment="Bottom" RenderTransformOrigin="0.505,1.76" Click="button_Click"/>
+        <Button x:Name="previewBtn" Content="Play Preview" Height="21" Margin="55,29,0,0" VerticalAlignment="Top" Click="previewBtn_Click" HorizontalAlignment="Left" Width="178"/>
+        <Button x:Name="downloadViewBtn" Content="Download and Open Main NexDirect window" Height="25" Margin="8,0,12,42" VerticalAlignment="Bottom" Click="downloadViewBtn_Click"/>
+        <Button x:Name="cancelButton" Content="Cancel" HorizontalAlignment="Left" Margin="76,3,0,312" Width="133" Click="cancelButton_Click"/>
+        <Label x:Name="mapperInfoLabel" Content="Label" HorizontalAlignment="Left" Height="23" Margin="1,211,0,0" VerticalAlignment="Top" Width="281" FontSize="9" Foreground="#FF727272" HorizontalContentAlignment="Center"/>
     </Grid>
 </Window>
