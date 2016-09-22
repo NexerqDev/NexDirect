@@ -1,6 +1,7 @@
 ﻿using Microsoft.Shell;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 
 namespace NexDirect
@@ -44,12 +45,12 @@ namespace NexDirect
 
         #region ISingleInstanceApp Members
 
-        public bool SignalExternalCommandLineArgs(IList<string> args)
+        public bool SignalExternalData(IList<string> args, string parentProcessName)
         {
             MainWindow _MainWindow = (MainWindow)Current.MainWindow; // get the mainwin instance
 
             args.RemoveAt(0); // args includes the executing path, lets remove that
-            bool handled = _MainWindow.HandleURIArgs(args);
+            bool handled = _MainWindow.HandleURIArgs(args, parentProcessName);
 
             if (!handled)
                 _MainWindow.RestoreWindow();

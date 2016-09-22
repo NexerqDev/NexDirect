@@ -193,5 +193,20 @@ namespace NexDirect
             Properties.Settings.Default.minimizeToTray = _mw.minimizeToTray;
             Properties.Settings.Default.Save();
         }
+
+        private void registerLinkerButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!WinUacHelper.IsProcessElevated)
+            {
+                MessageBox.Show("Please restart NexDirect as Admin (right click -> Run as Administrator) as this process requires this to be set up!");
+                return;
+            }
+
+            MessageBoxResult m = MessageBox.Show("Are you sure you want to set up NexDirect as a system browser?", "NexDirect", MessageBoxButton.YesNo);
+            if (m == MessageBoxResult.No)
+                return;
+
+            LinkerSetup.Setup();
+        }
     }
 }

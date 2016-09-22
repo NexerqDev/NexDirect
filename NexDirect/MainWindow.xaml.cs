@@ -70,7 +70,7 @@ namespace NexDirect
             if (useOfficialOsu)
                 (new Dialogs.OsuLoginCheck(this)).ShowDialog();
 
-            startupHide = HandleURIArgs(startupArgs);
+            startupHide = HandleURIArgs(startupArgs, WinTools.ParentProcessUtilities.GetParentProcess().ProcessName);
         }
 
         private bool limitSpeedUpdates = false; // slow down
@@ -478,17 +478,64 @@ namespace NexDirect
 
         private bool uriHandling = false; // one at a time please
         private Regex uriReg = new Regex(@"nexdirect:\/\/(\d+)\/(b?)");
-        public bool HandleURIArgs(IList<string> args)
+        public bool HandleURIArgs(IList<string> args, string parentProcessName)
         {
             if (args.Count < 1 || uriHandling)
                 return false; // no args or handling
             string fullArgs = string.Join(" ", args);
 
-            Match m = uriReg.Match(fullArgs);
-            if (String.IsNullOrEmpty(m.Value)) // no match found
-                return false;
-            bool isSetId = m.Groups[2].ToString() != "b";
+            // if startwith /link: then its a linker uri
+            if (fullArgs.StartsWith("/link:"))
+            {
+                handleLinkerUri(fullArgs.Replace("/link:", ""), parentProcessName);
+                return true;
+            }
 
+            // is a nexdirect:// uri
+            Match m = uriReg.Match(fullArgs);
+            if (!String.IsNullOrEmpty(m.Value))
+            {
+                handleNexdirectUri(m);
+                return true;
+            }
+
+            return false;
+        }
+
+        private void handleNexdirectUri(Match m)
+        {
+            bool isSetId = m.Groups[2].ToString() != "b";
+            directDownload(isSetId, m.Groups[1].ToString());
+        }
+
+        private Regex osuReg = new Regex(@"^https?:\/\/osu\.ppy\.sh\/(s|b)\/(\d+)", RegexOptions.IgnoreCase);
+        private void handleLinkerUri(string fullArgs, string parentProcessName)
+        {
+            if (parentProcessName != "osu!")
+            {
+                _linkerBrowser(fullArgs);
+                return;
+            }
+
+            Match osuMatch = osuReg.Match(fullArgs);
+            if (osuMatch.Success)
+            {
+                bool isSetId = osuMatch.Groups[1].ToString() == "s";
+                directDownload(isSetId, osuMatch.Groups[2].ToString());
+            }
+            else
+            {
+                _linkerBrowser(fullArgs);
+            }
+        }
+
+        private void _linkerBrowser(string url)
+        {
+            Process.Start(new ProcessStartInfo(Properties.Settings.Default.linkerDefaultBrowser, url));
+        }
+
+        private void directDownload(bool isSetId, string id)
+        {
             Application.Current.Dispatcher.Invoke(async () =>
             {
                 uriHandling = true;
@@ -499,18 +546,18 @@ namespace NexDirect
                 if (isSetId)
                 {
                     if (useOfficialOsu)
-                        set = await Osu.TryResolveSetId(m.Groups[1].ToString());
+                        set = await Osu.TryResolveSetId(id);
                     else
-                        set = await Bloodcat.TryResolveSetId(m.Groups[1].ToString());
+                        set = await Bloodcat.TryResolveSetId(id);
                 }
                 else
                 {
                     if (useOfficialOsu)
-                        set = await Osu.TryResolveBeatmapId(m.Groups[1].ToString());
+                        set = await Osu.TryResolveBeatmapId(id);
                     else
-                        set = await Bloodcat.TryBeatmapId(m.Groups[1].ToString());
+                        set = await Bloodcat.TryBeatmapId(id);
                 }
-                
+
 
                 if (set == null)
                     MessageBox.Show($"Could not find the beatmap on {(useOfficialOsu ? "the official osu! directory" : "Bloodcat")}. Cannot proceed to download :(");
@@ -521,8 +568,6 @@ namespace NexDirect
                     element.IsEnabled = true;
                 uriHandling = false;
             });
-
-            return true;
         }
         
         public void SetFormCustomBackground(string inPath)

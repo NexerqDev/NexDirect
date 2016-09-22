@@ -166,5 +166,17 @@ namespace NexDirect.Properties {
                 this["minimizeToTray"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string linkerDefaultBrowser {
+            get {
+                return ((string)(this["linkerDefaultBrowser"]));
+            }
+            set {
+                this["linkerDefaultBrowser"] = value;
+            }
+        }
     }
 }

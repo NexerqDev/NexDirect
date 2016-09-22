@@ -25,7 +25,7 @@ namespace Microsoft.Shell
     using System.Security;
     using System.Runtime.InteropServices;
     using System.ComponentModel;
-
+    using System.Diagnostics;
     internal enum WM
     {
         NULL = 0x0000,
@@ -194,7 +194,7 @@ namespace Microsoft.Shell
 
     public interface ISingleInstanceApp 
     { 
-         bool SignalExternalCommandLineArgs(IList<string> args); 
+         bool SignalExternalData(IList<string> args, string parentProcessName); 
     } 
 
     /// <summary>
@@ -414,28 +414,34 @@ namespace Microsoft.Shell
             {
                 // Invoke a method of the remote service exposed by the first instance passing on the command line
                 // arguments and causing the first instance to activate itself
-                firstInstanceRemoteServiceReference.InvokeFirstInstance(args);
+
+                // steal the parent process
+                Process parentProcess = NexDirect.WinTools.ParentProcessUtilities.GetParentProcess();
+
+                firstInstanceRemoteServiceReference.InvokeFirstInstance(args, parentProcess.ProcessName);
             }
         }
 
         /// <summary>
         /// Callback for activating first instance of the application.
         /// </summary>
-        /// <param name="arg">Callback argument.</param>
+        /// <param name="bundl">Callback argument.</param>
         /// <returns>Always null.</returns>
-        private static object ActivateFirstInstanceCallback(object arg)
+        private static object ActivateFirstInstanceCallback(object bundl)
         {
             // Get command line args to be passed to first instance
-            IList<string> args = arg as IList<string>;
-            ActivateFirstInstance(args);
+            // added parent process
+            DispatchBundle bundle = bundl as DispatchBundle;
+            ActivateFirstInstance(bundle);
             return null;
         }
 
         /// <summary>
         /// Activates the first instance of the application with arguments from a second instance.
+        /// Also added passing of the parent process.
         /// </summary>
-        /// <param name="args">List of arguments to supply the first instance of the application.</param>
-        private static void ActivateFirstInstance(IList<string> args)
+        /// <param name="bundle">Dispatch bundle</param>
+        private static void ActivateFirstInstance(DispatchBundle bundle)
         {
             // Set main window state and process command line args
             if (Application.Current == null)
@@ -443,12 +449,18 @@ namespace Microsoft.Shell
                 return;
             }
 
-            ((TApplication)Application.Current).SignalExternalCommandLineArgs(args);
+            ((TApplication)Application.Current).SignalExternalData(bundle.Args, bundle.ParentProcessName);
         }
 
         #endregion
 
         #region Private Classes
+
+        private class DispatchBundle
+        {
+            public IList<string> Args;
+            public string ParentProcessName;
+        }
 
         /// <summary>
         /// Remoting service class which is exposed by the server i.e the first instance and called by the second instance
@@ -460,13 +472,16 @@ namespace Microsoft.Shell
             /// Activates the first instance of the application.
             /// </summary>
             /// <param name="args">List of arguments to pass to the first instance.</param>
-            public void InvokeFirstInstance(IList<string> args)
+            public void InvokeFirstInstance(IList<string> args, string parentProcessName)
             {
                 if (Application.Current != null)
                 {
                     // Do an asynchronous call to ActivateFirstInstance function
                     Application.Current.Dispatcher.BeginInvoke(
-                        DispatcherPriority.Normal, new DispatcherOperationCallback(SingleInstance<TApplication>.ActivateFirstInstanceCallback), args);
+                        DispatcherPriority.Normal, new DispatcherOperationCallback(SingleInstance<TApplication>.ActivateFirstInstanceCallback), new DispatchBundle() {
+                            Args = args,
+                            ParentProcessName = parentProcessName
+                        });
                 }
             }
 
