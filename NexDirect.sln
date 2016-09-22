@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexDirect", "NexDirect\NexD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexDirectLib", "NexDirectLib\NexDirectLib.csproj", "{83EC2914-E0BA-4B33-8734-6D65D2ED1812}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexDirectLinker", "NexDirectLinker\NexDirectLinker.csproj", "{8876856F-959D-4F1A-BD23-DBE43B7C0508}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,14 +31,6 @@ Global
 		{83EC2914-E0BA-4B33-8734-6D65D2ED1812}.Release|Any CPU.Build.0 = Release|Any CPU
 		{83EC2914-E0BA-4B33-8734-6D65D2ED1812}.Release|x64.ActiveCfg = Release|x64
 		{83EC2914-E0BA-4B33-8734-6D65D2ED1812}.Release|x64.Build.0 = Release|x64
-		{8876856F-959D-4F1A-BD23-DBE43B7C0508}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8876856F-959D-4F1A-BD23-DBE43B7C0508}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8876856F-959D-4F1A-BD23-DBE43B7C0508}.Debug|x64.ActiveCfg = Debug|x64
-		{8876856F-959D-4F1A-BD23-DBE43B7C0508}.Debug|x64.Build.0 = Debug|x64
-		{8876856F-959D-4F1A-BD23-DBE43B7C0508}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8876856F-959D-4F1A-BD23-DBE43B7C0508}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8876856F-959D-4F1A-BD23-DBE43B7C0508}.Release|x64.ActiveCfg = Release|x64
-		{8876856F-959D-4F1A-BD23-DBE43B7C0508}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

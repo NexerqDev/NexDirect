@@ -518,7 +518,7 @@ namespace NexDirect
             }
 
             Match osuMatch = osuReg.Match(fullArgs);
-            if (osuMatch.Success)
+            if (osuMatch.Success && !(WinTools.IsKeyHeldDown(0x10) && WinTools.IsKeyHeldDown(0x11))) // 0x10=VK_SHIFT, 0x11=VK_CONTROL
             {
                 bool isSetId = osuMatch.Groups[1].ToString() == "s";
                 directDownload(isSetId, osuMatch.Groups[2].ToString());
@@ -531,6 +531,12 @@ namespace NexDirect
 
         private void _linkerBrowser(string url)
         {
+            if (String.IsNullOrEmpty(Properties.Settings.Default.linkerDefaultBrowser))
+            {
+                MessageBox.Show("NexDirect as a System Browser has not been configured properly. Please visit the Settings page to (re)register NexDirect as a browser.");
+                return;
+            }
+
             Process.Start(new ProcessStartInfo(Properties.Settings.Default.linkerDefaultBrowser, url));
         }
 
