@@ -520,6 +520,12 @@ namespace NexDirect
             Match osuMatch = osuReg.Match(fullArgs);
             if (osuMatch.Success && !(WinTools.IsKeyHeldDown(0x10) && WinTools.IsKeyHeldDown(0x11))) // 0x10=VK_SHIFT, 0x11=VK_CONTROL
             {
+                if (WinTools.IsKeyHeldDown(0x09)) // 0x09=VK_TAB
+                {
+                    _linkerClipboard(fullArgs);
+                    return;
+                }
+
                 bool isSetId = osuMatch.Groups[1].ToString() == "s";
                 directDownload(isSetId, osuMatch.Groups[2].ToString());
             }
@@ -538,6 +544,16 @@ namespace NexDirect
             }
 
             Process.Start(new ProcessStartInfo(Properties.Settings.Default.linkerDefaultBrowser, url));
+        }
+
+        private void _linkerClipboard(string url)
+        {
+            try
+            {
+                Clipboard.SetText(url);
+            }
+            catch (Exception e) { MessageBox.Show("Error copying link to clipboard:\n\n" + e.ToString()); }
+            TrayManager.Pop("Beatmap link copied to clipboard.");
         }
 
         private void directDownload(bool isSetId, string id)
