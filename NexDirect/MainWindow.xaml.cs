@@ -701,7 +701,13 @@ namespace NexDirect
         public void RestoreWindow()
         {
             Show();
-            WindowState = WindowState.Normal; // get outta minimize
+
+            // get outta minimize
+            if (overlayMode)
+                WindowState = WindowState.Maximized;
+            else
+                WindowState = WindowState.Normal;
+
             Activate(); // bring to front
         }
 
