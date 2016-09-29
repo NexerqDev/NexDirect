@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using NexDirectLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,7 +58,7 @@ namespace NexDirect
             {
                 key.SetValue("", "NexDirect http passthrough");
 
-                string appLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                string appLocation = Tools.GetExecLocation();
                 using (RegistryKey shellOpenKey = key.CreateSubKey(@"shell\open\command"))
                     shellOpenKey.SetValue("", $"\"{appLocation}\" \"/link:%1\"");
             }
@@ -65,7 +66,7 @@ namespace NexDirect
 
         private static void registerCapabilities()
         {
-            string appLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            string appLocation = Tools.GetExecLocation();
             using (RegistryKey key = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Clients\StartMenuInternet\NexDirect"))
             {
                 key.SetValue("", "NexDirect");

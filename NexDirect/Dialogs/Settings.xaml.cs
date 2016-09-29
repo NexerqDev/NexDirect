@@ -1,8 +1,9 @@
 ﻿using Microsoft.Win32;
+using NexDirectLib;
 using System;
 using System.Windows;
 
-namespace NexDirect
+namespace NexDirect.Dialogs
 {
     /// <summary>
     /// Interaction logic for Settings.xaml
@@ -133,7 +134,7 @@ namespace NexDirect
         private const string regUriSubKey = @"Software\Classes\nexdirect";
         private void registerUriButton_Click(object sender, RoutedEventArgs e)
         {
-            string appLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            string appLocation = Tools.GetExecLocation();
 
             try
             {

@@ -233,7 +233,7 @@ namespace NexDirect
 
         private void logoImage_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            var settingsWindow = new Settings(this);
+            var settingsWindow = new Dialogs.Settings(this);
             settingsWindow.ShowDialog();
         }
 

@@ -104,6 +104,9 @@
     <Compile Include="Dialogs\DirectDownload.xaml.cs">
       <DependentUpon>DirectDownload.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\FirstTimeInstall.xaml.cs">
+      <DependentUpon>FirstTimeInstall.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\OsuLogin.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -126,10 +129,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Settings.xaml.cs">
+    <Compile Include="Dialogs\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
     <Page Include="Dialogs\DirectDownload.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\FirstTimeInstall.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -145,7 +152,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Settings.xaml">
+    <Page Include="Dialogs\Settings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
