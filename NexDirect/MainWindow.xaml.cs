@@ -87,7 +87,7 @@ namespace NexDirect
         public void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             CleanUpOldTemps();
-            CheckOrPromptForSongsDir();
+            CheckOrPromptForSetup();
             AudioManager.Init(Properties.Resources.doong); // load into memory ready to play
             MapsManager.Init(osuSongsFolder);
 
@@ -380,85 +380,18 @@ namespace NexDirect
 
         private const string osuRegKey = @"SOFTWARE\Classes\osu!";
         private Regex osuValueRegex = new Regex(@"""(.*)\\osu!\.exe"" ""%1""");
-        public void CheckOrPromptForSongsDir()
+        public void CheckOrPromptForSetup()
         {
-            bool newSetup = true;
-            if (osuFolder == "forced_update")
-            {
-                newSetup = false;
-                osuFolder = "";
-            }
-            else if (!string.IsNullOrEmpty(osuFolder))
+            if (!string.IsNullOrEmpty(osuFolder))
             {
                 // just verify this folder actually still exists
                 if (Directory.Exists(osuFolder))
                     return;
-                newSetup = false;
                 osuFolder = "";
                 MessageBox.Show("Your osu! songs folder seems to have moved... please reselect the new one!", "NexDirect - Folder Update");
             }
-            else
-            {
-                MessageBox.Show("Welcome to NexDirect: the cheap man's o--!direct. (we don't name names here.)", "NexDirect - First Time Welcome");
-                MessageBox.Show("It seems like it is your first time here. We will first try to auto-detect your osu! folder, but if we cannot find it, please point towards your osu! directory so we can get the beatmap download location set up.", "NexDirect - First Time Setup");
-            }
 
-            if (newSetup)
-            {
-                // attempt auto-detection via osu! uri registry keys
-                using (RegistryKey key = Registry.LocalMachine.OpenSubKey(osuRegKey, false))
-                {
-                    if (key != null && key.GetValue("", "").ToString() == "osu! beatmap") // make sure key exists and the GetValue() of the default is indeed for osu! beatmap
-                    {
-                        using (RegistryKey cmdKey = key.OpenSubKey(@"shell\open\command"))
-                        {
-                            string osuValue;
-                            if ((osuValue = (string)cmdKey.GetValue("", null)) != null)
-                            {
-                                Match m = osuValueRegex.Match(osuValue);
-                                if (!String.IsNullOrEmpty(m.Value))
-                                {
-                                    string theFolder = m.Groups[1].ToString();
-                                    MessageBoxResult mbr = MessageBox.Show($"We have attempted to auto-detect your osu! folder and seemed to have found it here:\n{theFolder}\n\nIs this the right path, and would you like to save it as the configuration?", "NexDirect - Found Path", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                                    if (mbr == MessageBoxResult.Yes)
-                                        osuFolder = theFolder;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            while (string.IsNullOrEmpty(osuFolder))
-            {
-                var dialog = new WPFFolderBrowserDialog();
-                if (!(bool)dialog.ShowDialog())
-                {
-                    // ShowDialog returns false on no folder picked
-                    MessageBox.Show("You need to select your osu! folder, please try again!", "NexDirect - Error");
-                    continue;
-                }
-
-                if (!string.IsNullOrEmpty(dialog.FileName))
-                {
-                    if (File.Exists(Path.Combine(dialog.FileName, "osu!.exe")))
-                        osuFolder = dialog.FileName;
-                    else
-                        MessageBox.Show("This does not seem like a valid osu! songs folder. Please try again.", "NexDirect - Error");
-                }
-                else
-                {
-                    MessageBox.Show("Could not detect your osu! folder being selected. Please try again.", "NexDirect - Error");
-                }
-            }
-
-            Properties.Settings.Default.osuFolder = osuFolder;
-            Properties.Settings.Default.Save();
-
-            if (newSetup == true)
-                MessageBox.Show("Welcome to NexDirect! Your folder has been registered and we are ready to go!", "NexDirect - Welcome");
-            else
-                MessageBox.Show("Your NexDirect osu! folder registration has been updated.", "NexDirect - Saved");
+            (new Dialogs.FirstTimeInstall(this)).ShowDialog();
         }
 
 

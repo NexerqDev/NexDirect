@@ -42,8 +42,9 @@ namespace NexDirect.Dialogs
 
         private void changeFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            _mw.osuFolder = "forced_update";
-            _mw.CheckOrPromptForSongsDir();
+            Properties.Settings.Default.osuFolder = "";
+            Properties.Settings.Default.Save();
+            MessageBox.Show("osu! folder setting reset. Restart NexDirect to run through the first time folder setup again.", "NexDirect - Updated");
         }
 
         private void overlayModeCheckbox_Checked(object sender, RoutedEventArgs e)
