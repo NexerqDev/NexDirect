@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NexDirect"
         mc:Ignorable="d"
-        Title="NexDirect" Height="613" Width="1385" Icon="Resources/logo.ico" Loaded="MainWindow_Loaded" Background="White" StateChanged="Window_StateChanged">
+        Title="NexDirect" Height="613" Width="1385" Icon="Resources/logo.ico" Loaded="MainWindow_Loaded" Background="White" StateChanged="Window_StateChanged" Closing="Window_Closing">
     <Grid Margin="0,0,2,0">
         <DataGrid x:Name="dataGrid" Margin="10,101,200,49" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="dataGrid_DoubleClick" HeadersVisibility="Column" RowHeight="35" MouseLeftButtonUp="dataGrid_LeftButtonUp" BorderBrush="#FF688CAF" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#BF6A6A6A" MouseRightButtonUp="dataGrid_MouseRightButtonUp" ScrollViewer.ScrollChanged="dataGrid_ScrollChanged">
             <DataGrid.Columns>

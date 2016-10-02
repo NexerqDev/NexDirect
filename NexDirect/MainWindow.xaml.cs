@@ -665,5 +665,15 @@ namespace NexDirect
             if (lastSearchResults != null && lastSearchResults.CanLoadMore && e.VerticalChange > 0 && (e.VerticalOffset + e.ViewportHeight == e.ExtentHeight)) // reached bottom detection
                 search(false);
         }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (DownloadManager.Downloads.Count > 0)
+            {
+                MessageBoxResult cancelPrompt = MessageBox.Show($"Are you sure you want to quit NexDirect? There are currently {DownloadManager.Downloads.Count} pending downloads!", "NexDirect - Quitting", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (cancelPrompt == MessageBoxResult.No)
+                    e.Cancel = true;
+            }
+        }
     }
 }
