@@ -15,6 +15,7 @@ using NexDirectLib;
 using NexDirectLib.Structures;
 using WPFFolderBrowser;
 using Microsoft.Win32;
+using System.Windows.Controls;
 
 namespace NexDirect
 {
@@ -109,34 +110,43 @@ namespace NexDirect
             CheckForUpdates();
         }
 
-        private async void searchButton_Click(object sender, RoutedEventArgs e)
+        private void searchButton_Click(object sender, RoutedEventArgs e)
+            => search(true);
+
+        private SearchResultSet lastSearchResults;
+        private string lastSearchText;
+        private string lastRankedVal;
+        private string lastModeVal;
+        private string lastViaVal;
+        private int searchCurrentPage;
+        private async void search(bool newSearch)
         {
             try
             {
                 searchingLoading.Visibility = Visibility.Visible;
+                loadMoreButton.Visibility = Visibility.Hidden;
 
-                IEnumerable<BeatmapSet> _beatmaps;
+                string searchText = lastSearchText = newSearch ? searchBox.Text : lastSearchText;
+                string rankedVal = lastRankedVal = newSearch ? (rankedStatusBox.SelectedItem as KVItem).Value : lastRankedVal;
+                string modeVal = lastModeVal = newSearch ? (modeSelectBox.SelectedItem as KVItem).Value : lastModeVal;
+                string viaVal = lastViaVal = newSearch ? (searchViaSelectBox.Visibility == Visibility.Hidden ? null : (searchViaSelectBox.SelectedItem as KVItem).Value) : lastSearchText;
+                searchCurrentPage = newSearch ? 1 : (searchCurrentPage + 1);
+
+                SearchResultSet results;
                 if (useOfficialOsu)
-                {
-                    _beatmaps = await Osu.Search(searchBox.Text,
-                        (rankedStatusBox.SelectedItem as KVItem).Value,
-                        (modeSelectBox.SelectedItem as KVItem).Value
-                    );
-                }
+                    results = await Osu.Search(searchText, rankedVal, modeVal, searchCurrentPage);
                 else
-                {
-                    _beatmaps = await Bloodcat.Search(searchBox.Text,
-                        (rankedStatusBox.SelectedItem as KVItem).Value,
-                        (modeSelectBox.SelectedItem as KVItem).Value,
-                        searchViaSelectBox.Visibility == Visibility.Hidden ? null : (searchViaSelectBox.SelectedItem as KVItem).Value
-                    );
-                }
-                populateBeatmaps(_beatmaps);
+                    results = await Bloodcat.Search(searchText, rankedVal, modeVal, viaVal, searchCurrentPage);
+
+                lastSearchResults = results;
+
+                populateBeatmaps(results.Results, newSearch);
             }
             catch (Osu.SearchNotSupportedException) { MessageBox.Show("Sorry, this mode of Ranking search is currently not supported via the official osu! servers."); }
             catch (Osu.CookiesExpiredException)
             {
-                if (await TryRenewOsuCookies()) searchButton_Click(sender, e); // success, try at it again
+                if (await TryRenewOsuCookies())
+                    search(newSearch); // success, try at it again
                 return;
             }
             catch (Exception ex) { MessageBox.Show("There was an error searching for beatmaps...\n\n" + ex.ToString()); }
@@ -153,7 +163,7 @@ namespace NexDirect
             {
                 searchingLoading.Visibility = Visibility.Visible;
                 var beatmaps = await Bloodcat.Popular();
-                populateBeatmaps(beatmaps);
+                populateBeatmaps(beatmaps, true);
             }
             catch (Exception ex) { MessageBox.Show("There was an error loading the popular beatmaps...\n\n" + ex.ToString()); }
             finally { searchingLoading.Visibility = Visibility.Hidden; }
@@ -182,9 +192,10 @@ namespace NexDirect
             }
         }
 
-        private void populateBeatmaps(IEnumerable<BeatmapSet> beatmapsData)
+        private void populateBeatmaps(IEnumerable<BeatmapSet> beatmapsData, bool newSearch)
         {
-            beatmaps.Clear();
+            if (newSearch)
+                beatmaps.Clear();
             foreach (BeatmapSet beatmap in beatmapsData)
                 beatmaps.Add(beatmap);
         }
@@ -648,6 +659,17 @@ namespace NexDirect
         {
             WindowState = WindowState.Minimized;
             stateChangeHandle(); // same logic
+        }
+
+        private void loadMoreButton_Click(object sender, RoutedEventArgs e)
+            => search(false);
+
+        private void dataGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (lastSearchResults != null && lastSearchResults.CanLoadMore && e.VerticalChange > 0 && (e.VerticalOffset + e.ViewportHeight == e.ExtentHeight)) // reached bottom detection
+                loadMoreButton.Visibility = Visibility.Visible;
+            else
+                loadMoreButton.Visibility = Visibility.Hidden;
         }
     }
 }

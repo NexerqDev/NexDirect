@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NexDirect"
         mc:Ignorable="d"
-        Title="NexDirect" Height="596.5" Width="1385" Icon="Resources/logo.ico" Loaded="MainWindow_Loaded" Background="White" StateChanged="Window_StateChanged">
+        Title="NexDirect" Height="613" Width="1385" Icon="Resources/logo.ico" Loaded="MainWindow_Loaded" Background="White" StateChanged="Window_StateChanged">
     <Grid Margin="0,0,2,0">
-        <DataGrid x:Name="dataGrid" Margin="10,101,200,32" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="dataGrid_DoubleClick" HeadersVisibility="Column" RowHeight="35" MouseLeftButtonUp="dataGrid_LeftButtonUp" BorderBrush="#FF688CAF" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#BF6A6A6A" MouseRightButtonUp="dataGrid_MouseRightButtonUp">
+        <DataGrid x:Name="dataGrid" Margin="10,101,200,49" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="dataGrid_DoubleClick" HeadersVisibility="Column" RowHeight="35" MouseLeftButtonUp="dataGrid_LeftButtonUp" BorderBrush="#FF688CAF" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#BF6A6A6A" MouseRightButtonUp="dataGrid_MouseRightButtonUp" ScrollViewer.ScrollChanged="dataGrid_ScrollChanged">
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Binding="{Binding AlreadyHave}" Width="15"/>
                 <DataGridTemplateColumn Width="150">
@@ -44,13 +44,13 @@
         </DataGrid>
         <TextBox x:Name="searchBox" Height="44" Margin="10,23,377,0" TextWrapping="Wrap" VerticalAlignment="Top" BorderThickness="3" BorderBrush="#FFCD8721" Background="#FFE0DDDD" FontSize="26.667" TextChanged="searchBox_TextChanged"/>
         <Button x:Name="searchButton" Content="Search" Margin="0,23,200,0" BorderBrush="#FF5294A2" BorderThickness="3" FontSize="26.667" Click="searchButton_Click" IsDefault="True" Height="44" VerticalAlignment="Top" HorizontalAlignment="Right" Width="172"/>
-        <DataGrid x:Name="progressGrid" Margin="0,23,10,32" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="progressGrid_DoubleClick" HeadersVisibility="Column" HorizontalAlignment="Right" Width="185">
+        <DataGrid x:Name="progressGrid" Margin="0,23,10,49" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="progressGrid_DoubleClick" HeadersVisibility="Column" HorizontalAlignment="Right" Width="185">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding FriendlyName}" Header="Beatmap Set" Width="160"/>
                 <DataGridTextColumn Binding="{Binding Percent}" Header="%" Width="20"/>
             </DataGrid.Columns>
         </DataGrid>
-        <Image x:Name="logoImage" Margin="0,0,10,32" Source="Resources/logo.png" Opacity="0.5" Height="110" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="110" ToolTip="Click to enter settings menu..." Cursor="Hand" MouseUp="logoImage_MouseUp"/>
+        <Image x:Name="logoImage" Margin="0,0,10,49" Source="Resources/logo.png" Opacity="0.5" Height="110" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="110" ToolTip="Click to enter settings menu..." Cursor="Hand" MouseUp="logoImage_MouseUp"/>
         <ProgressBar x:Name="searchingLoading" Margin="328,278,530,0" IsIndeterminate="True" ToolTip="Loading..." Height="22" VerticalAlignment="Top" Visibility="Hidden"/>
         <Label x:Name="overlayModeNotice" Content="Overlay mode is active. Use CTRL+SHIFT+HOME to toggle the interface." HorizontalAlignment="Left" Margin="10,0,0,0" Width="393" Height="32" VerticalAlignment="Bottom" Visibility="Hidden"/>
         <Label x:Name="overlayModeExit" Content="X" Height="23" VerticalAlignment="Top" HorizontalAlignment="Right" Width="19" MouseUp="overlayModeExit_MouseUp" Cursor="Hand" Margin="0,1,0,0" Visibility="Hidden"/>
@@ -61,7 +61,8 @@
         <Button x:Name="popularLoadButton" Content="Load Popular Maps on Bloodcat" Height="25" Margin="0,72,200,0" VerticalAlignment="Top" Click="popularLoadButton_Click" HorizontalAlignment="Right" Width="203"/>
         <Label x:Name="searchViaLabel" Content="Search via: " Height="27" Margin="0,72,530,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="68" Visibility="Hidden"/>
         <ComboBox x:Name="searchViaSelectBox" Height="22" Margin="0,74,395,0" VerticalAlignment="Top" SelectedIndex="1" HorizontalAlignment="Right" Width="135" Visibility="Hidden"/>
-        <Label x:Name="downloadSpeedLabel" Content="Average download speed (per download): 0.0kB/s" Margin="0,0,10,-4" HorizontalContentAlignment="Right" HorizontalAlignment="Right" Width="441" Height="36" VerticalAlignment="Bottom"/>
+        <Label x:Name="downloadSpeedLabel" Content="Average download speed (per download): 0.0kB/s" Margin="0,0,10,4" HorizontalContentAlignment="Right" HorizontalAlignment="Right" Width="441" Height="36" VerticalAlignment="Bottom"/>
+        <Button x:Name="loadMoreButton" Content="Load More Results" HorizontalAlignment="Left" Height="22" Margin="472,542,0,0" VerticalAlignment="Top" Width="244" Click="loadMoreButton_Click"/>
     </Grid>
 
 

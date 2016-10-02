@@ -11,10 +11,12 @@ namespace NexDirectLib
 
     public static class Bloodcat
     {
+        public const int MAX_LOAD_RESULTS = 61; // the max one result will have. if have at least this much then there is more.
+
         /// <summary>
         /// Searches Bloodcat for a string with some params
         /// </summary>
-        public static async Task<IEnumerable<BeatmapSet>> Search(string query, string sRankedParam, string mModeParam, string cNumbersParam)
+        public static async Task<SearchResultSet> Search(string query, string sRankedParam, string mModeParam, string cNumbersParam, int page = 1)
         {
             // build query string -- https://stackoverflow.com/questions/17096201/build-query-string-for-system-net-httpclient-get
             var qs = HttpUtility.ParseQueryString(string.Empty);
@@ -26,9 +28,13 @@ namespace NexDirectLib
                 qs["m"] = mModeParam;
             if (cNumbersParam != null)
                 qs["c"] = cNumbersParam;
+            qs["p"] = page.ToString();
 
             var data = await Web.GetJson<JArray>("http://bloodcat.com/osu/?" + qs.ToString());
-            return data.Select(b => StandardizeToSetStruct((JObject)b));
+            var standardized = data.Select(b => StandardizeToSetStruct((JObject)b));
+            int count = standardized.Count();
+
+            return new SearchResultSet(standardized, (count >= MAX_LOAD_RESULTS));
         }
 
         /// <summary>
@@ -64,7 +70,7 @@ namespace NexDirectLib
         {
             try
             {
-                IEnumerable<BeatmapSet> results = await Search(beatmapId, null, null, "b");
+                IEnumerable<BeatmapSet> results = (await Search(beatmapId, null, null, "b")).Results;
                 if (results.Count() == 0)
                     return null;
                 return results.First();
@@ -79,7 +85,7 @@ namespace NexDirectLib
         {
             try
             {
-                IEnumerable<BeatmapSet> results = await Search(id, null, null, "s");
+                IEnumerable<BeatmapSet> results = (await Search(id, null, null, "s")).Results;
                 BeatmapSet map = results.FirstOrDefault(r => r.Id == id);
                 return map;
             }

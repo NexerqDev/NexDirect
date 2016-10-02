@@ -82,6 +82,7 @@
     <Compile Include="Structures\BeatmapDownload.cs" />
     <Compile Include="Structures\BeatmapSet.cs" />
     <Compile Include="Structures\KVItem.cs" />
+    <Compile Include="Structures\SearchResultSet.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="UpdateChecker.cs" />
     <Compile Include="Web.cs" />

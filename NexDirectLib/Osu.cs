@@ -11,11 +11,11 @@ using System;
 using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NexDirectLib.Structures;
+using System.Text.RegularExpressions;
 
 namespace NexDirectLib
 {
-    using Structures;
-    using System.Text.RegularExpressions;
     public static class Osu
     {
         public static CookieContainer Cookies;
@@ -133,7 +133,7 @@ namespace NexDirectLib
         /// <summary>
         /// Searches the official beatmap listing for beatmaps.
         /// </summary>
-        public static async Task<IEnumerable<BeatmapSet>> Search(string query, string sRankedParam, string mModeParam)
+        public static async Task<SearchResultSet> Search(string query, string sRankedParam, string mModeParam, int page = 1)
         {
             if (sRankedParam == "0,-1,-2")
                 throw new SearchNotSupportedException();
@@ -144,7 +144,7 @@ namespace NexDirectLib
             else if (sRankedParam == "3")
                 sRankedParam = "11";
             else
-                sRankedParam ="4";
+                sRankedParam = "4";
 
             // modes are all g except for "All"
             if (mModeParam == null)
@@ -157,6 +157,8 @@ namespace NexDirectLib
             qs["q"] = query;
             qs["m"] = mModeParam;
             qs["r"] = sRankedParam;
+            if (page > 1)
+                qs["page"] = page.ToString();
 
             string rawData = await GetRawWithCookies("https://osu.ppy.sh/p/beatmaplist?" + qs.ToString());
 
@@ -170,8 +172,9 @@ namespace NexDirectLib
             htmlDoc.LoadHtml(rawData);
             HtmlAgilityPack.HtmlNodeCollection beatmapNodes = htmlDoc.DocumentNode.SelectNodes("//div[@class='beatmapListing']/div[@class='beatmap']");
             if (beatmapNodes == null)
-                return new List<BeatmapSet>(); // empty
-            return beatmapNodes.Select(b => {
+                return new SearchResultSet(new List<BeatmapSet>(), false); // empty
+
+            var sets = beatmapNodes.Select(b => {
                 var difficulties = new Dictionary<string, string>();
                 try
                 {
@@ -212,6 +215,12 @@ namespace NexDirectLib
                     null
                 );
             });
+
+            bool canLoadMore = htmlDoc.DocumentNode.SelectNodes("//div[@class='pagination']")
+                                       .Descendants("a")
+                                       .Any(d => d.InnerText == "Next");
+
+            return new SearchResultSet(sets, canLoadMore);
         }
 
         public class SearchNotSupportedException : Exception { }
