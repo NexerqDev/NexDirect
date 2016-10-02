@@ -124,7 +124,6 @@ namespace NexDirect
             try
             {
                 searchingLoading.Visibility = Visibility.Visible;
-                loadMoreButton.Visibility = Visibility.Hidden;
 
                 string searchText = lastSearchText = newSearch ? searchBox.Text : lastSearchText;
                 string rankedVal = lastRankedVal = newSearch ? (rankedStatusBox.SelectedItem as KVItem).Value : lastRankedVal;
@@ -661,15 +660,10 @@ namespace NexDirect
             stateChangeHandle(); // same logic
         }
 
-        private void loadMoreButton_Click(object sender, RoutedEventArgs e)
-            => search(false);
-
         private void dataGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             if (lastSearchResults != null && lastSearchResults.CanLoadMore && e.VerticalChange > 0 && (e.VerticalOffset + e.ViewportHeight == e.ExtentHeight)) // reached bottom detection
-                loadMoreButton.Visibility = Visibility.Visible;
-            else
-                loadMoreButton.Visibility = Visibility.Hidden;
+                search(false);
         }
     }
 }

@@ -51,7 +51,7 @@
             </DataGrid.Columns>
         </DataGrid>
         <Image x:Name="logoImage" Margin="0,0,10,49" Source="Resources/logo.png" Opacity="0.5" Height="110" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="110" ToolTip="Click to enter settings menu..." Cursor="Hand" MouseUp="logoImage_MouseUp"/>
-        <ProgressBar x:Name="searchingLoading" Margin="328,278,530,0" IsIndeterminate="True" ToolTip="Loading..." Height="22" VerticalAlignment="Top" Visibility="Hidden"/>
+        <ProgressBar x:Name="searchingLoading" Margin="984,108,212,0" IsIndeterminate="True" ToolTip="Loading..." Height="13" VerticalAlignment="Top" Visibility="Hidden"/>
         <Label x:Name="overlayModeNotice" Content="Overlay mode is active. Use CTRL+SHIFT+HOME to toggle the interface." HorizontalAlignment="Left" Margin="10,0,0,0" Width="393" Height="32" VerticalAlignment="Bottom" Visibility="Hidden"/>
         <Label x:Name="overlayModeExit" Content="X" Height="23" VerticalAlignment="Top" HorizontalAlignment="Right" Width="19" MouseUp="overlayModeExit_MouseUp" Cursor="Hand" Margin="0,1,0,0" Visibility="Hidden"/>
         <ComboBox x:Name="rankedStatusBox" Height="23" Margin="68,75,0,0" VerticalAlignment="Top" SelectedIndex="0" HorizontalAlignment="Left" Width="161"/>
@@ -62,7 +62,6 @@
         <Label x:Name="searchViaLabel" Content="Search via: " Height="27" Margin="0,72,530,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="68" Visibility="Hidden"/>
         <ComboBox x:Name="searchViaSelectBox" Height="22" Margin="0,74,395,0" VerticalAlignment="Top" SelectedIndex="1" HorizontalAlignment="Right" Width="135" Visibility="Hidden"/>
         <Label x:Name="downloadSpeedLabel" Content="Average download speed (per download): 0.0kB/s" Margin="0,0,10,4" HorizontalContentAlignment="Right" HorizontalAlignment="Right" Width="441" Height="36" VerticalAlignment="Bottom"/>
-        <Button x:Name="loadMoreButton" Content="Load More Results" HorizontalAlignment="Left" Height="22" Margin="472,542,0,0" VerticalAlignment="Top" Width="244" Click="loadMoreButton_Click"/>
     </Grid>
 
 
