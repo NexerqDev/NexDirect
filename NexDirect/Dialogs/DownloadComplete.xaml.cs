@@ -27,13 +27,17 @@ namespace NexDirect.Dialogs
             InitializeComponent();
 
             // same as DirectDownload init for right align.
-            Left = SystemParameters.PrimaryScreenWidth - Width;
+            Left = SystemParameters.PrimaryScreenWidth; // will animate
             Top = SystemParameters.WorkArea.Height - Height - 12; // workarea = area without start bar then some padding
 
             image.Source = new BitmapImage(set.PreviewImage);
             songLabel.Content = $"{set.Artist} - {set.Title} <{set.Mapper}>";
 
             fadeCloseInThree();
+
+            // animate left
+            var animate = new DoubleAnimation(SystemParameters.PrimaryScreenWidth - Width, new Duration(TimeSpan.FromMilliseconds(300)));
+            BeginAnimation(Window.LeftProperty, animate);
         }
 
         private async void fadeCloseInThree()

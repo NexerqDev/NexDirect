@@ -12,6 +12,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
@@ -37,7 +38,7 @@ namespace NexDirect.Dialogs
             songInfoLabel.Content = $"{set.Artist} - {set.Title}";
             mapperInfoLabel.Content = $"(mapped by {set.Mapper})";
 
-            if (_mw.overlayMode && Process.GetProcessesByName("osu!").Length > 0) // overlay & only if osu! is open.
+            if (_mw.overlayMode) // overlay & only if osu! is open.
                 initOverlayMode();
         }
 
@@ -50,8 +51,11 @@ namespace NexDirect.Dialogs
             AllowsTransparency = true;
 
             // Reposition to very right - wpf only has left/top properties so calculate.
-            Left = SystemParameters.PrimaryScreenWidth - Width;
             Top = 0;
+            Left = SystemParameters.PrimaryScreenWidth; // start outside
+            // animate the coming in
+            var animate = new DoubleAnimation(SystemParameters.PrimaryScreenWidth - Width, new Duration(TimeSpan.FromMilliseconds(500)));
+            BeginAnimation(Window.LeftProperty, animate);
         }
 
         private void downloadBtn_Click(object sender, RoutedEventArgs e)
@@ -67,7 +71,18 @@ namespace NexDirect.Dialogs
             => Process.Start($"https://osu.ppy.sh/s/{set.Id}");
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-            => AudioManager.ForceStopPreview();
+        {
+            AudioManager.ForceStopPreview();
+
+            // fade out
+            if (_mw.overlayMode)
+            {
+                e.Cancel = true; // interrupt event to fadeclose
+                var animate = new DoubleAnimation(SystemParameters.PrimaryScreenWidth, new Duration(TimeSpan.FromMilliseconds(150)));
+                animate.Completed += (o, e1) => Close(); // close on done
+                BeginAnimation(Window.LeftProperty, animate);
+            }
+        }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
             => Activate();
