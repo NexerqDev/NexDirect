@@ -104,6 +104,9 @@
     <Compile Include="Dialogs\DirectDownload.xaml.cs">
       <DependentUpon>DirectDownload.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\DownloadComplete.xaml.cs">
+      <DependentUpon>DownloadComplete.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\FirstTimeInstall.xaml.cs">
       <DependentUpon>FirstTimeInstall.xaml</DependentUpon>
     </Compile>
@@ -133,6 +136,10 @@
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
     <Page Include="Dialogs\DirectDownload.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\DownloadComplete.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

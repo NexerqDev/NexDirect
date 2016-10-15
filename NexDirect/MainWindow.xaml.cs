@@ -337,7 +337,7 @@ namespace NexDirect
                     File.Move(download.TempPath, path);
                 }
 
-                TrayManager.Pop($"Download complete: {set.Artist} - {set.Title} <{set.Mapper}>");
+                (new Dialogs.DownloadComplete(set)).Show();
             }
             catch (Exception ex)
             {
