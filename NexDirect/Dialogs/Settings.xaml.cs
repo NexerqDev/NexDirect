@@ -25,6 +25,7 @@ namespace NexDirect.Dialogs
             launchOsuCheckbox.IsChecked = _mw.launchOsu;
             officialDownloadBox.IsChecked = _mw.useOfficialOsu;
             useTrayCheckbox.IsChecked = _mw.minimizeToTray;
+            novidCheckbox.IsChecked = _mw.novidDownload;
 
             if (_mw.fallbackActualOsu)
                 officialDownloadBox.IsChecked = true;
@@ -209,6 +210,15 @@ namespace NexDirect.Dialogs
                 return;
 
             LinkerSetup.Setup();
+        }
+
+        private void novidCheckbox_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (!loaded)
+                return;
+            _mw.novidDownload = (bool)novidCheckbox.IsChecked;
+            Properties.Settings.Default.novidDownload = _mw.novidDownload;
+            Properties.Settings.Default.Save();
         }
     }
 }

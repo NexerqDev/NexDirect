@@ -40,6 +40,7 @@ namespace NexDirect
         public bool fallbackActualOsu = false;
         public string officialOsuUsername = Properties.Settings.Default.officialOsuUsername;
         public string officialOsuPassword = Properties.Settings.Default.officialOsuPassword;
+        public bool novidDownload = Properties.Settings.Default.novidDownload;
 
         private System.Windows.Controls.Control[] dynamicElements;
         private bool startupHide = false;
@@ -283,11 +284,11 @@ namespace NexDirect
 
             // get dl obj
             BeatmapDownload download;
-            if (!fallbackActualOsu && useOfficialOsu)
+            if (!fallbackActualOsu && useOfficialOsu && String.IsNullOrEmpty(beatmapMirror))
             {
                 try
                 {
-                    download = await Osu.PrepareDownloadSet(set);
+                    download = await Osu.PrepareDownloadSet(set, novidDownload);
                 }
                 catch (Osu.IllegalDownloadException)
                 {
@@ -304,7 +305,7 @@ namespace NexDirect
                 catch (Osu.CookiesExpiredException)
                 {
                     if (await TryRenewOsuCookies())
-                        download = await Osu.PrepareDownloadSet(set);
+                        download = await Osu.PrepareDownloadSet(set, novidDownload);
                     return;
                 }
             }

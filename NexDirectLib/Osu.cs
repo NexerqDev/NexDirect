@@ -260,10 +260,10 @@ namespace NexDirectLib
         /// <summary>
         /// Checks the DMCA of a map, then prepares a download object for it.
         /// </summary>
-        public static async Task<BeatmapDownload> PrepareDownloadSet(BeatmapSet set)
+        public static async Task<BeatmapDownload> PrepareDownloadSet(BeatmapSet set, bool preferNoVid = false)
         {
             await CheckIllegal(set);
-            var download = new BeatmapDownload(set, new Uri($"https://osu.ppy.sh/d/{set.Id}"));
+            var download = new BeatmapDownload(set, new Uri($"https://osu.ppy.sh/d/{set.Id}" + (preferNoVid ? "n" : "")));
             download.Client.Headers.Add(HttpRequestHeader.Cookie, Cookies.GetCookieHeader(new Uri("http://osu.ppy.sh"))); // use cookie auth
             return download;
         }

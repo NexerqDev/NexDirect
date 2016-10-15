@@ -178,5 +178,17 @@ namespace NexDirect.Properties {
                 this["linkerDefaultBrowser"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool novidDownload {
+            get {
+                return ((bool)(this["novidDownload"]));
+            }
+            set {
+                this["novidDownload"] = value;
+            }
+        }
     }
 }
