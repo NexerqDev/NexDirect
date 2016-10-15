@@ -136,7 +136,7 @@ namespace NexDirect.Dialogs
         private const string regUriSubKey = @"Software\Classes\nexdirect";
         private void registerUriButton_Click(object sender, RoutedEventArgs e)
         {
-            string appLocation = Tools.GetExecLocation();
+            string appLocation = WinTools.GetExecLocation();
 
             try
             {

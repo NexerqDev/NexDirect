@@ -10,7 +10,5 @@ namespace NexDirectLib
             var invalids = System.IO.Path.GetInvalidFileNameChars();
             return string.Join("_", filename.Split(invalids, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
         }
-
-        static public string GetExecLocation() => System.Reflection.Assembly.GetExecutingAssembly().Location;
     }
 }

@@ -58,7 +58,7 @@ namespace NexDirect
             {
                 key.SetValue("", "NexDirect http passthrough");
 
-                string appLocation = Tools.GetExecLocation();
+                string appLocation = WinTools.GetExecLocation();
                 using (RegistryKey shellOpenKey = key.CreateSubKey(@"shell\open\command"))
                     shellOpenKey.SetValue("", $"\"{appLocation}\" \"/link:%1\"");
             }
@@ -66,7 +66,7 @@ namespace NexDirect
 
         private static void registerCapabilities()
         {
-            string appLocation = Tools.GetExecLocation();
+            string appLocation = WinTools.GetExecLocation();
             using (RegistryKey key = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Clients\StartMenuInternet\NexDirect"))
             {
                 key.SetValue("", "NexDirect");

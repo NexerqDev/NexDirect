@@ -43,6 +43,9 @@ namespace NexDirect
             return version;
         }
 
+        // must be in this assembly or not right
+        static public string GetExecLocation() => Assembly.GetExecutingAssembly().Location;
+
         static public bool IsKeyHeldDown(int vKey)
             => ((GetAsyncKeyState(vKey) & 0x8000) == 0x8000); // check for the MSB (most significant byte) and if that is set then the key is held down
 
