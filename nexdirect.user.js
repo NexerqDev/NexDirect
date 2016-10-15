@@ -2,7 +2,7 @@
 // @name         NexDirect v2
 // @namespace    http://nicholastay.github.io/
 // @homepage     https://github.com/nicholastay/NexDirect
-// @version      0.2.3
+// @version      0.2.2
 // @icon         https://raw.githubusercontent.com/nicholastay/NexDirect/master/Designs/logo.png
 // @description  Adds download button to page to use NexDirect & replaces the heart button on the listings -- You must visit the Settings panel (the logo in the bottom right) and register the URI scheme before you are able to use this script.
 // @author       Nicholas Tay (Nexerq / @n2468txd) <nexerq@gmail.com>
@@ -127,16 +127,16 @@
         beatmapSetId = beatmapSetId[1];
         log("Found beatmap set ID.");
 
-        var $osuDirectButton = $(".beatmapset-details__download div a").first();
+        var $osuDirectButton = $(".beatmapset-header__buttons-box a").last();
         if (!$osuDirectButton || $osuDirectButton.text() !== "osu!direct")
             return log("Could not find osu!direct button to inject to."); // rip
         log("Found osu!direct button, modifying and injecting.");
+        if ($osuDirectButton.attr("href").indexOf("osu://") >= 0) // already supporter no inject
+        	return log("Is an osu!supporter, why inject?");
 
-        var halfHalfStyle = "width: 45%; display: inline-block; margin: 5px;";
-        $osuDirectButton.attr("style", halfHalfStyle);
-        log("Modified osu!direct button style, injecting new button.");
-
-        $osuDirectButton.after("<a href=\"nexdirect://" + beatmapSetId + "\" class=\"beatmapset-details__button\" style=\"" + halfHalfStyle + " padding-right: 7.5px;\"><img src=\"" + miniIcon + "\" alt=\"NexDirect icon\" style=\"filter: brightness(0) invert(1); -webkit-filter: brightness(0) invert(1); margin-bottom: 3px;\"/> NexDirect</a>");
+        $osuDirectButton.attr("href", "nexdirect://" + beatmapSetId);
+        $osuDirectButton.find(".btn-osu-big__text-top").text("NexDirect");
+        $osuDirectButton.find("span.fa-download").replaceWith("<img src=\"" + miniIcon + "\" alt=\"NexDirect icon\" style=\"filter: brightness(0) invert(1); -webkit-filter: brightness(0) invert(1);\"/>");
         log("Injected download button.");
     }
     
