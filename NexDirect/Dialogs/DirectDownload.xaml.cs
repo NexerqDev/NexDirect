@@ -68,7 +68,16 @@ namespace NexDirect.Dialogs
             => Osu.PlayPreviewAudio(set);
 
         private void button_Click(object sender, RoutedEventArgs e)
-            => Process.Start($"https://osu.ppy.sh/s/{set.Id}");
+        {
+            string url = $"https://osu.ppy.sh/s/{set.Id}";
+            Process proc;
+            if (String.IsNullOrEmpty(Properties.Settings.Default.linkerDefaultBrowser))
+                proc = Process.Start(url);
+            else
+                proc = Process.Start(new ProcessStartInfo(Properties.Settings.Default.linkerDefaultBrowser, url));
+
+            WinTools.SetHandleForeground(proc.Handle);
+        }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {

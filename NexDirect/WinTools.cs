@@ -13,6 +13,9 @@ namespace NexDirect
         [DllImport("user32.dll")] // https://msdn.microsoft.com/en-us/library/windows/desktop/ms646293(v=vs.85).aspx
         static extern short GetAsyncKeyState(int vKey);
 
+        [DllImport("user32.dll")]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
+
         // https://stackoverflow.com/questions/3120616/wpf-datagrid-selected-row-clicked-event sol #2
         static public object GetGridViewSelectedRowItem(object sender, MouseButtonEventArgs e)
         {
@@ -46,9 +49,10 @@ namespace NexDirect
         // must be in this assembly or not right
         static public string GetExecLocation() => Assembly.GetExecutingAssembly().Location;
 
+        static public void SetHandleForeground(IntPtr handle) => SetForegroundWindow(handle);
+
         static public bool IsKeyHeldDown(int vKey)
             => ((GetAsyncKeyState(vKey) & 0x8000) == 0x8000); // check for the MSB (most significant byte) and if that is set then the key is held down
-
 
         // https://stackoverflow.com/questions/394816/how-to-get-parent-process-in-net-in-managed-way
         // thank you!
