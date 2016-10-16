@@ -16,6 +16,7 @@ using NexDirectLib.Structures;
 using WPFFolderBrowser;
 using Microsoft.Win32;
 using System.Windows.Controls;
+using System.Runtime.InteropServices;
 
 namespace NexDirect
 {
@@ -24,6 +25,9 @@ namespace NexDirect
     /// </summary>
     public partial class MainWindow : Window
     {
+        [DllImport("user32.dll")]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
+
         public ObservableCollection<BeatmapSet> beatmaps = new ObservableCollection<BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
 
         public string osuFolder = Properties.Settings.Default.osuFolder;
@@ -487,7 +491,8 @@ namespace NexDirect
                 return;
             }
 
-            Process.Start(new ProcessStartInfo(Properties.Settings.Default.linkerDefaultBrowser, url));
+            Process newProcess = Process.Start(new ProcessStartInfo(Properties.Settings.Default.linkerDefaultBrowser, url));
+            SetForegroundWindow(newProcess.Handle);
         }
 
         private void _linkerClipboard(string url)
