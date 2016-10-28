@@ -8,24 +8,32 @@ namespace NexDirectLib
     public static class Web
     {
         /// <summary>
-        /// Downloads content from a webpage and parses it as JSON
+        /// Just get content
         /// </summary>
-        public static async Task<T> GetJson<T>(string url, string userAgent)
+        /// <returns></returns>
+        public static async Task<string> GetContent(string url, string userAgent = null)
         {
             using (var client = new HttpClient())
             {
-                if (!string.IsNullOrEmpty(userAgent))
-                    client.DefaultRequestHeaders.Add("User-Agent", userAgent);
+                if (string.IsNullOrEmpty(userAgent))
+                    userAgent = "NexDirect-Lib/0.1.0";
+                client.DefaultRequestHeaders.Add("User-Agent", userAgent);
+
                 var response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
+
                 string body = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<T>(body);
+                return body;
             }
         }
 
-        public static Task<T> GetJson<T>(string url)
+        /// <summary>
+        /// Downloads content from a webpage and parses it as JSON
+        /// </summary>
+        public static async Task<T> GetJson<T>(string url, string userAgent = null)
         {
-            return GetJson<T>(url, null);
+            string content = await GetContent(url, userAgent);
+            return JsonConvert.DeserializeObject<T>(content);
         }
     }
 }

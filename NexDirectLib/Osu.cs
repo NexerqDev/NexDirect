@@ -291,7 +291,7 @@ namespace NexDirectLib
         {
             try
             {
-                string rawData = await GetRawWithCookies(url);
+                string rawData = await Web.GetContent(url); // no cookies needed for this in fact
                 if (rawData.Contains("looking for was not found")) return null;
 
                 var htmlDoc = new HtmlAgilityPack.HtmlDocument();
