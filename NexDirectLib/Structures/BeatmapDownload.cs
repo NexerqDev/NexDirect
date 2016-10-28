@@ -29,7 +29,7 @@ namespace NexDirectLib.Structures
         #endregion
 
 
-        private string _percent;
+        private int _percent;
         private float _speed;
 
         public BeatmapSet Set { get; set; }
@@ -45,7 +45,7 @@ namespace NexDirectLib.Structures
         }
         public Stopwatch SpeedTracker { get; set; }
         public Uri Location { get; set; }
-        public string Percent
+        public int Percent
         {
             get { return _percent; }
             set
@@ -62,7 +62,7 @@ namespace NexDirectLib.Structures
         public BeatmapDownload(BeatmapSet set, Uri uri)
         {
             Set = set;
-            Percent = "0";
+            Percent = 0;
             Client = new WebClient();
             SpeedTracker = new Stopwatch();
             Speed = 0;
@@ -74,7 +74,7 @@ namespace NexDirectLib.Structures
                 if (SpeedTracker.Elapsed.Seconds > 0)
                     Speed = (e.BytesReceived / 1000) / SpeedTracker.Elapsed.Seconds;
 
-                Percent = e.ProgressPercentage.ToString();
+                Percent = e.ProgressPercentage;
             };
             Client.DownloadFileCompleted += (o, e) =>
             {

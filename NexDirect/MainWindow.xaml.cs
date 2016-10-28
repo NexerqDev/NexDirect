@@ -16,6 +16,7 @@ using NexDirectLib.Structures;
 using WPFFolderBrowser;
 using Microsoft.Win32;
 using System.Windows.Controls;
+using System.Windows.Shell;
 
 namespace NexDirect
 {
@@ -24,7 +25,7 @@ namespace NexDirect
     /// </summary>
     public partial class MainWindow : Window
     {
-        public ObservableCollection<BeatmapSet> beatmaps = new ObservableCollection<BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
+        public ObservableCollection<BeatmapSet> BeatmapsCollection = new ObservableCollection<BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
 
         public string osuFolder = Properties.Settings.Default.osuFolder;
         public string osuSongsFolder => Path.Combine(osuFolder, "Songs");
@@ -48,7 +49,7 @@ namespace NexDirect
         public MainWindow(string[] startupArgs)
         {
             InitializeComponent();
-            dataGrid.ItemsSource = beatmaps;
+            dataGrid.ItemsSource = BeatmapsCollection;
             progressGrid.ItemsSource = DownloadManager.Downloads;
             DownloadManager.SpeedUpdated += DownloadManager_SpeedUpdated;
 
@@ -195,9 +196,9 @@ namespace NexDirect
         private void populateBeatmaps(IEnumerable<BeatmapSet> beatmapsData, bool newSearch)
         {
             if (newSearch)
-                beatmaps.Clear();
+                BeatmapsCollection.Clear();
             foreach (BeatmapSet beatmap in beatmapsData)
-                beatmaps.Add(beatmap);
+                BeatmapsCollection.Add(beatmap);
         }
 
         private void dataGrid_DoubleClick(object sender, MouseButtonEventArgs e)

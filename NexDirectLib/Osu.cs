@@ -283,7 +283,7 @@ namespace NexDirectLib
         public static Task<BeatmapSet> TryResolveBeatmapId(string bmId)
             => resolveThing($"https://osu.ppy.sh/b/{bmId}");
 
-        private static Regex setIdRegex = new Regex(@"playBeatmapPreview\((\d+)\)");
+        private static Regex setIdRegex = new Regex(@"thumb\/(\d+)l\.jpg");
         /// <summary>
         /// Resolve... thing. (beatmap page.)
         /// </summary>
@@ -292,14 +292,15 @@ namespace NexDirectLib
             try
             {
                 string rawData = await Web.GetContent(url); // no cookies needed for this in fact
-                if (rawData.Contains("looking for was not found")) return null;
+                if (rawData.Contains("looking for was not found"))
+                    return null;
 
                 var htmlDoc = new HtmlAgilityPack.HtmlDocument();
                 htmlDoc.OptionUseIdAttribute = true;
                 htmlDoc.LoadHtml(rawData);
 
                 // get the set id
-                string setIdInfo = HttpUtility.HtmlDecode(htmlDoc.DocumentNode.SelectSingleNode("//div[@class='posttext']/a").Attributes["onclick"].Value);
+                string setIdInfo = HttpUtility.HtmlDecode(htmlDoc.DocumentNode.SelectSingleNode("//div[@class='posttext']/img[@class='bmt']").Attributes["src"].Value);
                 string setId = setIdRegex.Match(setIdInfo).Groups[1].ToString();
 
                 HtmlAgilityPack.HtmlNode infoNode = htmlDoc.DocumentNode.SelectSingleNode("//table[@id='songinfo']");
