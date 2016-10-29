@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 namespace NexDirectLib.Structures
 {
     // Key/Value pair items, for utility
-    public class KVItem
+    public class KVItem<T>
     {
         public string Key { get; set; }
-        public string Value { get; set; }
-        public KVItem(string k, string v)
+        public T Value { get; set; }
+        public KVItem(string k, T v)
         {
             Key = k;
             Value = v;

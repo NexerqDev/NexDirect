@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 using NexDirectLib;
 using NexDirectLib.Structures;
+using static NexDirectLib.SearchFilters;
 using WPFFolderBrowser;
 using Microsoft.Win32;
 using System.Windows.Controls;
@@ -117,9 +118,9 @@ namespace NexDirect
 
         private SearchResultSet lastSearchResults;
         private string lastSearchText;
-        private string lastRankedVal;
-        private string lastModeVal;
-        private string lastViaVal;
+        private OsuRankStatus lastRankedVal;
+        private OsuModes lastModeVal;
+        private BloodcatIdFilter? lastBloodcatNumbersFilterVal;
         private int searchCurrentPage;
         private async void search(bool newSearch)
         {
@@ -128,9 +129,13 @@ namespace NexDirect
                 searchingLoading.Visibility = Visibility.Visible;
 
                 string searchText = lastSearchText = newSearch ? searchBox.Text : lastSearchText;
-                string rankedVal = lastRankedVal = newSearch ? (rankedStatusBox.SelectedItem as KVItem).Value : lastRankedVal;
-                string modeVal = lastModeVal = newSearch ? (modeSelectBox.SelectedItem as KVItem).Value : lastModeVal;
-                string viaVal = lastViaVal = newSearch ? (searchViaSelectBox.Visibility == Visibility.Hidden ? null : (searchViaSelectBox.SelectedItem as KVItem).Value) : lastSearchText;
+                OsuRankStatus rankedVal = lastRankedVal = newSearch ? (rankedStatusBox.SelectedItem as KVItem<OsuRankStatus>).Value : lastRankedVal;
+                OsuModes modeVal = lastModeVal = newSearch ? (modeSelectBox.SelectedItem as KVItem<OsuModes>).Value : lastModeVal;
+
+                BloodcatIdFilter? viaVal = null;
+                if (!useOfficialOsu)
+                    viaVal = lastBloodcatNumbersFilterVal = newSearch ? (searchViaSelectBox.Visibility == Visibility.Hidden ? null : (BloodcatIdFilter?)(searchViaSelectBox.SelectedItem as KVItem<BloodcatIdFilter>).Value) : lastBloodcatNumbersFilterVal;
+
                 searchCurrentPage = newSearch ? 1 : (searchCurrentPage + 1);
 
                 SearchResultSet results;
@@ -252,23 +257,29 @@ namespace NexDirect
         private void InitComboBoxes()
         {
             // Search filters
-            rankedStatusBox.Items.Add(new KVItem("All", null));
-            rankedStatusBox.Items.Add(new KVItem("Ranked / Approved", "1,2"));
-            rankedStatusBox.Items.Add(new KVItem("Qualified", "3"));
-            rankedStatusBox.Items.Add(new KVItem("Unranked", "0,-1,-2"));
+            rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("All", OsuRankStatus.All));
+            rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("Ranked / Approved", OsuRankStatus.RankedAndApproved));
+            if (!useOfficialOsu)
+                rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("Ranked", OsuRankStatus.Ranked)); // only bloodcat
+            rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("Approved", OsuRankStatus.Approved));
+            rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("Qualified", OsuRankStatus.Qualified));
+            if (useOfficialOsu)
+                rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("Loved", OsuRankStatus.Loved)); // only official
+            if (!useOfficialOsu)
+                rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("Unranked", OsuRankStatus.Unranked)); // only bloodcat
 
             // Modes
-            modeSelectBox.Items.Add(new KVItem("All", null));
-            modeSelectBox.Items.Add(new KVItem("osu!", "0"));
-            modeSelectBox.Items.Add(new KVItem("Catch the Beat", "2"));
-            modeSelectBox.Items.Add(new KVItem("Taiko", "1"));
-            modeSelectBox.Items.Add(new KVItem("osu!mania", "3"));
+            modeSelectBox.Items.Add(new KVItem<OsuModes>("All", OsuModes.All));
+            modeSelectBox.Items.Add(new KVItem<OsuModes>("osu!", OsuModes.Osu));
+            modeSelectBox.Items.Add(new KVItem<OsuModes>("Catch the Beat", OsuModes.CtB));
+            modeSelectBox.Items.Add(new KVItem<OsuModes>("Taiko", OsuModes.Taiko));
+            modeSelectBox.Items.Add(new KVItem<OsuModes>("osu!mania", OsuModes.Mania));
 
             // ID lookup thingys
-            searchViaSelectBox.Items.Add(new KVItem("Beatmap Set ID (/s)", "s"));
-            searchViaSelectBox.Items.Add(new KVItem("Beatmap ID (/b)", "b"));
-            searchViaSelectBox.Items.Add(new KVItem("Mapper User ID", "u"));
-            searchViaSelectBox.Items.Add(new KVItem("Normal (Title/Artist)", "o"));
+            searchViaSelectBox.Items.Add(new KVItem<BloodcatIdFilter>("Beatmap Set ID (/s)", BloodcatIdFilter.BySetId)); // s
+            searchViaSelectBox.Items.Add(new KVItem<BloodcatIdFilter>("Beatmap ID (/b)", BloodcatIdFilter.ByBeatmapId)); // b
+            searchViaSelectBox.Items.Add(new KVItem<BloodcatIdFilter>("Mapper User ID", BloodcatIdFilter.ByMapperUserId)); // u
+            searchViaSelectBox.Items.Add(new KVItem<BloodcatIdFilter>("Normal (Title/Artist)", BloodcatIdFilter.Normal)); // o
         }
 
         public async void DownloadBeatmapSet(BeatmapSet set)

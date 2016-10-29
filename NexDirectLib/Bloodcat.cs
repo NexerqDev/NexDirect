@@ -16,18 +16,30 @@ namespace NexDirectLib
         /// <summary>
         /// Searches Bloodcat for a string with some params
         /// </summary>
-        public static async Task<SearchResultSet> Search(string query, string sRankedParam, string mModeParam, string cNumbersParam, int page = 1)
+        public static async Task<SearchResultSet> Search(string query, SearchFilters.OsuRankStatus rankedFilter, SearchFilters.OsuModes modeFilter, SearchFilters.BloodcatIdFilter? bloodcatNumbersFilter, int page = 1)
         {
+            // rank status filter = s
+            // mode filter = m
+            // when there are numebrs only special filter = c
+
+            string sParam;
+            if (rankedFilter == SearchFilters.OsuRankStatus.RankedAndApproved)
+                sParam = "1,2";
+            else if (rankedFilter == SearchFilters.OsuRankStatus.All)
+                sParam = ""; // none needed for all
+            else if (rankedFilter == SearchFilters.OsuRankStatus.Unranked)
+                sParam = "0";
+            else
+                sParam = ((int)rankedFilter).ToString();
+
             // build query string -- https://stackoverflow.com/questions/17096201/build-query-string-for-system-net-httpclient-get
             var qs = HttpUtility.ParseQueryString(string.Empty);
             qs["mod"] = "json";
             qs["q"] = query;
-            if (sRankedParam != null)
-                qs["s"] = sRankedParam;
-            if (mModeParam != null)
-                qs["m"] = mModeParam;
-            if (cNumbersParam != null)
-                qs["c"] = cNumbersParam;
+            qs["s"] = sParam;
+            qs["m"] = modeFilter == SearchFilters.OsuModes.All ? "" : ((int)modeFilter).ToString();
+            if (bloodcatNumbersFilter != null)
+                qs["c"] = ((int)bloodcatNumbersFilter).ToString();
             qs["p"] = page.ToString();
 
             var data = await Web.GetJson<JArray>("http://bloodcat.com/osu/?" + qs.ToString());
@@ -70,7 +82,7 @@ namespace NexDirectLib
         {
             try
             {
-                IEnumerable<BeatmapSet> results = (await Search(beatmapId, null, null, "b")).Results;
+                IEnumerable<BeatmapSet> results = (await Search(beatmapId, SearchFilters.OsuRankStatus.All, SearchFilters.OsuModes.All, SearchFilters.BloodcatIdFilter.ByBeatmapId)).Results;
                 if (results.Count() == 0)
                     return null;
                 return results.First();
@@ -85,7 +97,7 @@ namespace NexDirectLib
         {
             try
             {
-                IEnumerable<BeatmapSet> results = (await Search(id, null, null, "s")).Results;
+                IEnumerable<BeatmapSet> results = (await Search(id, SearchFilters.OsuRankStatus.All, SearchFilters.OsuModes.All, SearchFilters.BloodcatIdFilter.BySetId)).Results;
                 BeatmapSet map = results.FirstOrDefault(r => r.Id == id);
                 return map;
             }

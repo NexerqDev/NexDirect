@@ -78,6 +78,7 @@
     <Compile Include="MapsManager.cs" />
     <Compile Include="DownloadManager.cs" />
     <Compile Include="Osu.cs" />
+    <Compile Include="SearchFilters.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Structures\BeatmapDownload.cs" />
     <Compile Include="Structures\BeatmapSet.cs" />

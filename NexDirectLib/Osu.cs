@@ -133,30 +133,30 @@ namespace NexDirectLib
         /// <summary>
         /// Searches the official beatmap listing for beatmaps.
         /// </summary>
-        public static async Task<SearchResultSet> Search(string query, string sRankedParam, string mModeParam, int page = 1)
+        public static async Task<SearchResultSet> Search(string query, SearchFilters.OsuRankStatus rankedFilter, SearchFilters.OsuModes modeFilter, int page = 1)
         {
-            if (sRankedParam == "0,-1,-2")
-                throw new SearchNotSupportedException();
+            // ranked filter = r
+            // mode filter = m
 
-            // Standardize the bloodcat stuff to osu! query param
-            if (sRankedParam == "1,2")
-                sRankedParam = "0";
-            else if (sRankedParam == "3")
-                sRankedParam = "11";
+            string rParam;
+            // Ranked filter into website param
+            if (rankedFilter == SearchFilters.OsuRankStatus.RankedAndApproved)
+                rParam = "0";
+            else if (rankedFilter == SearchFilters.OsuRankStatus.Approved)
+                rParam = "6";
+            else if (rankedFilter == SearchFilters.OsuRankStatus.Qualified)
+                rParam = "11";
+            else if (rankedFilter == SearchFilters.OsuRankStatus.Loved)
+                rParam = "12";
             else
-                sRankedParam = "4";
-
-            // modes are all g except for "All"
-            if (mModeParam == null)
-                mModeParam = "-1";
-
+                rParam = "4";
 
             // Search time. Need to use cookies.
             // Same as bloodcat, construct QS
             var qs = HttpUtility.ParseQueryString(string.Empty);
             qs["q"] = query;
-            qs["m"] = mModeParam;
-            qs["r"] = sRankedParam;
+            qs["m"] = ((int)modeFilter).ToString();
+            qs["r"] = rParam;
             if (page > 1)
                 qs["page"] = page.ToString();
 
@@ -198,10 +198,18 @@ namespace NexDirectLib
                 }
                 catch { } // rip
 
-                // we can only base this off that green/red bar, lol
+                // we can only base this off that green/red bar, lol -- or the search filter
                 string rankStatus;
-                if (b.SelectSingleNode("div[@class='right-aligned']/div[@class='rating']") != null)
-                    rankStatus = "Ranked/Approved/Qualified";
+                if (rankedFilter == SearchFilters.OsuRankStatus.Loved)
+                    rankStatus = "Loved";
+                else if (rankedFilter == SearchFilters.OsuRankStatus.Approved)
+                    rankStatus = "Approved";
+                else if (rankedFilter == SearchFilters.OsuRankStatus.Qualified)
+                    rankStatus = "Qualified";
+                else if (rankedFilter == SearchFilters.OsuRankStatus.RankedAndApproved)
+                    rankStatus = "Ranked/Approved"
+                else if (b.SelectSingleNode("div[@class='right-aligned']/div[@class='rating']") != null)
+                    rankStatus = "Ranked/Apprv./Quali./Loved";
                 else
                     rankStatus = "Pending/Graveyard";
 
