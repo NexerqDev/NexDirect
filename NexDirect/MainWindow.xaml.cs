@@ -53,6 +53,7 @@ namespace NexDirect
             dataGrid.ItemsSource = BeatmapsCollection;
             progressGrid.ItemsSource = DownloadManager.Downloads;
             DownloadManager.SpeedUpdated += DownloadManager_SpeedUpdated;
+            DownloadManagement.Init(this);
 
             System.Windows.Controls.Control[] _dynamicElements = { searchBox, searchButton, popularLoadButton, rankedStatusBox, modeSelectBox, progressGrid, dataGrid };
             dynamicElements = _dynamicElements;
@@ -151,7 +152,7 @@ namespace NexDirect
             catch (Osu.SearchNotSupportedException) { MessageBox.Show("Sorry, this mode of Ranking search is currently not supported via the official osu! servers."); }
             catch (Osu.CookiesExpiredException)
             {
-                if (await TryRenewOsuCookies())
+                if (await DownloadManagement.TryRenewOsuCookies())
                     search(newSearch); // success, try at it again
                 return;
             }
@@ -212,7 +213,7 @@ namespace NexDirect
             if (beatmap == null)
                 return;
 
-            DownloadBeatmapSet(beatmap);
+            DownloadManagement.DownloadBeatmapSet(beatmap);
         }
 
         private void dataGrid_LeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -282,114 +283,6 @@ namespace NexDirect
             searchViaSelectBox.Items.Add(new KVItem<BloodcatIdFilter>("Normal (Title/Artist)", BloodcatIdFilter.Normal)); // o
         }
 
-        public async void DownloadBeatmapSet(BeatmapSet set)
-        {
-            // check for already downloading
-            if (DownloadManager.Downloads.Any(b => b.Set.Id == set.Id))
-            {
-                MessageBox.Show("This beatmap is already being downloaded!");
-                return;
-            }
-
-            if (!CheckAndPromptIfHaveMap(set))
-                return;
-
-            // get dl obj
-            BeatmapDownload download;
-            if (!fallbackActualOsu && useOfficialOsu && String.IsNullOrEmpty(beatmapMirror))
-            {
-                try
-                {
-                    download = await Osu.PrepareDownloadSet(set, novidDownload);
-                }
-                catch (Osu.IllegalDownloadException)
-                {
-                    MessageBoxResult bloodcatAsk = MessageBox.Show("Sorry, this map seems like it has been taken down from the official osu! servers due to a DMCA request to them. Would you like to check if a copy off Bloodcat is available, and if so download it?", "NexDirect - Mirror?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                    if (bloodcatAsk == MessageBoxResult.No)
-                        return;
-
-                    BeatmapSet newSet = await Bloodcat.TryResolveSetId(set.Id);
-                    if (newSet == null)
-                        MessageBox.Show("Sorry, this map could not be found on Bloodcat. Download has been aborted.", "NexDirect - Could not find beatmap", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                    download = Bloodcat.PrepareDownloadSet(set, beatmapMirror);
-                }
-                catch (Osu.CookiesExpiredException)
-                {
-                    if (await TryRenewOsuCookies())
-                        download = await Osu.PrepareDownloadSet(set, novidDownload);
-                    return;
-                }
-            }
-            else
-            {
-                download = Bloodcat.PrepareDownloadSet(set, beatmapMirror);
-            }
-
-            if (download == null)
-                return;
-
-            // start dl
-            try
-            {
-                await DownloadManager.DownloadSet(download);
-                if (download.Cancelled)
-                    return;
-
-                if (launchOsu && Process.GetProcessesByName("osu!").Length > 0)
-                {
-                    string newPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, download.FileName);
-                    File.Move(download.TempPath, newPath); // rename to .osz
-                    Process.Start(Path.Combine(osuFolder, "osu!.exe"), newPath);
-                }
-                else
-                {
-                    string path = Path.Combine(osuSongsFolder, download.FileName);
-                    if (File.Exists(path)) File.Delete(path); // overwrite if exist
-                    File.Move(download.TempPath, path);
-                }
-
-                (new Dialogs.DownloadComplete(set)).Show();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"An error has occured whilst downloading {set.Title} ({set.Mapper}).\n\n{ex.ToString()}");
-            }
-        }
-
-        private async Task<bool> TryRenewOsuCookies()
-        {
-            try // try renew
-            {
-                System.Net.CookieContainer _cookies = await Osu.LoginAndGetCookie(officialOsuUsername, officialOsuPassword);
-                Properties.Settings.Default.officialOsuCookies = officialOsuCookies = await Osu.SerializeCookies(_cookies);
-                Osu.Cookies = _cookies;
-                Properties.Settings.Default.Save(); // success
-                return true;
-            }
-            catch (Osu.InvalidPasswordException)
-            {
-                MessageBoxResult fallback = MessageBox.Show("It seems like your osu! login password has changed. Press yes to fallback the session to Bloodcat for now and you can go update your password, or press no to permanently use Bloodcat. You will have to retry the download again either way.", "NexDirect - Download Error", MessageBoxButton.YesNo, MessageBoxImage.Error);
-                if (fallback == MessageBoxResult.Yes)
-                {
-                    // just fallback
-                    useOfficialOsu = false;
-                    fallbackActualOsu = true;
-                    return false;
-                }
-                else
-                {
-                    // disable perma
-                    Properties.Settings.Default.useOfficialOsu = useOfficialOsu = false;
-                    Properties.Settings.Default.officialOsuCookies = officialOsuCookies = null;
-                    Properties.Settings.Default.officialOsuUsername = officialOsuUsername = "";
-                    Properties.Settings.Default.officialOsuPassword = officialOsuPassword = "";
-                    Properties.Settings.Default.Save();
-                    return false;
-                }
-            }
-        }
-
         private void CleanUpOldTemps()
         {
             try
@@ -415,21 +308,6 @@ namespace NexDirect
             }
 
             (new Dialogs.FirstTimeInstall(this)).ShowDialog();
-        }
-
-
-        private bool CheckAndPromptIfHaveMap(BeatmapSet set)
-        {
-            // check for already have
-            if (set.AlreadyHave)
-            {
-                MessageBoxResult prompt = MessageBox.Show($"You already have this beatmap {set.Title} ({set.Mapper}). Do you wish to redownload it?", "NexDirect - Cancel Download", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                if (prompt == MessageBoxResult.No)
-                    return false;
-
-                return true;
-            }
-            return true;
         }
 
         private bool uriHandling = false; // one at a time please
@@ -521,27 +399,7 @@ namespace NexDirect
                 foreach (var element in dynamicElements)
                     element.IsEnabled = false;
 
-                BeatmapSet set;
-                if (isSetId)
-                {
-                    if (useOfficialOsu)
-                        set = await Osu.TryResolveSetId(id);
-                    else
-                        set = await Bloodcat.TryResolveSetId(id);
-                }
-                else
-                {
-                    if (useOfficialOsu)
-                        set = await Osu.TryResolveBeatmapId(id);
-                    else
-                        set = await Bloodcat.TryBeatmapId(id);
-                }
-
-
-                if (set == null)
-                    MessageBox.Show($"Could not find the beatmap on {(useOfficialOsu ? "the official osu! directory" : "Bloodcat")}. Cannot proceed to download :(");
-                else
-                    (new Dialogs.DirectDownload(this, set)).ShowDialog();
+                await DownloadManagement.DirectDownload(isSetId, id);
 
                 foreach (var element in dynamicElements)
                     element.IsEnabled = true;

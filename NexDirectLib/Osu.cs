@@ -207,7 +207,7 @@ namespace NexDirectLib
                 else if (rankedFilter == SearchFilters.OsuRankStatus.Qualified)
                     rankStatus = "Qualified";
                 else if (rankedFilter == SearchFilters.OsuRankStatus.RankedAndApproved)
-                    rankStatus = "Ranked/Approved"
+                    rankStatus = "Ranked/Approved";
                 else if (b.SelectSingleNode("div[@class='right-aligned']/div[@class='rating']") != null)
                     rankStatus = "Ranked/Apprv./Quali./Loved";
                 else

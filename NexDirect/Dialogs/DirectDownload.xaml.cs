@@ -99,7 +99,7 @@ namespace NexDirect.Dialogs
         private void onDownloadClick(bool restore = false)
         {
             AudioManager.ForceStopPreview();
-            _mw.DownloadBeatmapSet(set);
+            DownloadManagement.DownloadBeatmapSet(set);
             if (restore)
                 _mw.RestoreWindow();
             Close();

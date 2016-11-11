@@ -122,6 +122,7 @@
     <Compile Include="Dialogs\OsuLoginCheck.Designer.cs">
       <DependentUpon>OsuLoginCheck.cs</DependentUpon>
     </Compile>
+    <Compile Include="DownloadManagement.cs" />
     <Compile Include="HotkeyManager.cs" />
     <Compile Include="LinkerSetup.cs" />
     <Compile Include="SingleInstance.cs" />
