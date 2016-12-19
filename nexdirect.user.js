@@ -2,7 +2,7 @@
 // @name         NexDirect v2
 // @namespace    http://nicholastay.github.io/
 // @homepage     https://github.com/nicholastay/NexDirect
-// @version      0.2.2
+// @version      0.2.3
 // @icon         https://raw.githubusercontent.com/nicholastay/NexDirect/master/Designs/logo.png
 // @description  Adds download button to page to use NexDirect & replaces the heart button on the listings -- You must visit the Settings panel (the logo in the bottom right) and register the URI scheme before you are able to use this script.
 // @author       Nicholas Tay (Nexerq / @n2468txd) <nexerq@gmail.com>
@@ -64,7 +64,7 @@
 
         log("Found image preview src element.");
         
-        var beatmapSetId = $imgSrc.match(/\/(\d+)l\.jpg$/);
+        var beatmapSetId = $imgSrc.match(/\/(\d+)l\.jpg/);
         if (!beatmapSetId || !beatmapSetId[1])
             return log("Could not identify the beatmap set ID."); // rip
         beatmapSetId = beatmapSetId[1]; // its match 1
