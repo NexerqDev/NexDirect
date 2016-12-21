@@ -125,6 +125,7 @@
     <Compile Include="DownloadManagement.cs" />
     <Compile Include="HotkeyManager.cs" />
     <Compile Include="LinkerSetup.cs" />
+    <Compile Include="SettingManager.cs" />
     <Compile Include="SingleInstance.cs" />
     <Compile Include="TrayManager.cs" />
     <Compile Include="WinTools.cs" />

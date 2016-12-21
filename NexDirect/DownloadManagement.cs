@@ -39,14 +39,14 @@ namespace NexDirect
             BeatmapSet set;
             if (isSetId)
             {
-                if (mw.useOfficialOsu)
+                if (SettingManager.Get("useOfficialOsu"))
                     set = await Osu.TryResolveSetId(id);
                 else
                     set = await Bloodcat.TryResolveSetId(id);
             }
             else
             {
-                if (mw.useOfficialOsu)
+                if (SettingManager.Get("useOfficialOsu"))
                     set = await Osu.TryResolveBeatmapId(id);
                 else
                     set = await Bloodcat.TryBeatmapId(id);
@@ -55,7 +55,7 @@ namespace NexDirect
 
             if (set == null)
             {
-                MessageBox.Show($"Could not find the beatmap on {(mw.useOfficialOsu ? "the official osu! directory" : "Bloodcat")}. Cannot proceed to download :(");
+                MessageBox.Show($"Could not find the beatmap on {(SettingManager.Get("useOfficialOsu") ? "the official osu! directory" : "Bloodcat")}. Cannot proceed to download :(");
                 return false;
             }
             else
@@ -69,8 +69,8 @@ namespace NexDirect
         {
             try // try renew
             {
-                System.Net.CookieContainer _cookies = await Osu.LoginAndGetCookie(mw.officialOsuUsername, mw.officialOsuPassword);
-                Properties.Settings.Default.officialOsuCookies = mw.officialOsuCookies = await Osu.SerializeCookies(_cookies);
+                System.Net.CookieContainer _cookies = await Osu.LoginAndGetCookie(SettingManager.Get("officialOsuUsername"), SettingManager.Get("officialOsuPassword"));
+                Properties.Settings.Default.officialOsuCookies = await Osu.SerializeCookies(_cookies);
                 Osu.Cookies = _cookies;
                 Properties.Settings.Default.Save(); // success
                 return true;
@@ -81,18 +81,17 @@ namespace NexDirect
                 if (fallback == MessageBoxResult.Yes)
                 {
                     // just fallback
-                    mw.useOfficialOsu = false;
-                    mw.fallbackActualOsu = true;
+                    SettingManager.Set("useOfficialOsu", false, true);
+                    SettingManager.Set("fallbackActualOsu", true, true);
                     return false;
                 }
                 else
                 {
                     // disable perma
-                    Properties.Settings.Default.useOfficialOsu = mw.useOfficialOsu = false;
-                    Properties.Settings.Default.officialOsuCookies = mw.officialOsuCookies = null;
-                    Properties.Settings.Default.officialOsuUsername = mw.officialOsuUsername = "";
-                    Properties.Settings.Default.officialOsuPassword = mw.officialOsuPassword = "";
-                    Properties.Settings.Default.Save();
+                    SettingManager.Set("useOfficialOsu", false);
+                    SettingManager.Set("officialOsuCookies", null);
+                    SettingManager.Set("officialOsuUsername", "");
+                    SettingManager.Set("officialOsuPassword", "");
                     return false;
                 }
             }
@@ -112,11 +111,11 @@ namespace NexDirect
 
             // get dl obj
             BeatmapDownload download;
-            if (!mw.fallbackActualOsu && mw.useOfficialOsu && String.IsNullOrEmpty(mw.beatmapMirror))
+            if (!SettingManager.Get("fallbackActualOsu") && SettingManager.Get("useOfficialOsu") && String.IsNullOrEmpty(SettingManager.Get("beatmapMirror")))
             {
                 try
                 {
-                    download = await Osu.PrepareDownloadSet(set, mw.novidDownload);
+                    download = await Osu.PrepareDownloadSet(set, SettingManager.Get("novidDownload"));
                 }
                 catch (Osu.IllegalDownloadException)
                 {
@@ -128,18 +127,18 @@ namespace NexDirect
                     if (newSet == null)
                         MessageBox.Show("Sorry, this map could not be found on Bloodcat. Download has been aborted.", "NexDirect - Could not find beatmap", MessageBoxButton.OK, MessageBoxImage.Error);
 
-                    download = Bloodcat.PrepareDownloadSet(set, mw.beatmapMirror);
+                    download = Bloodcat.PrepareDownloadSet(set, SettingManager.Get("beatmapMirror"));
                 }
                 catch (Osu.CookiesExpiredException)
                 {
                     if (await TryRenewOsuCookies())
-                        download = await Osu.PrepareDownloadSet(set, mw.novidDownload);
+                        download = await Osu.PrepareDownloadSet(set, SettingManager.Get("novidDownload"));
                     return;
                 }
             }
             else
             {
-                download = Bloodcat.PrepareDownloadSet(set, mw.beatmapMirror);
+                download = Bloodcat.PrepareDownloadSet(set, SettingManager.Get("beatmapMirror"));
             }
 
             if (download == null)
@@ -152,11 +151,11 @@ namespace NexDirect
                 if (download.Cancelled)
                     return;
 
-                if (mw.launchOsu && Process.GetProcessesByName("osu!").Length > 0)
+                if (SettingManager.Get("launchOsu") && Process.GetProcessesByName("osu!").Length > 0)
                 {
                     string newPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, download.FileName);
                     File.Move(download.TempPath, newPath); // rename to .osz
-                    Process.Start(Path.Combine(mw.osuFolder, "osu!.exe"), newPath);
+                    Process.Start(Path.Combine(SettingManager.Get("osuFolder"), "osu!.exe"), newPath);
                 }
                 else
                 {

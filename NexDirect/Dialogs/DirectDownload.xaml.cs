@@ -38,7 +38,7 @@ namespace NexDirect.Dialogs
             songInfoLabel.Content = $"{set.Artist} - {set.Title}";
             mapperInfoLabel.Content = $"(mapped by {set.Mapper})";
 
-            if (_mw.overlayMode) // overlay & only if osu! is open.
+            if (SettingManager.Get("overlayMode")) // overlay & only if osu! is open.
                 initOverlayMode();
         }
 
@@ -84,7 +84,7 @@ namespace NexDirect.Dialogs
             AudioManager.ForceStopPreview();
 
             // fade out
-            if (_mw.overlayMode)
+            if (SettingManager.Get("overlayMode"))
             {
                 e.Cancel = true; // interrupt event to fadeclose
                 var animate = new DoubleAnimation(SystemParameters.PrimaryScreenWidth, new Duration(TimeSpan.FromMilliseconds(150)));

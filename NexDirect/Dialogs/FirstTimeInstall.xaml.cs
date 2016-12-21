@@ -8,6 +8,8 @@ using System.Windows;
 using System.Windows.Media;
 using WPFFolderBrowser;
 
+using NexDirect;
+
 namespace NexDirect.Dialogs
 {
     /// <summary>
@@ -59,9 +61,7 @@ namespace NexDirect.Dialogs
 
         private void startButton_Click(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.osuFolder = osuDir;
-            Properties.Settings.Default.Save();
-            _mw.osuFolder = osuDir;
+            SettingManager.Set("osuFolder", osuDir);
         }
 
         private const string OSU_REG_KEY = @"SOFTWARE\Classes\osu!";

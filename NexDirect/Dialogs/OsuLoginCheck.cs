@@ -21,24 +21,21 @@ namespace NexDirect.Dialogs
             System.Net.CookieContainer cookies = null;
             try
             {
-                cookies = await Osu.DeserializeCookies(_mw.officialOsuCookies);
+                cookies = await Osu.DeserializeCookies(SettingManager.Get("officialOsuCookies"));
             }
             catch
             {
                 // Corrupted cookie store, deleting corruption
-                Properties.Settings.Default.officialOsuCookies = null;
-                Properties.Settings.Default.Save();
+                SettingManager.Set("officialOsuCookies", null);
                 cookies = new System.Net.CookieContainer();
             }
 
             try
             {
-                await Osu.CheckLoginCookie(cookies, _mw.officialOsuUsername, _mw.officialOsuPassword);
+                await Osu.CheckLoginCookie(cookies, SettingManager.Get("officialOsuUsername"), SettingManager.Get("officialOsuPassword"));
 
                 // store to parent & just persist them incase something new changed
-                _mw.officialOsuCookies = await Osu.SerializeCookies(Osu.Cookies);
-                Properties.Settings.Default.officialOsuCookies = _mw.officialOsuCookies;
-                Properties.Settings.Default.Save();
+                SettingManager.Set("officialOsuCookies", await Osu.SerializeCookies(Osu.Cookies));
             }
             catch (Osu.InvalidPasswordException)
             {
@@ -48,16 +45,16 @@ namespace NexDirect.Dialogs
                     TestCookies();
                     return;
                 }
-                _mw.useOfficialOsu = false;
-                _mw.fallbackActualOsu = true;
+                SettingManager.Set("useOfficialOsu", false, true);
+                SettingManager.Set("fallbackActualOsu", true, true);
                 Close();
                 return;
             }
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show("There was an error connecting to osu! servers, falling back to Bloodcat for this session...\n\n" + ex.ToString());
-                _mw.useOfficialOsu = false;
-                _mw.fallbackActualOsu = true;
+                SettingManager.Set("useOfficialOsu", false, true);
+                SettingManager.Set("fallbackActualOsu", true, true);
             }
 
             Close();

@@ -7,13 +7,11 @@ namespace NexDirect.Dialogs
 {
     public partial class OsuLogin : Form
     {
-        private MainWindow _mw;
         private Settings _s;
 
-        public OsuLogin(Settings s, MainWindow mw)
+        public OsuLogin(Settings s)
         {
             InitializeComponent();
-            _mw = mw;
             _s = s;
         }
 
@@ -24,17 +22,13 @@ namespace NexDirect.Dialogs
             try
             {
                 System.Net.CookieContainer _cookies = await Osu.LoginAndGetCookie(usernameBox.Text, passwordBox.Text);
-                _mw.officialOsuCookies = await Osu.SerializeCookies(_cookies);
-                _mw.fallbackActualOsu = true;
-                _mw.officialOsuUsername = usernameBox.Text;
-                _mw.officialOsuPassword = passwordBox.Text;
+                SettingManager.Set("officialOsuCookies", await Osu.SerializeCookies(_cookies));
+                SettingManager.Set("useOfficialOsu", true);
+                //SettingManager.Set("fallbackActualOsu", true);
+                SettingManager.Set("officialOsuUsername", usernameBox.Text);
+                SettingManager.Set("officialOsuPassword", passwordBox.Text);
                 _s.officialLoggedInAs.Content = "Currently logged in as: " + usernameBox.Text;
-                Properties.Settings.Default.officialOsuCookies = _mw.officialOsuCookies;
-                Properties.Settings.Default.useOfficialOsu = true;
-                Properties.Settings.Default.officialOsuUsername = usernameBox.Text;
-                Properties.Settings.Default.officialOsuPassword = passwordBox.Text;
-                Properties.Settings.Default.Save();
-                MessageBox.Show("Logged in to osu! servers and login data saved. Restart NexDirect to begin using the official osu! servers.");
+                MessageBox.Show("Logged in to osu! servers and login data saved.");
                 Close();
                 return;
             }

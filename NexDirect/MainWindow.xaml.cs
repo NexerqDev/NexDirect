@@ -28,23 +28,10 @@ namespace NexDirect
     {
         public ObservableCollection<BeatmapSet> BeatmapsCollection = new ObservableCollection<BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
 
-        public string osuFolder = Properties.Settings.Default.osuFolder;
-        public string osuSongsFolder => Path.Combine(osuFolder, "Songs");
-        public bool overlayMode = Properties.Settings.Default.overlayMode;
-        public bool audioPreviews = Properties.Settings.Default.audioPreviews;
-        public string beatmapMirror = Properties.Settings.Default.beatmapMirror;
-        public string uiBackground = Properties.Settings.Default.customBgPath;
-        public bool minimizeToTray = Properties.Settings.Default.minimizeToTray;
-        public bool firstTrayMinimize = true;
-        public bool launchOsu = Properties.Settings.Default.launchOsu;
-        public bool useOfficialOsu = Properties.Settings.Default.useOfficialOsu;
-        public string officialOsuCookies = Properties.Settings.Default.officialOsuCookies;
-        public bool fallbackActualOsu = false;
-        public string officialOsuUsername = Properties.Settings.Default.officialOsuUsername;
-        public string officialOsuPassword = Properties.Settings.Default.officialOsuPassword;
-        public bool novidDownload = Properties.Settings.Default.novidDownload;
+        public string osuSongsFolder => Path.Combine(SettingManager.Get("osuFolder"), "Songs");
+        public static bool firstTrayMinimize = true;
 
-        private System.Windows.Controls.Control[] dynamicElements;
+        private Control[] dynamicElements;
         private bool startupHide = false;
 
         public MainWindow(string[] startupArgs)
@@ -60,7 +47,7 @@ namespace NexDirect
             InitComboBoxes();
 
             // overlay mode window settings
-            if (overlayMode)
+            if (SettingManager.Get("overlayMode"))
             {
                 Topmost = true;
                 WindowStyle = WindowStyle.None;
@@ -72,7 +59,7 @@ namespace NexDirect
                 overlayModeExit.Visibility = Visibility.Visible;
             }
 
-            if (useOfficialOsu)
+            if (SettingManager.Get("useOfficialOsu"))
                 (new Dialogs.OsuLoginCheck(this)).ShowDialog();
 
             startupHide = HandleURIArgs(startupArgs, WinTools.ParentProcessUtilities.GetParentProcess().ProcessName);
@@ -96,10 +83,11 @@ namespace NexDirect
             AudioManager.Init(Properties.Resources.doong); // load into memory ready to play
             MapsManager.Init(osuSongsFolder);
 
-            if (!string.IsNullOrEmpty(uiBackground))
-                SetFormCustomBackground(uiBackground);
+            string bg = SettingManager.Get("customBgPath");
+            if (!string.IsNullOrEmpty(bg))
+                SetFormCustomBackground(bg);
 
-            if (overlayMode)
+            if (SettingManager.Get("overlayMode"))
             {
                 // register hotkey, 2|4: CONTROL|SHIFT, 36: HOME
                 HotkeyManager.Register(HotkeyManager.GetRuntimeHandle(this), 2 | 4, 36);
@@ -134,13 +122,14 @@ namespace NexDirect
                 OsuModes modeVal = lastModeVal = newSearch ? (modeSelectBox.SelectedItem as KVItem<OsuModes>).Value : lastModeVal;
 
                 BloodcatIdFilter? viaVal = null;
-                if (!useOfficialOsu)
+                bool osuMode = SettingManager.Get("useOfficialOsu");
+                if (!osuMode)
                     viaVal = lastBloodcatNumbersFilterVal = newSearch ? (searchViaSelectBox.Visibility == Visibility.Hidden ? null : (BloodcatIdFilter?)(searchViaSelectBox.SelectedItem as KVItem<BloodcatIdFilter>).Value) : lastBloodcatNumbersFilterVal;
 
                 searchCurrentPage = newSearch ? 1 : (searchCurrentPage + 1);
 
                 SearchResultSet results;
-                if (useOfficialOsu)
+                if (osuMode)
                     results = await Osu.Search(searchText, rankedVal, modeVal, searchCurrentPage);
                 else
                     results = await Bloodcat.Search(searchText, rankedVal, modeVal, viaVal, searchCurrentPage);
@@ -180,7 +169,7 @@ namespace NexDirect
         private void searchBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             // not for official osu search
-            if (useOfficialOsu)
+            if (SettingManager.Get("useOfficialOsu"))
                 return;
 
             // if only numbers show the search via, just like the bloodcat website
@@ -218,7 +207,7 @@ namespace NexDirect
 
         private void dataGrid_LeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (!audioPreviews)
+            if (!SettingManager.Get("audioPreviews"))
                 return;
 
             var set = WinTools.GetGridViewSelectedRowItem<BeatmapSet>(sender, e);
@@ -231,7 +220,7 @@ namespace NexDirect
         private void dataGrid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             // shortcut to stop playing
-            if (!audioPreviews)
+            if (!SettingManager.Get("audioPreviews"))
                 return;
             AudioManager.ForceStopPreview();
         }
@@ -257,16 +246,18 @@ namespace NexDirect
 
         private void InitComboBoxes()
         {
+            bool osuMode = SettingManager.Get("useOfficialOsu");
+
             // Search filters
             rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("All", OsuRankStatus.All));
             rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("Ranked / Approved", OsuRankStatus.RankedAndApproved));
-            if (!useOfficialOsu)
+            if (!osuMode)
                 rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("Ranked", OsuRankStatus.Ranked)); // only bloodcat
             rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("Approved", OsuRankStatus.Approved));
             rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("Qualified", OsuRankStatus.Qualified));
-            if (useOfficialOsu)
+            if (osuMode)
                 rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("Loved", OsuRankStatus.Loved)); // only official
-            if (!useOfficialOsu)
+            if (!osuMode)
                 rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("Unranked", OsuRankStatus.Unranked)); // only bloodcat
 
             // Modes
@@ -298,6 +289,7 @@ namespace NexDirect
         private Regex osuValueRegex = new Regex(@"""(.*)\\osu!\.exe"" ""%1""");
         public void CheckOrPromptForSetup()
         {
+            string osuFolder = SettingManager.Get("osuFolder");
             if (!string.IsNullOrEmpty(osuFolder))
             {
                 // just verify this folder actually still exists
@@ -454,13 +446,13 @@ namespace NexDirect
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
-            if (overlayMode)
+            if (SettingManager.Get("overlayMode"))
                 HotkeyManager.Init(HotkeyManager.GetRuntimeHandle(this));
         }
 
         protected override void OnClosed(EventArgs e)
         {
-            if (overlayMode)
+            if (SettingManager.Get("overlayMode"))
                 HotkeyManager.Unregister(HotkeyManager.GetRuntimeHandle(this)); // unload hotkey stuff
 
             // unload tray icon to prevent it sticking there
@@ -481,13 +473,13 @@ namespace NexDirect
                     return;
                 }
 
-                if (overlayMode)
+                if (SettingManager.Get("overlayMode"))
                     HotkeyPressed();
                 else
                     RestoreWindow();
             };
 
-            if (overlayMode) // Always show and ready to pop
+            if (SettingManager.Get("overlayMode")) // Always show and ready to pop
                 TrayManager.Pop("Press CTRL+SHIFT+HOME to toggle the NexDirect overlay...", "NexDirect (Overlay Mode)");
         }
 
@@ -498,7 +490,7 @@ namespace NexDirect
 
         private void stateChangeHandle()
         {
-            if (minimizeToTray)
+            if (SettingManager.Get("minimizeToTray"))
             {
                 if (WindowState == WindowState.Minimized)
                 {
@@ -518,7 +510,7 @@ namespace NexDirect
             Show();
 
             // get outta minimize
-            if (overlayMode)
+            if (SettingManager.Get("overlayMode"))
                 WindowState = WindowState.Maximized;
             else
                 WindowState = WindowState.Normal;

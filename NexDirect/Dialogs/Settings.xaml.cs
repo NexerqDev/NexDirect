@@ -3,6 +3,8 @@ using NexDirectLib;
 using System;
 using System.Windows;
 
+using NexDirect;
+
 namespace NexDirect.Dialogs
 {
     /// <summary>
@@ -10,31 +12,32 @@ namespace NexDirect.Dialogs
     /// </summary>
     public partial class Settings : Window
     {
-        MainWindow _mw;
         bool loaded = false;
+
+        MainWindow _mw;
 
         public Settings(MainWindow mw)
         {
             InitializeComponent();
 
-            _mw = mw;
+            this._mw = mw; // legacy reference
 
-            overlayModeCheckbox.IsChecked = _mw.overlayMode;
-            audioPreviewsCheckbox.IsChecked = _mw.audioPreviews;
-            mirrorTextBox.Text = _mw.beatmapMirror;
-            launchOsuCheckbox.IsChecked = _mw.launchOsu;
-            officialDownloadBox.IsChecked = _mw.useOfficialOsu;
-            useTrayCheckbox.IsChecked = _mw.minimizeToTray;
-            novidCheckbox.IsChecked = _mw.novidDownload;
+            overlayModeCheckbox.IsChecked = SettingManager.Get("overlayMode");
+            audioPreviewsCheckbox.IsChecked = SettingManager.Get("audioPreviews");
+            mirrorTextBox.Text = SettingManager.Get("beatmapMirror");
+            launchOsuCheckbox.IsChecked = SettingManager.Get("launchOsu");
+            officialDownloadBox.IsChecked = SettingManager.Get("useOfficialOsu");
+            useTrayCheckbox.IsChecked = SettingManager.Get("minimizeToTray");
+            novidCheckbox.IsChecked = SettingManager.Get("novidDownload");
 
-            if (_mw.fallbackActualOsu)
+            if (SettingManager.Get("fallbackActualOsu"))
                 officialDownloadBox.IsChecked = true;
 
             if ((bool)officialDownloadBox.IsChecked)
             {
                 officialLoggedInAs.Visibility = Visibility.Visible;
                 officialLoggedInAs.Content = "Currently logged in as: " + Properties.Settings.Default.officialOsuUsername;
-                if (_mw.fallbackActualOsu)
+                if (SettingManager.Get("fallbackActualOsu"))
                     officialLoggedInAs.Content += " (falling back to Bloodcat)";
             }
 
@@ -43,8 +46,7 @@ namespace NexDirect.Dialogs
 
         private void changeFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.osuFolder = "";
-            Properties.Settings.Default.Save();
+            SettingManager.Set("osuFolder", "");
             MessageBox.Show("osu! folder setting reset. Restart NexDirect to run through the first time folder setup again.", "NexDirect - Updated");
         }
 
@@ -52,8 +54,7 @@ namespace NexDirect.Dialogs
         {
             if (!loaded)
                 return;
-            Properties.Settings.Default.overlayMode = true;
-            Properties.Settings.Default.Save();
+            SettingManager.Set("overlayMode", true);
             MessageBox.Show("Overlay mode has been enabled. A restart of NexDirect is required for changes to take effect.", "NexDirect - Updated");
         }
 
@@ -61,8 +62,7 @@ namespace NexDirect.Dialogs
         {
             if (!loaded)
                 return;
-            Properties.Settings.Default.overlayMode = false;
-            Properties.Settings.Default.Save();
+            SettingManager.Set("overlayMode", false);
             MessageBox.Show("Overlay mode has been disabled. A restart of NexDirect is required for changes to take effect.", "NexDirect - Updated");
         }
 
@@ -70,16 +70,12 @@ namespace NexDirect.Dialogs
         {
             if (!loaded)
                 return;
-            _mw.audioPreviews = (bool)audioPreviewsCheckbox.IsChecked; // IsChecked is already the new value
-            Properties.Settings.Default.audioPreviews = _mw.audioPreviews;
-            Properties.Settings.Default.Save();
+            SettingManager.Set("audioPreviews", (bool)audioPreviewsCheckbox.IsChecked); // IsChecked is already the new value
         }
 
         private void mirrorSaveButton_Click(object sender, RoutedEventArgs e)
         {
-            _mw.beatmapMirror = mirrorTextBox.Text;
-            Properties.Settings.Default.beatmapMirror = _mw.beatmapMirror;
-            Properties.Settings.Default.Save();
+            SettingManager.Set("beatmapMirror", mirrorTextBox.Text);
             MessageBox.Show("New mirror has been saved.", "NexDirect - Updated");
         }
 
@@ -103,23 +99,19 @@ namespace NexDirect.Dialogs
                 filename = dialog.FileName;
             }
 
-            _mw.uiBackground = filename;
-            Properties.Settings.Default.customBgPath = _mw.uiBackground;
-            Properties.Settings.Default.Save();
+            SettingManager.Set("customBgPath", filename);
 
             if (!string.IsNullOrEmpty(filename))
                 MessageBox.Show("New custom background saved.", "NexDirect - Updated");
             else
                 MessageBox.Show("Custom background removed.", "NexDirect - Updated");
 
-            _mw.SetFormCustomBackground(_mw.uiBackground);
+            _mw.SetFormCustomBackground(filename);
         }
 
         private void clearBgButton_Click(object sender, RoutedEventArgs e)
         {
-            _mw.uiBackground = "";
-            Properties.Settings.Default.customBgPath = _mw.uiBackground;
-            Properties.Settings.Default.Save();
+            SettingManager.Set("customBgPath", "");
             MessageBox.Show("Custom background cleared.", "NexDirect - Updated");
             _mw.SetFormCustomBackground(null);
         }
@@ -128,9 +120,7 @@ namespace NexDirect.Dialogs
         {
             if (!loaded)
                 return;
-            _mw.launchOsu = (bool)launchOsuCheckbox.IsChecked;
-            Properties.Settings.Default.launchOsu = _mw.launchOsu;
-            Properties.Settings.Default.Save();
+            SettingManager.Set("launchOsu", (bool)launchOsuCheckbox.IsChecked);
         }
 
         private const string regUriSubKey = @"Software\Classes\nexdirect";
@@ -162,29 +152,26 @@ namespace NexDirect.Dialogs
         {
             if (!loaded)
                 return;
-            (new Dialogs.OsuLogin(this, _mw)).ShowDialog();
+            (new OsuLogin(this)).ShowDialog();
 
-            loaded = false; // just stop it from running handler
-            if (!_mw.fallbackActualOsu)
-                officialDownloadBox.IsChecked = false;
-            else
-                officialDownloadBox.IsChecked = true;
-            loaded = true;
+            if (SettingManager.Get("useOfficialOsu"))
+                (new OsuLoginCheck(_mw)).ShowDialog(); // hacky but reuse code
         }
 
         private void officialDownloadBox_Unchecked(object sender, RoutedEventArgs e)
         {
             if (!loaded)
                 return;
-            _mw.useOfficialOsu = false;
-            _mw.officialOsuCookies = null;
-            if (_mw.fallbackActualOsu) _mw.fallbackActualOsu = false;
+
+            if (SettingManager.Get("fallbackActualOsu"))
+                SettingManager.Set("fallbackActualOsu", false);
+
             officialLoggedInAs.Visibility = Visibility.Hidden;
-            Properties.Settings.Default.useOfficialOsu = false;
-            Properties.Settings.Default.officialOsuCookies = null;
-            Properties.Settings.Default.officialOsuUsername = "";
-            Properties.Settings.Default.officialOsuPassword = "";
-            Properties.Settings.Default.Save();
+
+            SettingManager.Set("useOfficialOsu", false);
+            SettingManager.Set("officialOsuCookies", null);
+            SettingManager.Set("officialOsuUsername", "");
+            SettingManager.Set("officialOsuPassword", "");
             MessageBox.Show("Disabled official osu! server downloads.");
         }
 
@@ -192,9 +179,7 @@ namespace NexDirect.Dialogs
         {
             if (!loaded)
                 return;
-            _mw.minimizeToTray = (bool)useTrayCheckbox.IsChecked;
-            Properties.Settings.Default.minimizeToTray = _mw.minimizeToTray;
-            Properties.Settings.Default.Save();
+            SettingManager.Set("minimizeToTray", (bool)useTrayCheckbox.IsChecked);
         }
 
         private void registerLinkerButton_Click(object sender, RoutedEventArgs e)
@@ -216,9 +201,7 @@ namespace NexDirect.Dialogs
         {
             if (!loaded)
                 return;
-            _mw.novidDownload = (bool)novidCheckbox.IsChecked;
-            Properties.Settings.Default.novidDownload = _mw.novidDownload;
-            Properties.Settings.Default.Save();
+            SettingManager.Set("novidDownload", (bool)novidCheckbox.IsChecked);
         }
     }
 }
