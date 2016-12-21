@@ -44,5 +44,8 @@
     <Setting Name="novidDownload" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="previewVolume" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0.35</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

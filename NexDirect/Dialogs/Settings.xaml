@@ -11,21 +11,23 @@
         <Button x:Name="changeFolderButton" Content="Update osu! folder location" HorizontalAlignment="Left" Height="21" Margin="118,113,0,0" VerticalAlignment="Top" Width="243" Click="changeFolderButton_Click"/>
         <CheckBox x:Name="overlayModeCheckbox" Content="Use overlay mode (requires osu! to be in windowed or borderless mode)" HorizontalAlignment="Left" Height="17" Margin="39,141,0,0" VerticalAlignment="Top" Width="406" Checked="overlayModeCheckbox_Checked" Unchecked="overlayModeCheckbox_Unchecked"/>
         <CheckBox x:Name="audioPreviewsCheckbox" Content="Play beatmap audio previews on click (will not play if map is already downloading)" HorizontalAlignment="Left" Height="17" Margin="22,164,0,0" VerticalAlignment="Top" Width="459" Checked="audioPreviewsCheckbox_Toggled" Unchecked="audioPreviewsCheckbox_Toggled"/>
-        <Label x:Name="label1" Content="Mirror:" HorizontalAlignment="Left" Height="25" Margin="22,254,0,0" VerticalAlignment="Top" Width="46"/>
-        <TextBox x:Name="mirrorTextBox" HorizontalAlignment="Left" Height="22" Margin="69,257,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="317"/>
-        <Button x:Name="mirrorSaveButton" Content="Save Mirror" HorizontalAlignment="Left" Height="22" Margin="391,257,0,0" VerticalAlignment="Top" Width="91" Click="mirrorSaveButton_Click"/>
+        <Label x:Name="label1" Content="Mirror:" HorizontalAlignment="Left" Height="25" Margin="22,262,0,0" VerticalAlignment="Top" Width="46"/>
+        <TextBox x:Name="mirrorTextBox" HorizontalAlignment="Left" Height="22" Margin="69,265,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="317"/>
+        <Button x:Name="mirrorSaveButton" Content="Save Mirror" HorizontalAlignment="Left" Height="22" Margin="391,265,0,0" VerticalAlignment="Top" Width="91" Click="mirrorSaveButton_Click"/>
         <Label x:Name="label2" Content="Changes are saved immediately for almost all settings." HorizontalAlignment="Left" Height="29" Margin="96,77,0,0" VerticalAlignment="Top" Width="296" FontStyle="Italic"/>
-        <Label x:Name="label3" Content="Leave the mirror field blank to default to Bloodcat/osu! website (whatever mode you're in)." HorizontalAlignment="Left" Height="31" Margin="12,279,0,0" VerticalAlignment="Top" Width="492"/>
-        <Label x:Name="label4" Content="For custom URLs, use %s to indicate the beatmap set ID." HorizontalAlignment="Left" Height="27" Margin="103,297,0,0" VerticalAlignment="Top" Width="308"/>
-        <Button x:Name="setCustomBgButton" Content="Set custom UI background" HorizontalAlignment="Left" Height="21" Margin="35,185,0,0" VerticalAlignment="Top" Width="209" Click="setCustomBgButton_Click"/>
-        <Button x:Name="clearBgButton" Content="Clear UI background" HorizontalAlignment="Left" Height="21" Margin="249,185,0,0" VerticalAlignment="Top" Width="209" Click="clearBgButton_Click"/>
+        <Label x:Name="label3" Content="Leave the mirror field blank to default to Bloodcat/osu! website (whatever mode you're in)." HorizontalAlignment="Left" Height="31" Margin="12,287,0,0" VerticalAlignment="Top" Width="492"/>
+        <Label x:Name="label4" Content="For custom URLs, use %s to indicate the beatmap set ID." HorizontalAlignment="Left" Height="27" Margin="103,305,0,0" VerticalAlignment="Top" Width="308"/>
+        <Button x:Name="setCustomBgButton" Content="Set custom UI background" HorizontalAlignment="Left" Height="21" Margin="39,215,0,0" VerticalAlignment="Top" Width="209" Click="setCustomBgButton_Click"/>
+        <Button x:Name="clearBgButton" Content="Clear UI background" HorizontalAlignment="Left" Height="21" Margin="253,215,0,0" VerticalAlignment="Top" Width="209" Click="clearBgButton_Click"/>
         <CheckBox x:Name="launchOsuCheckbox" Content="Launch osu! with params instead of moving to songs folder (Advanced)" HorizontalAlignment="Left" Height="23" Margin="58,420,0,0" VerticalAlignment="Top" Width="400" Checked="launchOsuCheckbox_Toggled" Unchecked="launchOsuCheckbox_Toggled"/>
         <Button x:Name="registerUriButton" Content="Register NexDirect URI Scheme for User" HorizontalAlignment="Left" Height="23" Margin="130,334,0,0" VerticalAlignment="Top" Width="244" Click="registerUriButton_Click"/>
         <CheckBox x:Name="officialDownloadBox" Content="Download using official osu! website (experimental)" HorizontalAlignment="Left" Height="16" Margin="103,455,0,0" VerticalAlignment="Top" Width="297" Checked="officialDownloadBox_Checked" Unchecked="officialDownloadBox_Unchecked"/>
         <Label x:Name="officialLoggedInAs" Content="Label" HorizontalAlignment="Left" Height="28" Margin="0,469,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="504" Visibility="Hidden"/>
-        <CheckBox x:Name="useTrayCheckbox" Content="Minimize NexDirect to tray" HorizontalAlignment="Left" Height="20" Margin="167,213,0,0" VerticalAlignment="Top" Width="167" Checked="useTrayCheckbox_Toggled" Unchecked="useTrayCheckbox_Toggled"/>
+        <CheckBox x:Name="useTrayCheckbox" Content="Minimize NexDirect to tray" HorizontalAlignment="Left" Height="20" Margin="171,242,0,0" VerticalAlignment="Top" Width="167" Checked="useTrayCheckbox_Toggled" Unchecked="useTrayCheckbox_Toggled"/>
         <Button x:Name="registerLinkerButton" Content="Register as a System Browser" HorizontalAlignment="Left" Height="23" Margin="130,362,0,0" VerticalAlignment="Top" Width="244" Click="registerLinkerButton_Click"/>
         <CheckBox x:Name="novidCheckbox" Content="Prefer video-less downloads (only works if official osu! website is used)" HorizontalAlignment="Left" Height="15" Margin="62,400,0,0" VerticalAlignment="Top" Width="397" Checked="novidCheckbox_Toggled" Unchecked="novidCheckbox_Toggled"/>
+        <Slider x:Name="previewVolumeSlider" HorizontalAlignment="Left" Height="18" Margin="265,186,0,0" VerticalAlignment="Top" Width="152" Maximum="100" Minimum="1" SmallChange="1" AutoToolTipPlacement="BottomRight" ValueChanged="previewVolumeSlider_ValueChanged"/>
+        <Label x:Name="label5" Content="Beatmap audio preview volume" HorizontalAlignment="Left" Height="29" Margin="84,181,0,0" VerticalAlignment="Top" Width="183"/>
 
     </Grid>
 </Window>

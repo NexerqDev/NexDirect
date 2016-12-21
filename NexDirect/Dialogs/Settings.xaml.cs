@@ -29,6 +29,7 @@ namespace NexDirect.Dialogs
             officialDownloadBox.IsChecked = SettingManager.Get("useOfficialOsu");
             useTrayCheckbox.IsChecked = SettingManager.Get("minimizeToTray");
             novidCheckbox.IsChecked = SettingManager.Get("novidDownload");
+            previewVolumeSlider.Value = SettingManager.Get("previewVolume") * 100;
 
             if (SettingManager.Get("fallbackActualOsu"))
                 officialDownloadBox.IsChecked = true;
@@ -202,6 +203,16 @@ namespace NexDirect.Dialogs
             if (!loaded)
                 return;
             SettingManager.Set("novidDownload", (bool)novidCheckbox.IsChecked);
+        }
+
+        private void previewVolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (!loaded)
+                return;
+
+            float v = (float)(previewVolumeSlider.Value / 100);
+            SettingManager.Set("previewVolume", v);
+            AudioManager.SetPreviewVolume(v);
         }
     }
 }

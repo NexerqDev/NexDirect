@@ -190,5 +190,17 @@ namespace NexDirect.Properties {
                 this["novidDownload"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.35")]
+        public float previewVolume {
+            get {
+                return ((float)(this["previewVolume"]));
+            }
+            set {
+                this["previewVolume"] = value;
+            }
+        }
     }
 }

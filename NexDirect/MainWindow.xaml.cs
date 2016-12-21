@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Collections.ObjectModel;
@@ -14,10 +13,7 @@ using System.Threading.Tasks;
 using NexDirectLib;
 using NexDirectLib.Structures;
 using static NexDirectLib.SearchFilters;
-using WPFFolderBrowser;
-using Microsoft.Win32;
 using System.Windows.Controls;
-using System.Windows.Shell;
 
 namespace NexDirect
 {
@@ -80,7 +76,7 @@ namespace NexDirect
         {
             CleanUpOldTemps();
             CheckOrPromptForSetup();
-            AudioManager.Init(Properties.Resources.doong); // load into memory ready to play
+            AudioManager.Init(SettingManager.Get("previewVolume"), Properties.Resources.doong); // load into memory ready to play
             MapsManager.Init(osuSongsFolder);
 
             string bg = SettingManager.Get("customBgPath");
@@ -202,10 +198,12 @@ namespace NexDirect
             if (beatmap == null)
                 return;
 
+            AudioManager.ForceStopPreview();
             DownloadManagement.DownloadBeatmapSet(beatmap);
         }
 
-        private void dataGrid_LeftButtonUp(object sender, MouseButtonEventArgs e)
+        private BeatmapSet lastSetPreviewed = null;
+        private void dataGrid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (!SettingManager.Get("audioPreviews"))
                 return;
@@ -214,15 +212,15 @@ namespace NexDirect
             if (set == null)
                 return;
 
-            Osu.PlayPreviewAudio(set);
-        }
-
-        private void dataGrid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            // shortcut to stop playing
-            if (!SettingManager.Get("audioPreviews"))
+            if (set == lastSetPreviewed)
+            {
+                AudioManager.ForceStopPreview();
+                lastSetPreviewed = null;
                 return;
-            AudioManager.ForceStopPreview();
+            }
+
+            Osu.PlayPreviewAudio(set);
+            lastSetPreviewed = set;
         }
 
         private void progressGrid_DoubleClick(object sender, MouseButtonEventArgs e)
