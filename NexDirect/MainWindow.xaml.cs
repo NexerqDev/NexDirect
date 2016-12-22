@@ -429,7 +429,8 @@ namespace NexDirect
             if (update == null)
                 return;
 
-            MessageBoxResult downloadNew = MessageBox.Show($"There is a new update available for NexDirect (version {update.Version}).\nIt was published on GitHub at {update.PublishedAt.ToString("g")}.\n\nOpen your browser now to download the latest update?", "NexDirect - Update Available", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            bool daylight = TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time").IsDaylightSavingTime(update.PublishedAt);
+            MessageBoxResult downloadNew = MessageBox.Show($"There is a new update available for NexDirect (version {update.Version}).\nIt was published on GitHub at {WinTools.ToAustralianEasternTime(update.PublishedAt).ToString("g")} AE{(daylight ? "D" : "S")}T (Australian Eastern {(daylight ? "Daylight" : "Standard")} Time).\n\nOpen your browser now to download the latest update?", "NexDirect - Update Available", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (downloadNew == MessageBoxResult.No)
                 return;
             Process.Start(update.Url);

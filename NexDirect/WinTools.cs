@@ -51,6 +51,8 @@ namespace NexDirect
 
         static public void SetHandleForeground(IntPtr handle) => SetForegroundWindow(handle);
 
+        static public DateTime ToAustralianEasternTime(DateTime dt) => TimeZoneInfo.ConvertTime(dt, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time"));
+
         static public bool IsKeyHeldDown(int vKey)
             => ((GetAsyncKeyState(vKey) & 0x8000) == 0x8000); // check for the MSB (most significant byte) and if that is set then the key is held down
 
