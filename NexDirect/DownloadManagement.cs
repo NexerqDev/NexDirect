@@ -133,7 +133,8 @@ namespace NexDirect
                 {
                     if (await TryRenewOsuCookies())
                         download = await Osu.PrepareDownloadSet(set, SettingManager.Get("novidDownload"));
-                    return;
+                    else
+                        return;
                 }
             }
             else
