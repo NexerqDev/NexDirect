@@ -21,9 +21,9 @@ namespace NexDirectLib.Structures
         public bool AlreadyHave { get; set; }
         public Uri PreviewImage { get; set; }
         public bool IsBloodcat { get; set; }
-        public JObject BloodcatData { get; set; }
+        public JObject RawData { get; set; }
 
-        public BeatmapSet(string id, string artist, string title, string mapper, string rankStatus, Dictionary<string, string> difficulties, JObject bloodcatRaw)
+        public BeatmapSet(string id, string artist, string title, string mapper, string rankStatus, Dictionary<string, string> difficulties, JObject rawData, bool isBloodcat = true)
         {
             Id = id;
             Artist = artist;
@@ -34,11 +34,8 @@ namespace NexDirectLib.Structures
             AlreadyHave = MapsManager.Maps.Any(b => b.Contains(Id + " "));
             Difficulties = difficulties.Select(d => new Difficulty(d.Key, d.Value));
 
-            if (bloodcatRaw != null)
-            {
-                BloodcatData = bloodcatRaw;
-                IsBloodcat = true;
-            }
+            IsBloodcat = isBloodcat;
+            RawData = rawData;
         }
 
         public class Difficulty

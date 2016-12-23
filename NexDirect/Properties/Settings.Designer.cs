@@ -202,5 +202,17 @@ namespace NexDirect.Properties {
                 this["previewVolume"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool useNewSiteApi {
+            get {
+                return ((bool)(this["useNewSiteApi"]));
+            }
+            set {
+                this["useNewSiteApi"] = value;
+            }
+        }
     }
 }

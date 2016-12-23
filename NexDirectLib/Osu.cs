@@ -130,10 +130,77 @@ namespace NexDirectLib
             return cookies;
         }
 
+        public static Task<SearchResultSet> Search(bool useNewSite, string query, SearchFilters.OsuRankStatus rankedFilter, SearchFilters.OsuModes modeFilter, int page = 1)
+            => useNewSite ? Search_New(query, rankedFilter, modeFilter, page) : Search_Old(query, rankedFilter, modeFilter, page);
+
         /// <summary>
-        /// Searches the official beatmap listing for beatmaps.
+        /// Currently actually doesn't require login. Who knows, this may change in the future. - needs auth tho.
         /// </summary>
-        public static async Task<SearchResultSet> Search(string query, SearchFilters.OsuRankStatus rankedFilter, SearchFilters.OsuModes modeFilter, int page = 1)
+        public static async Task<SearchResultSet> Search_New(string query, SearchFilters.OsuRankStatus rankedFilter, SearchFilters.OsuModes modeFilter, int page = 1)
+        {
+            // ranked filter = s
+            // mode filter = m
+
+            string sParam;
+            // Ranked filter into website param
+            if (rankedFilter == SearchFilters.OsuRankStatus.RankedAndApproved)
+                sParam = "0";
+            else if (rankedFilter == SearchFilters.OsuRankStatus.Approved)
+                sParam = "1";
+            else if (rankedFilter == SearchFilters.OsuRankStatus.Qualified)
+                throw new SearchNotSupportedException(); // uhh the site doesnt have it??/ sParam = "11";
+            else if (rankedFilter == SearchFilters.OsuRankStatus.Loved)
+                sParam = "8";
+            else
+                sParam = "7"; // "Any"
+
+            var qs = HttpUtility.ParseQueryString(string.Empty);
+            qs["q"] = query;
+            qs["s"] = sParam;
+            if (modeFilter != SearchFilters.OsuModes.All)
+                qs["m"] = ((int)modeFilter).ToString();
+            if (page > 1)
+                qs["page"] = page.ToString();
+
+            var data = await Web.GetJson<JArray>("https://new.ppy.sh/beatmapsets/search?" + qs.ToString());
+            var standardized = data.Select(b => StandardizeToSetStruct((JObject)b));
+
+            return new SearchResultSet(standardized, (standardized.Count() > 0));
+        }
+
+        /// <summary>
+        /// Standard set data to a set (new data)
+        /// </summary>
+        public static BeatmapSet StandardizeToSetStruct(JObject jsonData)
+        {
+            // (similar to bloodcat now)
+            var difficulties = new Dictionary<string, string>();
+            foreach (var d in (JArray)jsonData["beatmaps"])
+            {
+                string mode = d["mode"].ToString();
+                if (mode == "taiko")
+                    mode = "1";
+                else if (mode == "fruits")
+                    mode = "2";
+                else if (mode == "mania")
+                    mode = "3";
+                else
+                    mode = "0";
+
+                difficulties.Add(d["version"].ToString(), mode); // diffname: diffmode_id
+            }
+
+            return new BeatmapSet(
+                jsonData["id"].ToString(), jsonData["artist"].ToString(),
+                jsonData["title"].ToString(), jsonData["creator"].ToString(),
+                ((RankingStatus)int.Parse(jsonData["ranked"].ToString())).ToString(),
+                difficulties, jsonData, false);
+        }
+
+        /// <summary>
+        /// Searches the official beatmap listing for beatmaps. - current (old) website
+        /// </summary>
+        public static async Task<SearchResultSet> Search_Old(string query, SearchFilters.OsuRankStatus rankedFilter, SearchFilters.OsuModes modeFilter, int page = 1)
         {
             // ranked filter = r
             // mode filter = m

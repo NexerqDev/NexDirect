@@ -30,12 +30,14 @@ namespace NexDirect.Dialogs
             useTrayCheckbox.IsChecked = SettingManager.Get("minimizeToTray");
             novidCheckbox.IsChecked = SettingManager.Get("novidDownload");
             previewVolumeSlider.Value = SettingManager.Get("previewVolume") * 100;
+            newSiteApiCheckbox.IsChecked = SettingManager.Get("useNewSiteApi");
 
             if (SettingManager.Get("fallbackActualOsu"))
                 officialDownloadBox.IsChecked = true;
 
             if ((bool)officialDownloadBox.IsChecked)
             {
+                newSiteApiCheckbox.Visibility = Visibility.Visible;
                 officialLoggedInAs.Visibility = Visibility.Visible;
                 officialLoggedInAs.Content = "Currently logged in as: " + Properties.Settings.Default.officialOsuUsername;
                 if (SettingManager.Get("fallbackActualOsu"))
@@ -213,6 +215,13 @@ namespace NexDirect.Dialogs
             float v = (float)(previewVolumeSlider.Value / 100);
             SettingManager.Set("previewVolume", v);
             AudioManager.SetPreviewVolume(v);
+        }
+
+        private void newSiteApiCheckbox_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (!loaded)
+                return;
+            SettingManager.Set("useNewSiteApi", (bool)newSiteApiCheckbox.IsChecked);
         }
     }
 }

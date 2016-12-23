@@ -38,7 +38,7 @@ namespace NexDirect
             DownloadManager.SpeedUpdated += DownloadManager_SpeedUpdated;
             DownloadManagement.Init(this);
 
-            System.Windows.Controls.Control[] _dynamicElements = { searchBox, searchButton, popularLoadButton, rankedStatusBox, modeSelectBox, progressGrid, dataGrid };
+            Control[] _dynamicElements = { searchBox, searchButton, popularLoadButton, rankedStatusBox, modeSelectBox, progressGrid, dataGrid };
             dynamicElements = _dynamicElements;
             InitComboBoxes();
 
@@ -126,7 +126,7 @@ namespace NexDirect
 
                 SearchResultSet results;
                 if (osuMode)
-                    results = await Osu.Search(searchText, rankedVal, modeVal, searchCurrentPage);
+                    results = await Osu.Search(SettingManager.Get("useNewSiteApi"), searchText, rankedVal, modeVal, searchCurrentPage);
                 else
                     results = await Bloodcat.Search(searchText, rankedVal, modeVal, viaVal, searchCurrentPage);
 
