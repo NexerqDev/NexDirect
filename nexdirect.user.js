@@ -2,7 +2,7 @@
 // @name         NexDirect v2
 // @namespace    http://nicholastay.github.io/
 // @homepage     https://github.com/nicholastay/NexDirect
-// @version      0.2.3
+// @version      0.2.4
 // @icon         https://raw.githubusercontent.com/nicholastay/NexDirect/master/Designs/logo.png
 // @description  Adds download button to page to use NexDirect & replaces the heart button on the listings -- You must visit the Settings panel (the logo in the bottom right) and register the URI scheme before you are able to use this script.
 // @author       Nicholas Tay (Nexerq / @n2468txd) <nexerq@gmail.com>
@@ -116,12 +116,12 @@
     function injectNewDownloadPage() {
         log("[new] Injecting download button into beatmap download page...");
         // Get set id
-        var $audioPreviewElem = $("audio.js-beatmapset-page--audio-preview");
-        if (!$audioPreviewElem || !$audioPreviewElem.attr("src"))
-            return log("Could not find audio preview element to retrieve set ID."); // rip
-        log("Found beatmap audio preview element.");
+        var $hrefElem = $("a[href*='/d/']");
+        if (!$hrefElem)
+            return log("Could not find link element."); // rip
+        log("Found link element.");
 
-        var beatmapSetId = $audioPreviewElem.attr("src").match(/\/\/b\.ppy\.sh\/preview\/(\d+)\.mp3/);
+        var beatmapSetId = $hrefElem[0].href.match(/\/d\/(\d+)n?/);
         if (!beatmapSetId || !beatmapSetId[1])
             return log("Could not retrieve beatmap set ID."); // rip
         beatmapSetId = beatmapSetId[1];
