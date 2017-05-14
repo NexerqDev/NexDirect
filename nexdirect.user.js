@@ -2,7 +2,7 @@
 // @name         NexDirect v2
 // @namespace    http://nicholastay.github.io/
 // @homepage     https://github.com/nicholastay/NexDirect
-// @version      0.2.4
+// @version      0.2.5
 // @icon         https://raw.githubusercontent.com/nicholastay/NexDirect/master/Designs/logo.png
 // @description  Adds download button to page to use NexDirect & replaces the heart button on the listings -- You must visit the Settings panel (the logo in the bottom right) and register the URI scheme before you are able to use this script.
 // @author       Nicholas Tay (Nexerq / @n2468txd) <nexerq@gmail.com>
@@ -97,15 +97,14 @@
         log("Found " + $dlIconBoxes.length + " new download icons. Injecting NexDirect icons...");
         $dlIconBoxes.each(function() {
             var $this = $(this);
-            var $bmParent = $this.parent();
-            var $idParent = $bmParent.children("div.beatmapset-panel__mapper-source-box");
-            if (!$idParent)
-                return log("Could not find parent for the ID elem."); // rip
-
-            var $idElem = $idParent.children("span.hidden");
-            if (!$idElem)
+            var $idElem = $this.parents("div.beatmapset-panel").children("a.js-audio--play");
+            if (!$idElem || ($idElem.length < 1))
                 return log("Could not find ID elem."); // rip
-            var beatmapSetId = $idElem.text();
+
+            var beatmapSetId = $idElem.attr("data-audio-url").match(/\/(\d+)\.mp3$/);
+            if (!beatmapSetId || !beatmapSetId[1])
+                return log("Could not identify the beatmap set ID."); // rip
+            beatmapSetId = beatmapSetId[1]; // its match 1
 
             $this.attr("nexdirect-loaded", "true"); // give it an attr to mark beatmap set as loaded
             $this.prepend("<a href=\"nexdirect://" + beatmapSetId + "\" class=\"beatmapset-panel__icon\"><img src=\"" + miniIcon + "\" alt=\"Download with NexDirect\" style=\"filter: brightness(0.35); -webkit-filter: brightness(0.35); opacity: 0.9; margin-bottom: 5px;\"/></a>");
