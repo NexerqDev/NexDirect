@@ -20,8 +20,7 @@ namespace NexDirect
             try { defaultBrowser = getDefaultBrowser(); }
             catch (Exception ex) { MessageBox.Show($"An error occured whilst getting the original browser...\n\n{ex.ToString()}"); return; }
             // persist the default browser to settings
-            Properties.Settings.Default.linkerDefaultBrowser = defaultBrowser;
-            Properties.Settings.Default.Save();
+            SettingManager.Set("linkerDefaultBrowser", defaultBrowser);
 
             try { setProgId(); }
             catch (Exception ex) { MessageBox.Show($"An error occured whilst registering the progid...\n\n{ex.ToString()}"); return; }

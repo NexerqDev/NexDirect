@@ -8,10 +8,14 @@ using System.Web;
 namespace NexDirectLib
 {
     using Structures;
+    using System.Net;
+    using System.Net.Http;
 
     public static class Bloodcat
     {
         public const int MAX_LOAD_RESULTS = 61; // the max one result will have. if have at least this much then there is more.
+
+        public static CookieContainer Cookies = new CookieContainer();
 
         /// <summary>
         /// Searches Bloodcat for a string with some params
@@ -105,17 +109,45 @@ namespace NexDirectLib
         }
 
         /// <summary>
+        /// Checks for CAPTCHA, and throws if so
+        /// </summary>
+        public static async Task CheckCaptcha(BeatmapSet set)
+        {
+            // 401 UNAUTHORIZED = captcha
+            using (var handler = new HttpClientHandler() { CookieContainer = Cookies, AllowAutoRedirect = false })
+            using (var client = new HttpClient(handler))
+            {
+                // HEAD request for the status code
+                HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, "http://bloodcat.com/osu/s/" + set.Id));
+                
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    throw new BloodcatCaptchaException();
+            }
+        }
+
+        /// <summary>
         /// Prepares a download object for a set from bloodcat or mirror if defined
         /// </summary>
-        public static BeatmapDownload PrepareDownloadSet(BeatmapSet set, string mirror)
+        public static async Task<BeatmapDownload> PrepareDownloadSet(BeatmapSet set, string mirror)
         {
-            Uri downloadUri;
-            if (string.IsNullOrEmpty(mirror))
-                downloadUri = new Uri("http://bloodcat.com/osu/s/" + set.Id);
-            else
-                downloadUri = new Uri(mirror.Replace("%s", set.Id));
+            BeatmapDownload download;
 
-            return new BeatmapDownload(set, downloadUri);
+            Uri downloadUri;
+            if (String.IsNullOrEmpty(mirror))
+            {
+                await CheckCaptcha(set);
+                downloadUri = new Uri("http://bloodcat.com/osu/s/" + set.Id);
+                download = new BeatmapDownload(set, downloadUri, Cookies);
+            }
+            else
+            {
+                downloadUri = new Uri(mirror.Replace("%s", set.Id));
+                download = new BeatmapDownload(set, downloadUri);
+            }
+
+            return download;
         }
+
+        public class BloodcatCaptchaException : Exception { }
     }
 }

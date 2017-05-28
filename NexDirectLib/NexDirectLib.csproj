@@ -75,6 +75,8 @@
   <ItemGroup>
     <Compile Include="AudioManager.cs" />
     <Compile Include="Bloodcat.cs" />
+    <Compile Include="CookieStoreSerializer.cs" />
+    <Compile Include="Ext\CookieAwareWebClient.cs" />
     <Compile Include="MapsManager.cs" />
     <Compile Include="DownloadManager.cs" />
     <Compile Include="Osu.cs" />

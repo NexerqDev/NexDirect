@@ -47,5 +47,8 @@
     <Setting Name="previewVolume" Type="System.Single" Scope="User">
       <Value Profile="(Default)">0.35</Value>
     </Setting>
+    <Setting Name="bloodcatCookies" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

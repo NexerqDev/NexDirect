@@ -82,7 +82,7 @@ namespace NexDirectLib
         /// <summary>
         /// Checks if persisted cookies are still working and if so, continue to use them in here.
         /// </summary>
-        public static async Task CheckLoginCookie(CookieContainer cookies, string username, string password)
+        public static async Task CheckLoginCookieAndUse(CookieContainer cookies, string username, string password)
         {
             using (var handler = new HttpClientHandler() { CookieContainer = cookies })
             using (var client = new HttpClient(handler))
@@ -102,32 +102,6 @@ namespace NexDirectLib
                     Cookies = cookies;
                 }
             }
-        }
-
-        public static async Task<string> SerializeCookies(CookieContainer cookies)
-        {
-            var cookieStore = new StringDictionary(); // make it serializable
-            foreach (Cookie c in cookies.GetCookies(new Uri("http://osu.ppy.sh")))
-            {
-                if (!cookieStore.ContainsKey(c.Name)) // there are some duplicates
-                    cookieStore.Add(c.Name, c.Value);
-            }
-            return await Task.Factory.StartNew(() => JsonConvert.SerializeObject(cookieStore));
-        }
-
-        public static async Task<CookieContainer> DeserializeCookies(string _dcookies)
-        {
-            var _cookies = new StringDictionary();
-            var _dscookies = await Task.Factory.StartNew(() => JsonConvert.DeserializeObject(_dcookies));
-            foreach (var kv in (JArray)(_dscookies))
-                _cookies.Add(kv["Key"].ToString(), kv["Value"].ToString());
-
-            var cookies = new CookieContainer();
-            var osuUri = new Uri("http://osu.ppy.sh");
-            foreach (DictionaryEntry c in _cookies)
-                cookies.Add(osuUri, new Cookie(c.Key.ToString(), c.Value.ToString()));
-
-            return cookies;
         }
 
         /// <summary>
@@ -271,8 +245,7 @@ namespace NexDirectLib
         public static async Task<BeatmapDownload> PrepareDownloadSet(BeatmapSet set, bool preferNoVid = false)
         {
             await CheckIllegal(set);
-            var download = new BeatmapDownload(set, new Uri($"https://osu.ppy.sh/d/{set.Id}" + (preferNoVid ? "n" : "")));
-            download.Client.Headers.Add(HttpRequestHeader.Cookie, Cookies.GetCookieHeader(new Uri("http://osu.ppy.sh"))); // use cookie auth
+            var download = new BeatmapDownload(set, new Uri($"https://osu.ppy.sh/d/{set.Id}" + (preferNoVid ? "n" : "")), Cookies);
             return download;
         }
 

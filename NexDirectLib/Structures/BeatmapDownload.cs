@@ -59,14 +59,18 @@ namespace NexDirectLib.Structures
         public string FileName => Tools.SanitizeFilename($"{Set.Id} {Set.Artist} - {Set.Title}.osz");
         public string TempPath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FileName + ".nexd");
 
-        public BeatmapDownload(BeatmapSet set, Uri uri)
+        public BeatmapDownload(BeatmapSet set, Uri uri, CookieContainer cookies = null)
         {
             Set = set;
             Percent = 0;
-            Client = new WebClient();
             SpeedTracker = new Stopwatch();
             Speed = 0;
             Location = uri;
+
+            if (cookies != null)
+                Client = new Ext.CookieAwareWebClient(cookies);
+            else
+                Client = new WebClient();
 
             // Attach events
             Client.DownloadProgressChanged += (o, e) =>

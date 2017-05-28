@@ -22,6 +22,10 @@ namespace NexDirect
             {
                 NexDirect.Properties.Settings.Default.Upgrade();
                 NexDirect.Properties.Settings.Default.configUpgradeRequired = false;
+
+                // we need to smash the cookies as we have updates :(
+                NexDirect.Properties.Settings.Default.officialOsuCookies = null;
+
                 NexDirect.Properties.Settings.Default.Save();
 
                 // The osu! folder check is to check if it is a new installation, because if it is then configupgrade will be true, and we dont need to pop this.

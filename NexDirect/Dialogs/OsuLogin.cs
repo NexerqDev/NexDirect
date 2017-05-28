@@ -22,7 +22,7 @@ namespace NexDirect.Dialogs
             try
             {
                 System.Net.CookieContainer _cookies = await Osu.LoginAndGetCookie(usernameBox.Text, passwordBox.Text);
-                SettingManager.Set("officialOsuCookies", await Osu.SerializeCookies(_cookies));
+                SettingManager.Set("officialOsuCookies", await CookieStoreSerializer.SerializeCookies(_cookies));
                 SettingManager.Set("useOfficialOsu", true);
                 //SettingManager.Set("fallbackActualOsu", true);
                 SettingManager.Set("officialOsuUsername", usernameBox.Text);

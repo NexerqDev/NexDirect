@@ -21,7 +21,7 @@ namespace NexDirect.Dialogs
             System.Net.CookieContainer cookies = null;
             try
             {
-                cookies = await Osu.DeserializeCookies(SettingManager.Get("officialOsuCookies"));
+                cookies = await CookieStoreSerializer.DeserializeCookies(SettingManager.Get("officialOsuCookies"));
             }
             catch
             {
@@ -32,10 +32,10 @@ namespace NexDirect.Dialogs
 
             try
             {
-                await Osu.CheckLoginCookie(cookies, SettingManager.Get("officialOsuUsername"), SettingManager.Get("officialOsuPassword"));
+                await Osu.CheckLoginCookieAndUse(cookies, SettingManager.Get("officialOsuUsername"), SettingManager.Get("officialOsuPassword"));
 
                 // store to parent & just persist them incase something new changed
-                SettingManager.Set("officialOsuCookies", await Osu.SerializeCookies(Osu.Cookies));
+                SettingManager.Set("officialOsuCookies", await CookieStoreSerializer.SerializeCookies(Osu.Cookies));
             }
             catch (Osu.InvalidPasswordException)
             {

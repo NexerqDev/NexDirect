@@ -57,6 +57,8 @@ namespace NexDirect
 
             if (SettingManager.Get("useOfficialOsu"))
                 (new Dialogs.OsuLoginCheck(this)).ShowDialog();
+            else
+                checkBloodcatCookies();
 
             startupHide = HandleURIArgs(startupArgs, WinTools.ParentProcessUtilities.GetParentProcess().ProcessName);
         }
@@ -361,13 +363,13 @@ namespace NexDirect
 
         private void _linkerBrowser(string url)
         {
-            if (String.IsNullOrEmpty(Properties.Settings.Default.linkerDefaultBrowser))
+            if (String.IsNullOrEmpty(SettingManager.Get("linkerDefaultBrowser")))
             {
                 MessageBox.Show("NexDirect as a System Browser has not been configured properly. Please visit the Settings page to (re)register NexDirect as a browser.");
                 return;
             }
 
-            Process newProcess = Process.Start(new ProcessStartInfo(Properties.Settings.Default.linkerDefaultBrowser, url));
+            Process newProcess = Process.Start(new ProcessStartInfo(SettingManager.Get("linkerDefaultBrowser"), url));
             WinTools.SetHandleForeground(newProcess.Handle);
         }
 
@@ -536,6 +538,15 @@ namespace NexDirect
                 MessageBoxResult cancelPrompt = MessageBox.Show($"Are you sure you want to quit NexDirect? There are currently {DownloadManager.Downloads.Count} pending downloads!", "NexDirect - Quitting", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (cancelPrompt == MessageBoxResult.No)
                     e.Cancel = true;
+            }
+        }
+
+        public async void checkBloodcatCookies()
+        {
+            if (!String.IsNullOrEmpty(SettingManager.Get("bloodcatCookies")))
+            {
+                var cookies = await CookieStoreSerializer.DeserializeCookies(SettingManager.Get("bloodcatCookies"));
+                Bloodcat.Cookies = cookies;
             }
         }
     }

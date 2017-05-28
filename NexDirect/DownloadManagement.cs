@@ -70,9 +70,8 @@ namespace NexDirect
             try // try renew
             {
                 System.Net.CookieContainer _cookies = await Osu.LoginAndGetCookie(SettingManager.Get("officialOsuUsername"), SettingManager.Get("officialOsuPassword"));
-                Properties.Settings.Default.officialOsuCookies = await Osu.SerializeCookies(_cookies);
+                SettingManager.Set("officialOsuCookies", await CookieStoreSerializer.SerializeCookies(_cookies));
                 Osu.Cookies = _cookies;
-                Properties.Settings.Default.Save(); // success
                 return true;
             }
             catch (Osu.InvalidPasswordException)
@@ -139,7 +138,22 @@ namespace NexDirect
             }
             else
             {
-                download = Bloodcat.PrepareDownloadSet(set, SettingManager.Get("beatmapMirror"));
+                try
+                {
+                    download = await Bloodcat.PrepareDownloadSet(set, SettingManager.Get("beatmapMirror"));
+                }
+                catch (Bloodcat.BloodcatCaptchaException)
+                {
+                    MessageBox.Show("It seems like Bloodcat has triggered CAPTCHA. Please click OK to verify and retry download...");
+                    (new Dialogs.BloodcatCaptcha(set)).ShowDialog();
+
+                    // persist those freshly baked cookies
+                    SettingManager.Set("bloodcatCookies", await CookieStoreSerializer.SerializeCookies(Bloodcat.Cookies));
+
+                    DownloadBeatmapSet(set); // hard retry
+                    return;
+                }
+                
             }
 
             if (download == null)

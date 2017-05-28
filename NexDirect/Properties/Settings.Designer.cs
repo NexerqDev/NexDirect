@@ -202,5 +202,17 @@ namespace NexDirect.Properties {
                 this["previewVolume"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string bloodcatCookies {
+            get {
+                return ((string)(this["bloodcatCookies"]));
+            }
+            set {
+                this["bloodcatCookies"] = value;
+            }
+        }
     }
 }

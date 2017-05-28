@@ -71,10 +71,10 @@ namespace NexDirect.Dialogs
         {
             string url = $"https://osu.ppy.sh/s/{set.Id}";
             Process proc;
-            if (String.IsNullOrEmpty(Properties.Settings.Default.linkerDefaultBrowser))
+            if (String.IsNullOrEmpty(SettingManager.Get("linkerDefaultBrowser")))
                 proc = Process.Start(url);
             else
-                proc = Process.Start(new ProcessStartInfo(Properties.Settings.Default.linkerDefaultBrowser, url));
+                proc = Process.Start(new ProcessStartInfo(SettingManager.Get("linkerDefaultBrowser"), url));
 
             WinTools.SetHandleForeground(proc.Handle);
         }

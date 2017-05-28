@@ -37,7 +37,7 @@ namespace NexDirect.Dialogs
             if ((bool)officialDownloadBox.IsChecked)
             {
                 officialLoggedInAs.Visibility = Visibility.Visible;
-                officialLoggedInAs.Content = "Currently logged in as: " + Properties.Settings.Default.officialOsuUsername;
+                officialLoggedInAs.Content = "Currently logged in as: " + SettingManager.Get("officialOsuUsername");
                 if (SettingManager.Get("fallbackActualOsu"))
                     officialLoggedInAs.Content += " (falling back to Bloodcat)";
             }
