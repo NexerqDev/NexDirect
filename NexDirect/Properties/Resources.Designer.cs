@@ -61,6 +61,20 @@ namespace NexDirect.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 2017-05-28 
+        ///11:11:15 
+        ///dev
+        ///  
+        ///e1b9c44007ee6fcb8caaa4454f66d14f57eb5b4c
+        ///.
+        /// </summary>
+        internal static string BuildData {
+            get {
+                return ResourceManager.GetString("BuildData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
         /// </summary>
         internal static System.IO.UnmanagedMemoryStream doong {

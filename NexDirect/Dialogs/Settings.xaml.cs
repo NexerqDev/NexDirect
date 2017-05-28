@@ -4,6 +4,7 @@ using System;
 using System.Windows;
 
 using NexDirect;
+using System.Windows.Media;
 
 namespace NexDirect.Dialogs
 {
@@ -41,6 +42,10 @@ namespace NexDirect.Dialogs
                 if (SettingManager.Get("fallbackActualOsu"))
                     officialLoggedInAs.Content += " (falling back to Bloodcat)";
             }
+
+            buildDataLabel.Content = $"running NexDirect {(BuildMeta.IsDebug ? "debug" : "v" + WinTools.GetGitStyleVersion())} - built {BuildMeta.BuildDateTime.ToString()} ({BuildMeta.BuildBranch}#{BuildMeta.BuildCommit})";
+            if (BuildMeta.IsDebug)
+                buildDataLabel.Foreground = new SolidColorBrush(Color.FromRgb(255, 0, 0));
 
             loaded = true;
         }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NexDirect.Dialogs"
         mc:Ignorable="d"
-        Title="Settings - NexDirect" Height="536.411" Width="520.001" ResizeMode="NoResize" WindowStyle="ToolWindow" Topmost="True">
+        Title="Settings - NexDirect" Height="569.411" Width="520.001" ResizeMode="NoResize" WindowStyle="ToolWindow" Topmost="True">
     <Grid>
         <Label x:Name="label" Content="Settings" Margin="152,10,0,0" FontSize="48" Height="76" VerticalAlignment="Top" HorizontalAlignment="Left" Width="182"/>
         <Button x:Name="changeFolderButton" Content="Update osu! folder location" HorizontalAlignment="Left" Height="21" Margin="118,113,0,0" VerticalAlignment="Top" Width="243" Click="changeFolderButton_Click"/>
@@ -28,6 +28,16 @@
         <CheckBox x:Name="novidCheckbox" Content="Prefer video-less downloads (only works if official osu! website is used)" HorizontalAlignment="Left" Height="15" Margin="62,400,0,0" VerticalAlignment="Top" Width="397" Checked="novidCheckbox_Toggled" Unchecked="novidCheckbox_Toggled"/>
         <Slider x:Name="previewVolumeSlider" HorizontalAlignment="Left" Height="18" Margin="265,186,0,0" VerticalAlignment="Top" Width="152" Maximum="100" Minimum="1" SmallChange="1" AutoToolTipPlacement="BottomRight" ValueChanged="previewVolumeSlider_ValueChanged"/>
         <Label x:Name="label5" Content="Beatmap audio preview volume" HorizontalAlignment="Left" Height="29" Margin="84,181,0,0" VerticalAlignment="Top" Width="183"/>
+        <Label x:Name="buildDataLabel" Content="Label" HorizontalAlignment="Left" Height="26" Margin="20,506,0,0" VerticalAlignment="Top" Width="468" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" RenderTransformOrigin="0.5,0.5" Foreground="#FF979595">
+            <Label.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="0.01"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Label.RenderTransform>
+        </Label>
 
     </Grid>
 </Window>
