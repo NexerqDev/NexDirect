@@ -29,7 +29,7 @@ namespace NexDirectLib
 
             // holy this is pretty bad; have to use reflection
             // https://stackoverflow.com/questions/13675154/how-to-get-cookies-info-inside-of-a-cookiecontainer-all-of-them-not-for-a-spe/36665793#36665793
-            Hashtable table = (Hashtable)cookies.GetType()
+            Hashtable domainsTable = (Hashtable)cookies.GetType()
                 .InvokeMember("m_domainTable",
                     BindingFlags.NonPublic | BindingFlags.GetField | BindingFlags.Instance,
                     null,
@@ -37,8 +37,8 @@ namespace NexDirectLib
                     new object[] { }
                 );
 
-
-            foreach (var key in table.Keys)
+            // iterate domains
+            foreach (var key in domainsTable.Keys)
             {
                 string domain = key as string;
                 if (domain == null)
@@ -46,11 +46,28 @@ namespace NexDirectLib
                 if (domain.StartsWith("."))
                     domain = domain.Substring(1);
 
-                // Look for http cookies.
-                _cookieInDomainToJArray(ref cookieStore, string.Format("http://{0}/", domain), cookies);
+                // the paths list https://stackoverflow.com/questions/15983166/how-can-i-get-all-cookies-of-a-cookiecontainer
+                SortedList pathsList = (SortedList)domainsTable[key].GetType().InvokeMember("m_list",
+                    BindingFlags.NonPublic |
+                    BindingFlags.GetField |
+                    BindingFlags.Instance,
+                    null,
+                    domainsTable[key],
+                    new object[] { });
 
-                // Look for https cookies
-                _cookieInDomainToJArray(ref cookieStore, string.Format("https://{0}/", domain), cookies);
+                // iterate paths of domain
+                foreach (var listKey in pathsList.Keys)
+                {
+                    string path = listKey as string;
+                    if (path == null)
+                        continue;
+
+                    // Look for http cookies.
+                    _cookieInDomainToJArray(ref cookieStore, string.Format("http://{0}{1}", domain, path), cookies);
+
+                    // Look for https cookies
+                    _cookieInDomainToJArray(ref cookieStore, string.Format("https://{0}{1}", domain, path), cookies);
+                }
             }
 
             return await Task.Factory.StartNew(() => JsonConvert.SerializeObject(cookieStore));
