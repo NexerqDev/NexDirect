@@ -128,11 +128,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuildMeta.cs" />
-    <Compile Include="Dialogs\BloodcatCaptcha.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\BloodcatCaptcha.Designer.cs">
-      <DependentUpon>BloodcatCaptcha.cs</DependentUpon>
+    <Compile Include="Dialogs\Captcha.xaml.cs">
+      <DependentUpon>Captcha.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\DirectDownload.xaml.cs">
       <DependentUpon>DirectDownload.xaml</DependentUpon>
@@ -170,6 +167,10 @@
     <Compile Include="Dialogs\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
+    <Page Include="Dialogs\Captcha.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialogs\DirectDownload.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -213,9 +214,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="Dialogs\BloodcatCaptcha.resx">
-      <DependentUpon>BloodcatCaptcha.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\OsuLogin.resx">
       <DependentUpon>OsuLogin.cs</DependentUpon>
     </EmbeddedResource>
@@ -280,6 +278,17 @@
   <ItemGroup>
     <Resource Include="Resources\BuildData.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="SHDocVw">
+      <Guid>{EAB22AC0-30C1-11CF-A7EB-0000C05BAE0B}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>1</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>cd "$(SolutionDir)"
@@ -288,12 +297,8 @@ if exist ".\NexDirect\Resources\BuildData.txt" (
     del ".\NexDirect\Resources\BuildData.txt"
 )
 
-REM build date
-echo %25date:~10,4%25-%25date:~4,2%25-%25date:~7,2%25 &gt;&gt; ".\NexDirect\Resources\BuildData.txt"
-
-REM build time - pad the 0 and snip the seconds
-set zerotime=%25TIME: =0%25
-echo %25zerotime:~0,8%25 &gt;&gt; ".\NexDirect\Resources\BuildData.txt"
+REM build date - use powershell for locale issues
+powershell get-date -format "{yyyy-MMM-dd HH:mm:ss}" &gt;&gt; ".\NexDirect\Resources\BuildData.txt"
 
 REM branch name
 git rev-parse --abbrev-ref HEAD &gt;&gt; ".\NexDirect\Resources\BuildData.txt"

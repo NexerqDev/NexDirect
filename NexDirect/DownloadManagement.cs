@@ -145,7 +145,7 @@ namespace NexDirect
                 catch (Bloodcat.BloodcatCaptchaException)
                 {
                     MessageBox.Show("It seems like Bloodcat has triggered CAPTCHA. Please click OK to verify and retry download...");
-                    (new Dialogs.BloodcatCaptcha(set)).ShowDialog();
+                    (new Dialogs.Captcha(set)).ShowDialog();
 
                     // persist those freshly baked cookies
                     SettingManager.Set("bloodcatCookies", await CookieStoreSerializer.SerializeCookies(Bloodcat.Cookies));

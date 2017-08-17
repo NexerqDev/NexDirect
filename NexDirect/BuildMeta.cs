@@ -24,18 +24,17 @@ namespace NexDirect
 
             for (int i = 0; i < 4; i++)
             {
-                // line 0: date yyyy-mm-dd
-                // line 1: time hh-mm-ss
-                BuildDateTime = DateTime.Parse($"{lines[0]} {lines[1]}");
+                // line 0: date yyyy-mm-dd time hh:mm:ss
+                BuildDateTime = DateTime.Parse(lines[0]);
 
-                // line 2: branch
-                BuildBranch = lines[2];
+                // line 1: branch
+                BuildBranch = lines[1];
 
-                // line 3: full commit hash (lets make it short 7)
-                BuildCommit = lines[3].Substring(0, 7);
+                // line 2: full commit hash (lets make it short 7)
+                BuildCommit = lines[2].Substring(0, 7);
 
-                // line 4: debug/release/etc
-                BuildProfile = lines[4];
+                // line 3: debug/release/etc
+                BuildProfile = lines[3];
             }
         }
     }
