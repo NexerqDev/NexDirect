@@ -1,4 +1,6 @@
-﻿using NexDirectLib;
+﻿using CefSharp;
+using CefSharp.WinForms;
+using NexDirectLib;
 using NexDirectLib.Structures;
 using System;
 using System.Collections.Generic;
@@ -10,14 +12,13 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Gecko;
 
 namespace NexDirect.Dialogs
 {
     public partial class BloodcatCaptcha : Form
     {
         private static BloodcatCaptcha _this;
-        private GeckoWebBrowser browser;
+        private ChromiumWebBrowser browser;
 
         public BloodcatCaptcha(BeatmapSet set)
         {
@@ -25,28 +26,76 @@ namespace NexDirect.Dialogs
 
             _this = this;
 
-            // make our gecko browser
-            browser = new GeckoWebBrowser();
+            // make our chrome browser
+            if (!Cef.IsInitialized)
+            {
+                CefSettings settings = new CefSettings();
+                Cef.Initialize(settings);
+            }
+
+            browser = new ChromiumWebBrowser("http://bloodcat.com/osu/s/" + set.Id);
             this.Controls.Add(browser);
             browser.Dock = DockStyle.Fill;
 
-            Gecko.LauncherDialog.Download += downloadHandler;
-            browser.Navigate("http://bloodcat.com/osu/s/" + set.Id);
+            browser.DownloadHandler = new downloadHandle();
         }
 
-        private void downloadHandler(object sender, LauncherDialogEvent e)
+        // when it tries that means its done
+        private class downloadHandle : IDownloadHandler
         {
-            // we're not actually interested in download, just cookie hijack
-            using (var cookies = CookieManager.GetEnumerator())
+            public void OnBeforeDownload(IBrowser browser, DownloadItem downloadItem, IBeforeDownloadCallback callback)
             {
-                while (cookies.MoveNext()) // loop thru
+                // really just dont do jack shit about the download
+                Cef.GetGlobalCookieManager().VisitAllCookies(new bloodcatCookieHandle());
+                _this.Invoke(new Action(() => _this.Close()));
+            }
+
+            public void OnDownloadUpdated(IBrowser browser, DownloadItem downloadItem, IDownloadItemCallback callback) { }
+        }
+
+        private class bloodcatCookieHandle : ICookieVisitor
+        {
+            public bool Visit(Cookie cookie, int count, int total, ref bool deleteCookie)
+            {
+                // just transfer all cookies over to handle
+                Bloodcat.Cookies.Add(new System.Net.Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
+                return true;
+            }
+
+            #region IDisposable Support
+            private bool disposedValue = false; // To detect redundant calls
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!disposedValue)
                 {
-                    Cookie cookie = cookies.Current;
-                    Bloodcat.Cookies.Add(new System.Net.Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Host));
+                    if (disposing)
+                    {
+                        // TODO: dispose managed state (managed objects).
+                    }
+
+                    // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                    // TODO: set large fields to null.
+
+                    disposedValue = true;
                 }
             }
 
-            Close();
+            // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+            // ~bloodcatCookieHandle() {
+            //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            //   Dispose(false);
+            // }
+
+            // This code added to correctly implement the disposable pattern.
+            public void Dispose()
+            {
+                // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+                Dispose(true);
+                // TODO: uncomment the following line if the finalizer is overridden above.
+                // GC.SuppressFinalize(this);
+            }
+            #endregion
         }
     }
 }
