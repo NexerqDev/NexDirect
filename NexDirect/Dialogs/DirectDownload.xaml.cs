@@ -72,7 +72,7 @@ namespace NexDirect.Dialogs
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            string url = $"https://osu.ppy.sh/s/{set.Id}";
+            string url = $"https://osu.ppy.sh/beatmapsets/{set.Id}";
             Process proc;
             if (String.IsNullOrEmpty(SettingManager.Get("linkerDefaultBrowser")))
                 proc = Process.Start(url);

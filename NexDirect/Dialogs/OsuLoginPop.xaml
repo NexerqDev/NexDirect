@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NexDirect.Dialogs"
         mc:Ignorable="d"
-        Title="NexDirect - osu! Login" Height="234.471" Width="528.328" ResizeMode="NoResize" Loaded="Window_Loaded">
+        Title="NexDirect - osu! Login" Height="234.471" Width="528.328" ResizeMode="NoResize" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen">
     <Grid>
         <Button x:Name="loginButton" Content="Login" HorizontalAlignment="Left" Height="44" Margin="363,138,0,0" VerticalAlignment="Top" Width="67" Click="loginButton_Click" IsDefault="True"/>
         <Label HorizontalAlignment="Left" Height="123" Margin="10,10,0,0" VerticalAlignment="Top" Width="487">
