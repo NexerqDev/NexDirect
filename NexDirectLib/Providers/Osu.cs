@@ -198,7 +198,7 @@ namespace NexDirectLib.Providers
                 // HEAD request for the status code
                 HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, $"https://osu.ppy.sh/beatmapsets/{set.Id}/download"));
 
-                if (response.StatusCode != HttpStatusCode.NotFound)
+                if (response.StatusCode == HttpStatusCode.NotFound)
                     throw new IllegalDownloadException(); // 404 page not found == illegal.
                 if (response.StatusCode == HttpStatusCode.OK)
                     throw new CookiesExpiredException(); // Redirected to login.
