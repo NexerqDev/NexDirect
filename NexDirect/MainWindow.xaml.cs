@@ -57,7 +57,7 @@ namespace NexDirect
             }
 
             if (SettingManager.Get("useOfficialOsu"))
-                (new Dialogs.OsuLoginCheck(this)).ShowDialog();
+                (new Dialogs.OsuCredsOnLaunch()).ShowDialog();
             else
                 checkBloodcatCookies();
 

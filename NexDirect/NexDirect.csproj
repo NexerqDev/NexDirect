@@ -140,17 +140,11 @@
     <Compile Include="Dialogs\FirstTimeInstall.xaml.cs">
       <DependentUpon>FirstTimeInstall.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\OsuLogin.cs">
-      <SubType>Form</SubType>
+    <Compile Include="Dialogs\OsuCredsOnLaunch.xaml.cs">
+      <DependentUpon>OsuCredsOnLaunch.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\OsuLogin.Designer.cs">
-      <DependentUpon>OsuLogin.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\OsuLoginCheck.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\OsuLoginCheck.Designer.cs">
-      <DependentUpon>OsuLoginCheck.cs</DependentUpon>
+    <Compile Include="Dialogs\OsuLoginPop.xaml.cs">
+      <DependentUpon>OsuLoginPop.xaml</DependentUpon>
     </Compile>
     <Compile Include="DownloadManagement.cs" />
     <Compile Include="HotkeyManager.cs" />
@@ -180,6 +174,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\FirstTimeInstall.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\OsuCredsOnLaunch.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\OsuLoginPop.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -214,12 +216,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="Dialogs\OsuLogin.resx">
-      <DependentUpon>OsuLogin.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\OsuLoginCheck.resx">
-      <DependentUpon>OsuLoginCheck.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

@@ -154,14 +154,14 @@ namespace NexDirect.Dialogs
             catch (Exception ex) {  MessageBox.Show($"An error occured whilst registering the handler...\n\n{ex.ToString()}"); }
         }
 
-        private void officialDownloadBox_Checked(object sender, RoutedEventArgs e)
+        private async void officialDownloadBox_Checked(object sender, RoutedEventArgs e)
         {
             if (!loaded)
                 return;
-            (new OsuLogin(this)).ShowDialog();
+            (new OsuLoginPop(this)).ShowDialog();
 
             if (SettingManager.Get("useOfficialOsu"))
-                (new OsuLoginCheck(_mw)).ShowDialog(); // hacky but reuse code
+                await OsuCredsOnLaunch.TestCookies(); // shitty but reuse code
         }
 
         private void officialDownloadBox_Unchecked(object sender, RoutedEventArgs e)
