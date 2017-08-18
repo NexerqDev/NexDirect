@@ -2,15 +2,12 @@
 // @name         NexDirect v2
 // @namespace    http://nicholastay.github.io/
 // @homepage     https://github.com/nicholastay/NexDirect
-// @version      0.2.5
+// @version      0.2.6
 // @icon         https://raw.githubusercontent.com/nicholastay/NexDirect/master/Designs/logo.png
 // @description  Adds download button to page to use NexDirect & replaces the heart button on the listings -- You must visit the Settings panel (the logo in the bottom right) and register the URI scheme before you are able to use this script.
 // @author       Nicholas Tay (Nexerq / @n2468txd) <nexerq@gmail.com>
 // @license      https://github.com/nicholastay/NexDirect/blob/master/LICENSE
-// @match        http*://osu.ppy.sh/s/*
-// @match        http*://osu.ppy.sh/b/*
-// @match        http*://osu.ppy.sh/p/beatmaplist*
-// @match        http*://new.ppy.sh/*
+// @match        http*://osu.ppy.sh/*
 // @grant        none
 // @updateURL    https://raw.githubusercontent.com/nicholastay/NexDirect/master/nexdirect.user.js
 // ==/UserScript==
@@ -146,9 +143,10 @@
         }
         log("Injected download button.");
     }
+
     
     function detectInjection(firstLoad) {
-        var newSite = window.document.domain === "new.ppy.sh";
+        var newSite = typeof osu !== "undefined";
         var path = window.location.pathname;
 
         if (newSite) {
@@ -190,5 +188,8 @@
 
     window.NexDirect = {};
     welcome();
-    detectInjection(true);
+    
+    setTimeout(function() {
+        detectInjection(true);
+    }, 650);
 })();
