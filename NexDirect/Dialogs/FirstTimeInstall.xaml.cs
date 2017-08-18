@@ -9,6 +9,7 @@ using System.Windows.Media;
 using WPFFolderBrowser;
 
 using NexDirect;
+using NexDirect.Management;
 
 namespace NexDirect.Dialogs
 {

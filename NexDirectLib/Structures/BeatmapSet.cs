@@ -32,7 +32,7 @@ namespace NexDirectLib.Structures
             Mapper = mapper;
             RankingStatus = rankStatus;
             PreviewImage = new Uri($"http://b.ppy.sh/thumb/{Id}l.jpg");
-            AlreadyHave = MapsManager.Maps.Any(b => b.Contains(Id + " "));
+            AlreadyHave = Management.MapsManager.Maps.Any(b => b.Contains(Id + " "));
             Difficulties = difficulties;
             Data = data;
         }

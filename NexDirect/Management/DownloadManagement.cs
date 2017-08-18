@@ -9,8 +9,10 @@ using System.Windows;
 using System.Diagnostics;
 using System.IO;
 using NexDirectLib.Providers;
+using NexDirectLib.Management;
+using NexDirectLib.Util;
 
-namespace NexDirect
+namespace NexDirect.Management
 {
     static class DownloadManagement
     {

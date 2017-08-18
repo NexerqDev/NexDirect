@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NexDirectLib
+namespace NexDirectLib.Util
 {
     public static class Tools
     {

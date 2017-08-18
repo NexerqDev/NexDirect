@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace NexDirectLib
+namespace NexDirectLib.Management
 {
     public static class MapsManager
     {

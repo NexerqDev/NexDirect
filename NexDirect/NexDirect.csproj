@@ -127,7 +127,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BuildMeta.cs" />
+    <Compile Include="Struct\BuildMeta.cs" />
     <Compile Include="Dialogs\Captcha.xaml.cs">
       <DependentUpon>Captcha.xaml</DependentUpon>
     </Compile>
@@ -146,14 +146,14 @@
     <Compile Include="Dialogs\OsuLoginPop.xaml.cs">
       <DependentUpon>OsuLoginPop.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DownloadManagement.cs" />
-    <Compile Include="HotkeyManager.cs" />
-    <Compile Include="LinkerSetup.cs" />
-    <Compile Include="SettingManager.cs" />
-    <Compile Include="SingleInstance.cs" />
-    <Compile Include="TrayManager.cs" />
+    <Compile Include="Management\DownloadManagement.cs" />
+    <Compile Include="Management\HotkeyManager.cs" />
+    <Compile Include="Management\LinkerSetup.cs" />
+    <Compile Include="Management\SettingManager.cs" />
+    <Compile Include="External\SingleInstance.cs" />
+    <Compile Include="Management\TrayManager.cs" />
     <Compile Include="WinTools.cs" />
-    <Compile Include="WinUacHelper.cs" />
+    <Compile Include="External\WinUacHelper.cs" />
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

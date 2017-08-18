@@ -5,6 +5,10 @@ using System.Windows;
 
 using NexDirect;
 using System.Windows.Media;
+using NexDirect.Management;
+using NexDirect.Struct;
+using NexDirectLib.Management;
+using NexDirect.External;
 
 namespace NexDirect.Dialogs
 {

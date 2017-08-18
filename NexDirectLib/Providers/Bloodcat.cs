@@ -10,6 +10,7 @@ namespace NexDirectLib.Providers
     using Structures;
     using System.Net;
     using System.Net.Http;
+    using Util;
 
     public static class Bloodcat
     {

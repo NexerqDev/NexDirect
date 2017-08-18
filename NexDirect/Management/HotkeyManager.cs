@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 
-namespace NexDirect
+namespace NexDirect.Management
 {
     static class HotkeyManager
     {

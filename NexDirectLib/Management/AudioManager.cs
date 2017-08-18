@@ -1,7 +1,7 @@
 ﻿using NAudio.Wave;
 using System.IO;
 
-namespace NexDirectLib
+namespace NexDirectLib.Management
 {
     public static class AudioManager
     {

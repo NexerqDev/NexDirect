@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System;
 
-namespace NexDirectLib
+namespace NexDirectLib.Management
 {
     using Structures;
     using System.IO;

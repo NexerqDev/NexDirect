@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NexDirectLib
+namespace NexDirectLib.Util
 {
     public static class CookieStoreSerializer
     {

@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace NexDirect
+namespace NexDirect.Management
 {
     public static class LinkerSetup
     {

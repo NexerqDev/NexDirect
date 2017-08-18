@@ -2,8 +2,9 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
+using NexDirectLib.Util;
 
-namespace NexDirectLib
+namespace NexDirectLib.Updates
 {
     public static class UpdateChecker
     {

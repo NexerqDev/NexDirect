@@ -12,9 +12,13 @@ using System.Threading.Tasks;
 
 using NexDirectLib;
 using NexDirectLib.Structures;
-using static NexDirectLib.SearchFilters;
+using static NexDirectLib.Structures.SearchFilters;
 using System.Windows.Controls;
 using NexDirectLib.Providers;
+using NexDirect.Management;
+using NexDirectLib.Management;
+using NexDirectLib.Updates;
+using NexDirectLib.Util;
 
 namespace NexDirect
 {

@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NexDirectLib.Structures;
 using System.Text.RegularExpressions;
+using NexDirectLib.Management;
 
 namespace NexDirectLib.Providers
 {

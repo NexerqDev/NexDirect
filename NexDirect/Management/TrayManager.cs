@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace NexDirect
+namespace NexDirect.Management
 {
     static class TrayManager
     {

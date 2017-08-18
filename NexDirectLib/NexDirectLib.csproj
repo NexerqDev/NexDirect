@@ -73,23 +73,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AudioManager.cs" />
+    <Compile Include="Management\AudioManager.cs" />
     <Compile Include="Providers\Bloodcat.cs" />
-    <Compile Include="CookieStoreSerializer.cs" />
+    <Compile Include="Util\CookieStoreSerializer.cs" />
     <Compile Include="Ext\CookieAwareWebClient.cs" />
-    <Compile Include="MapsManager.cs" />
-    <Compile Include="DownloadManager.cs" />
+    <Compile Include="Management\MapsManager.cs" />
+    <Compile Include="Management\DownloadManager.cs" />
     <Compile Include="Providers\DownloadMirror.cs" />
     <Compile Include="Providers\Osu.cs" />
-    <Compile Include="SearchFilters.cs" />
+    <Compile Include="Structures\SearchFilters.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Structures\BeatmapDownload.cs" />
     <Compile Include="Structures\BeatmapSet.cs" />
     <Compile Include="Structures\KVItem.cs" />
     <Compile Include="Structures\SearchResultSet.cs" />
-    <Compile Include="Tools.cs" />
-    <Compile Include="UpdateChecker.cs" />
-    <Compile Include="Web.cs" />
+    <Compile Include="Util\Tools.cs" />
+    <Compile Include="Updates\UpdateChecker.cs" />
+    <Compile Include="Util\Web.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
