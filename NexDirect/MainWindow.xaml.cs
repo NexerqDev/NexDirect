@@ -14,6 +14,7 @@ using NexDirectLib;
 using NexDirectLib.Structures;
 using static NexDirectLib.SearchFilters;
 using System.Windows.Controls;
+using NexDirectLib.Providers;
 
 namespace NexDirect
 {

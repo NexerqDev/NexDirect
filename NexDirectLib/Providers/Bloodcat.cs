@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace NexDirectLib
+namespace NexDirectLib.Providers
 {
     using Structures;
     using System.Net;
@@ -67,14 +67,15 @@ namespace NexDirectLib
         /// </summary>
         public static BeatmapSet StandardizeToSetStruct(JObject bloodcatData)
         {
-            var difficulties = new Dictionary<string, string>();
+            var difficulties = new List<BeatmapSet.Difficulty>();
             foreach (var d in (JArray)bloodcatData["beatmaps"])
-                difficulties.Add(d["name"].ToString(), d["mode"].ToString());
+                difficulties.Add(new BeatmapSet.Difficulty(d["id"].ToString(), d["name"].ToString(), d["mode"].ToString()));
 
             return new BeatmapSet(
+                typeof(Bloodcat),
                 bloodcatData["id"].ToString(), bloodcatData["artist"].ToString(),
                 bloodcatData["title"].ToString(), bloodcatData["creator"].ToString(),
-                ((Osu.RankingStatus)int.Parse(bloodcatData["status"].ToString())).ToString(),
+                ((SearchFilters.OsuRankStatus)int.Parse(bloodcatData["status"].ToString())).ToString(),
                 difficulties, bloodcatData
             );
         }
@@ -126,24 +127,17 @@ namespace NexDirectLib
         }
 
         /// <summary>
-        /// Prepares a download object for a set from bloodcat or mirror if defined
+        /// Prepares a download object for a set from bloodcat
         /// </summary>
-        public static async Task<BeatmapDownload> PrepareDownloadSet(BeatmapSet set, string mirror)
+        public static async Task<BeatmapDownload> PrepareDownloadSet(BeatmapSet set)
         {
             BeatmapDownload download;
 
             Uri downloadUri;
-            if (String.IsNullOrEmpty(mirror))
-            {
-                await CheckCaptcha(set);
-                downloadUri = new Uri("http://bloodcat.com/osu/s/" + set.Id);
-                download = new BeatmapDownload(set, downloadUri, Cookies);
-            }
-            else
-            {
-                downloadUri = new Uri(mirror.Replace("%s", set.Id));
-                download = new BeatmapDownload(set, downloadUri);
-            }
+
+            await CheckCaptcha(set);
+            downloadUri = new Uri("http://bloodcat.com/osu/s/" + set.Id);
+            download = new BeatmapDownload(set, downloadUri, Cookies);
 
             return download;
         }

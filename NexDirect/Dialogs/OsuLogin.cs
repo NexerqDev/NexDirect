@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 
 using NexDirectLib;
+using NexDirectLib.Providers;
 
 namespace NexDirect.Dialogs
 {

@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Forms;
 
 using NexDirectLib;
+using NexDirectLib.Providers;
 
 namespace NexDirect.Dialogs
 {
@@ -32,7 +33,7 @@ namespace NexDirect.Dialogs
 
             try
             {
-                await Osu.CheckLoginCookieAndUse(cookies, SettingManager.Get("officialOsuUsername"), SettingManager.Get("officialOsuPassword"));
+                await Osu.CheckPassedLoginCookieElseUseNew(cookies, SettingManager.Get("officialOsuUsername"), SettingManager.Get("officialOsuPassword"));
 
                 // store to parent & just persist them incase something new changed
                 SettingManager.Set("officialOsuCookies", await CookieStoreSerializer.SerializeCookies(Osu.Cookies));

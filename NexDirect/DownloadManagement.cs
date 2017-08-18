@@ -8,6 +8,7 @@ using NexDirectLib.Structures;
 using System.Windows;
 using System.Diagnostics;
 using System.IO;
+using NexDirectLib.Providers;
 
 namespace NexDirect
 {
@@ -110,7 +111,12 @@ namespace NexDirect
 
             // get dl obj
             BeatmapDownload download;
-            if (!SettingManager.Get("fallbackActualOsu") && SettingManager.Get("useOfficialOsu") && String.IsNullOrEmpty(SettingManager.Get("beatmapMirror")))
+            if (!String.IsNullOrEmpty(SettingManager.Get("beatmapMirror")))
+            {
+                // use mirror
+                download = DownloadMirror.PrepareDownloadSet(set, SettingManager.Get("beatmapMirror"));
+            }
+            else if (!SettingManager.Get("fallbackActualOsu") && SettingManager.Get("useOfficialOsu"))
             {
                 try
                 {
@@ -124,9 +130,12 @@ namespace NexDirect
 
                     BeatmapSet newSet = await Bloodcat.TryResolveSetId(set.Id);
                     if (newSet == null)
+                    {
                         MessageBox.Show("Sorry, this map could not be found on Bloodcat. Download has been aborted.", "NexDirect - Could not find beatmap", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
 
-                    download = Bloodcat.PrepareDownloadSet(set, SettingManager.Get("beatmapMirror"));
+                    download = await Bloodcat.PrepareDownloadSet(set);
                 }
                 catch (Osu.CookiesExpiredException)
                 {
@@ -140,7 +149,7 @@ namespace NexDirect
             {
                 try
                 {
-                    download = await Bloodcat.PrepareDownloadSet(set, SettingManager.Get("beatmapMirror"));
+                    download = await Bloodcat.PrepareDownloadSet(set);
                 }
                 catch (Bloodcat.BloodcatCaptchaException)
                 {

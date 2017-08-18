@@ -17,14 +17,15 @@ namespace NexDirectLib.Structures
         public string Title { get; set; }
         public string Mapper { get; set; }
         public string RankingStatus { get; set; }
-        public IEnumerable<Difficulty> Difficulties { get; set; }
+        public List<Difficulty> Difficulties { get; set; }
         public bool AlreadyHave { get; set; }
         public Uri PreviewImage { get; set; }
-        public bool IsBloodcat { get; set; }
-        public JObject BloodcatData { get; set; }
+        public Type Provider { get; set; }
+        public JObject Data { get; set; }
 
-        public BeatmapSet(string id, string artist, string title, string mapper, string rankStatus, Dictionary<string, string> difficulties, JObject bloodcatRaw)
+        public BeatmapSet(Type provider, string id, string artist, string title, string mapper, string rankStatus, List<Difficulty> difficulties, JObject data)
         {
+            Provider = provider;
             Id = id;
             Artist = artist;
             Title = title;
@@ -32,23 +33,20 @@ namespace NexDirectLib.Structures
             RankingStatus = rankStatus;
             PreviewImage = new Uri($"http://b.ppy.sh/thumb/{Id}l.jpg");
             AlreadyHave = MapsManager.Maps.Any(b => b.Contains(Id + " "));
-            Difficulties = difficulties.Select(d => new Difficulty(d.Key, d.Value));
-
-            if (bloodcatRaw != null)
-            {
-                BloodcatData = bloodcatRaw;
-                IsBloodcat = true;
-            }
+            Difficulties = difficulties;
+            Data = data;
         }
 
         public class Difficulty
         {
+            public string Id { get; set; }
             public string Name { get; set; }
             public string Mode { get; set; }
             public Uri ModeImage { get; set; }
 
-            public Difficulty(string name, string mode)
+            public Difficulty(string id, string name, string mode)
             {
+                Id = id;
                 Name = name;
                 Mode = mode;
 

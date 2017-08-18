@@ -1,5 +1,6 @@
 ﻿using NexDirectLib;
 using NexDirectLib.Structures;
+using NexDirectLib.Providers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
