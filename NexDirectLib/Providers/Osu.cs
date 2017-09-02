@@ -80,7 +80,25 @@ namespace NexDirectLib.Providers
         /// </summary>
         public static async Task CheckPassedLoginCookieElseUseNew(CookieContainer cookies, string username, string password)
         {
-            using (var handler = new HttpClientHandler() { CookieContainer = cookies })
+            try
+            {
+                await CheckLoginCookie(cookies);
+                Cookies = cookies;
+            }
+            catch (CookiesExpiredException)
+            {
+                // try with creds to renew login
+                CookieContainer newCookies = await LoginAndGetCookie(username, password);
+                Cookies = newCookies;
+            }
+        }
+
+        /// <summary>
+        /// Checks if persisted cookies are still working
+        /// </summary>
+        public static async Task CheckLoginCookie(CookieContainer cookieOverride = null)
+        {
+            using (var handler = new HttpClientHandler() { CookieContainer = ((cookieOverride != null) ? cookieOverride : Cookies) })
             using (var client = new HttpClient(handler))
             {
                 var response = await client.GetAsync("https://osu.ppy.sh/home/download-quota-check");
@@ -89,31 +107,6 @@ namespace NexDirectLib.Providers
 
                 //if (str.Contains("error"))
                 if (!response.IsSuccessStatusCode)
-                {
-                    // try with creds to renew login
-                    CookieContainer newCookies = await LoginAndGetCookie(username, password);
-                    Cookies = newCookies;
-                }
-                else
-                {
-                    Cookies = cookies;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Checks if persisted cookies are still working
-        /// </summary>
-        public static async Task CheckLoginCookie()
-        {
-            using (var handler = new HttpClientHandler() { CookieContainer = Cookies })
-            using (var client = new HttpClient(handler))
-            {
-                var response = await client.GetAsync("https://osu.ppy.sh/home/download-quota-check");
-                response.EnsureSuccessStatusCode();
-                string str = await response.Content.ReadAsStringAsync();
-
-                if (str.Contains("error"))
                     throw new CookiesExpiredException();
             }
         }
