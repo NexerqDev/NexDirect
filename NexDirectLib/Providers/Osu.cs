@@ -84,10 +84,11 @@ namespace NexDirectLib.Providers
             using (var client = new HttpClient(handler))
             {
                 var response = await client.GetAsync("https://osu.ppy.sh/home/download-quota-check");
-                response.EnsureSuccessStatusCode();
-                string str = await response.Content.ReadAsStringAsync();
+                //response.EnsureSuccessStatusCode();
+                //string str = await response.Content.ReadAsStringAsync();
 
-                if (str.Contains("error"))
+                //if (str.Contains("error"))
+                if (!response.IsSuccessStatusCode)
                 {
                     // try with creds to renew login
                     CookieContainer newCookies = await LoginAndGetCookie(username, password);
