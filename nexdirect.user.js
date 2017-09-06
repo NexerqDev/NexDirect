@@ -2,7 +2,7 @@
 // @name         NexDirect v2
 // @namespace    http://nicholastay.github.io/
 // @homepage     https://github.com/nicholastay/NexDirect
-// @version      0.2.6
+// @version      0.2.7
 // @icon         https://raw.githubusercontent.com/nicholastay/NexDirect/master/Designs/logo.png
 // @description  Adds download button to page to use NexDirect & replaces the heart button on the listings -- You must visit the Settings panel (the logo in the bottom right) and register the URI scheme before you are able to use this script.
 // @author       Nicholas Tay (Nexerq / @n2468txd) <nexerq@gmail.com>
@@ -112,36 +112,46 @@
     function injectNewDownloadPage() {
         log("[new] Injecting download button into beatmap download page...");
         // Get set id
-        var $hrefElem = $("a[href*='/d/']");
-        if (!$hrefElem)
+        var $audioElem = $(".js-audio--play");
+        if (!$audioElem || ($audioElem.length < 1))
             return log("Could not find link element."); // rip
         log("Found link element.");
 
-        var beatmapSetId = $hrefElem[0].href.match(/\/d\/(\d+)n?/);
-        if (!beatmapSetId || !beatmapSetId[1])
+        var previewLinkMatch = $audioElem.attr("data-audio-url").match(/\/preview\/(\d+)\.mp3/);
+        if (!previewLinkMatch || !previewLinkMatch[1])
             return log("Could not retrieve beatmap set ID."); // rip
-        beatmapSetId = beatmapSetId[1];
+        var beatmapSetId = previewLinkMatch[1]; // set the group
         log("Found beatmap set ID.");
-
-        var $osuDirectButton = $(".beatmapset-header__buttons a").last();
-        if (!$osuDirectButton || $osuDirectButton.text() !== "osu!direct")
-            return log("Could not find osu!direct button to inject to."); // rip
-        log("Found osu!direct button, modifying and injecting.");
-
-        var $nexButton = $osuDirectButton.clone();
-        $nexButton.attr("href", "nexdirect://" + beatmapSetId);
-        $nexButton.attr("style", "filter: hue-rotate(284deg); -webkit-filter: hue-rotate(284deg);"); // green!
-        $nexButton.find(".btn-osu-big__text-top").text("NexDirect");
-        $nexButton.find("span.fa-download").replaceWith("<img src=\"" + miniIcon + "\" alt=\"NexDirect icon\" style=\"filter: brightness(0) invert(1); -webkit-filter: brightness(0) invert(1);\"/>");
         
-        if ($osuDirectButton.attr("href").indexOf("osu://") >= 0) { // already supporter, dont delete the o!d elem but just inject after
-            log("Detected osu!supporter, not going to delete the old element...");
-            $osuDirectButton.after($nexButton);
+        var nexDirectInject = `
+<a href="${"nexdirect://" + beatmapSetId}" data-turbolinks="false" class="btn-osu-big btn-osu-big--beatmapset-header" style="filter: hue-rotate(284deg); -webkit-filter: hue-rotate(284deg);">
+    <div class="btn-osu-big__content">
+        <div class="btn-osu-big__left">
+            <span class="btn-osu-big__text-top">NexDirect</span>
+        </div>
+        <div class="btn-osu-big__icon">
+            <img src="${miniIcon}" alt="NexDirect icon" style="filter: brightness(0) invert(1); -webkit-filter: brightness(0) invert(1);">
+        </div>
+    </div>
+</a>
+`;
+        
+        var $osuDirectButton = $(".beatmapset-header__buttons a:contains('osu!direct')");
+        if (!$osuDirectButton || ($osuDirectButton.length < 1)) {
+            log("No osu!direct button, probably logged out, that's ok. Injecting to mapper portion instead.");
+            
+            // needs wrapping when injecting in this spot
+            $(".beatmapset-mapping__content").after(`<div class="nexdirect--dl-wrapper" style="margin-left: 25px;">` + nexDirectInject + `</div>`);
         } else {
-            log("Replacing o!d element...");
-            $osuDirectButton.replaceWith($nexButton);
+            $osuDirectButton.after(nexDirectInject);
+            
+            if ($osuDirectButton.attr("href").indexOf("osu://") < 0) { // no supporter, just get rid of that obsolete button
+                log("No osu!supporter, deleting the old element...");
+                $osuDirectButton.remove();
+            }
         }
-        log("Injected download button.");
+
+        log("[new] Injected download button.");
     }
 
     
