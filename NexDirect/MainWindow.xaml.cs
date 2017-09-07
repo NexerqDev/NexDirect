@@ -264,6 +264,7 @@ namespace NexDirect
                 rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("Loved", OsuRankStatus.Loved)); // only official
             if (!osuMode)
                 rankedStatusBox.Items.Add(new KVItem<OsuRankStatus>("Unranked", OsuRankStatus.Unranked)); // only bloodcat
+            rankedStatusBox.SelectedIndex = 1; // default to ranked/approved seems wise?
 
             // Modes
             modeSelectBox.Items.Add(new KVItem<OsuModes>("All", OsuModes.All));
