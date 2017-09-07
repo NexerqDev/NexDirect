@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NexDirect.Dialogs"
         mc:Ignorable="d"
-        Title="DownloadComplete" Height="201.479" Width="407.396" ResizeMode="NoResize" WindowStyle="None" Opacity="0.85" Topmost="True" AllowsTransparency="True" ShowActivated="False">
+        Title="DownloadComplete" Height="201.479" Width="407.396" ResizeMode="NoResize" WindowStyle="None" Opacity="0.85" Topmost="True" AllowsTransparency="True" ShowActivated="False" ShowInTaskbar="False">
     <Grid>
         <Label x:Name="label" Content="Download Complete" HorizontalAlignment="Left" Height="36" Margin="120,10,0,0" VerticalAlignment="Top" Width="176" FontSize="18"/>
         <Image x:Name="image" HorizontalAlignment="Left" Height="110" Margin="61,46,0,0" VerticalAlignment="Top" Width="288" Stretch="UniformToFill"/>
