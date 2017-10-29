@@ -19,6 +19,8 @@ using NexDirect.Management;
 using NexDirectLib.Management;
 using NexDirectLib.Updates;
 using NexDirectLib.Util;
+using NAudio.Wave;
+using System.Linq;
 
 namespace NexDirect
 {
@@ -34,6 +36,8 @@ namespace NexDirect
 
         private Control[] dynamicElements;
         private bool startupHide = false;
+
+        private WaveOut previewPlayer = null;
 
         public MainWindow(string[] startupArgs)
         {
@@ -83,7 +87,6 @@ namespace NexDirect
         {
             CleanUpOldTemps();
             CheckOrPromptForSetup();
-            AudioManager.Init(SettingManager.Get("previewVolume"), Properties.Resources.doong); // load into memory ready to play
             MapsManager.Init(osuSongsFolder);
 
             string bg = SettingManager.Get("customBgPath");
@@ -205,12 +208,12 @@ namespace NexDirect
             if (beatmap == null)
                 return;
 
-            AudioManager.ForceStopPreview();
+            forceStopPreview();
             DownloadManagement.DownloadBeatmapSet(beatmap);
         }
 
         private BeatmapSet lastSetPreviewed = null;
-        private void dataGrid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        private async void dataGrid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (!SettingManager.Get("audioPreviews"))
                 return;
@@ -221,13 +224,26 @@ namespace NexDirect
 
             if (set == lastSetPreviewed)
             {
-                AudioManager.ForceStopPreview();
+                forceStopPreview();
                 lastSetPreviewed = null;
                 return;
             }
 
-            Osu.PlayPreviewAudio(set);
+            // hacky
+            forceStopPreview(); // if already playing something just stop it
+            await Task.Delay(250);
+
+            // kind of a hack, pt 2
+            if (DownloadManager.Downloads.Any(d => d.Set.Id == set.Id))
+                return; // check for if already d/l'ing overlaps
+
+            previewPlayer = await Osu.PlayPreviewAudio(set, (float)SettingManager.Get("previewVolume"));
             lastSetPreviewed = set;
+        }
+
+        private void forceStopPreview()
+        {
+            previewPlayer?.Stop();
         }
 
         private void progressGrid_DoubleClick(object sender, MouseButtonEventArgs e)

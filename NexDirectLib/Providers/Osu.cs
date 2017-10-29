@@ -24,15 +24,8 @@ namespace NexDirectLib.Providers
         /// <summary>
         /// Plays preview audio of a specific beatmap set to the waveout interface
         /// </summary>
-        public static async void PlayPreviewAudio(BeatmapSet set)
+        public static async Task<WaveOut> PlayPreviewAudio(BeatmapSet set, float? volume = null)
         {
-            // kind of a hack.
-            AudioManager.PreviewOut.Stop(); // if already playing something just stop it
-            await Task.Delay(250);
-            if (DownloadManager.Downloads.Any(d => d.Set.Id == set.Id))
-                return; // check for if already d/l'ing overlaps
-
-            WaveOut waveOut = AudioManager.PreviewOut;
             using (var client = new HttpClient())
             {
                 try
@@ -41,13 +34,9 @@ namespace NexDirectLib.Providers
                     response.EnsureSuccessStatusCode();
                     Stream audioData = await response.Content.ReadAsStreamAsync();
 
-                    // https://stackoverflow.com/questions/2488426/how-to-play-a-mp3-file-using-naudio sol #2
-                    var reader = new Mp3FileReader(audioData);
-                    waveOut.Stop();
-                    waveOut.Init(reader);
-                    waveOut.Play();
+                    return AudioManager.PlayMp3Stream(audioData, volume);
                 }
-                catch { } // meh audio previews arent that important, and sometimes they dont exist
+                catch { return null; } // meh audio previews arent that important, and sometimes they dont exist
             }
         }
 

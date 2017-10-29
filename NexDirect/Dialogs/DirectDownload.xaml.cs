@@ -18,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using NexDirect.Management;
 using NexDirectLib.Management;
+using NAudio.Wave;
 
 namespace NexDirect.Dialogs
 {
@@ -28,6 +29,8 @@ namespace NexDirect.Dialogs
     {
         BeatmapSet set;
         MainWindow _mw;
+
+        WaveOut previewPlayer = null;
 
         public DirectDownload(MainWindow mw, BeatmapSet bs)
         {
@@ -67,8 +70,10 @@ namespace NexDirect.Dialogs
         private void downloadViewBtn_Click(object sender, RoutedEventArgs e)
             => onDownloadClick(true);
 
-        private void previewBtn_Click(object sender, RoutedEventArgs e)
-            => Osu.PlayPreviewAudio(set);
+        private async void previewBtn_Click(object sender, RoutedEventArgs e)
+        {
+            previewPlayer = await Osu.PlayPreviewAudio(set, (float)SettingManager.Get("previewVolume"));
+        }
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
@@ -84,7 +89,7 @@ namespace NexDirect.Dialogs
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            AudioManager.ForceStopPreview();
+            previewPlayer?.Stop();
 
             // fade out
             if (SettingManager.Get("overlayMode"))
@@ -101,7 +106,7 @@ namespace NexDirect.Dialogs
 
         private void onDownloadClick(bool restore = false)
         {
-            AudioManager.ForceStopPreview();
+            previewPlayer?.Stop();
             DownloadManagement.DownloadBeatmapSet(set);
             if (restore)
                 _mw.RestoreWindow();

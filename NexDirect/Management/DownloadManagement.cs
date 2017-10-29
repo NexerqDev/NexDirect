@@ -18,6 +18,8 @@ namespace NexDirect.Management
     {
         static MainWindow mw;
 
+        public static byte[] DownloadCompleteSound = Tools.StreamToByteArray(Properties.Resources.doong);
+
         public static void Init(MainWindow _mw)
         {
             mw = _mw;
@@ -189,6 +191,8 @@ namespace NexDirect.Management
                     if (File.Exists(path)) File.Delete(path); // overwrite if exist
                     File.Move(download.TempPath, path);
                 }
+
+                AudioManager.PlayWavBytes(DownloadCompleteSound, 0.85f);
 
                 (new Dialogs.DownloadComplete(set)).Show();
             }

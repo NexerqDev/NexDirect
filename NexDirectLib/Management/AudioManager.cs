@@ -1,35 +1,52 @@
 ﻿using NAudio.Wave;
+using System;
 using System.IO;
 
 namespace NexDirectLib.Management
 {
     public static class AudioManager
     {
-        public static bool DownloadCompleteSoundEnabled = true;
-        public static WaveOut PreviewOut = new WaveOut(); // For playing beatmap previews and stuff
-        public static WaveOut NotificationOut = new WaveOut(); // Specific interface for playing doong, so if previews are playing it doesnt take over
-
-        public static void Init(float previewOutVolume, UnmanagedMemoryStream notificationSound)
+        public static WaveOut PlayWavBytes(byte[] wavBytes, float? volume = null, Action callback = null)
         {
-            var reader = new WaveFileReader(notificationSound);
-            NotificationOut.Init(reader);
-            NotificationOut.PlaybackStopped += (o, e) => reader.Position = 0;
+            MemoryStream ms = new MemoryStream(wavBytes);
+            WaveFileReader r = new WaveFileReader(ms);
 
-            PreviewOut.Volume = previewOutVolume;
+            return PlayReader(r, volume, () =>
+            {
+                ms.Dispose();
+                r.Dispose();
+                callback?.Invoke();
+            });
         }
 
-        public static void OnDownloadComplete()
+        public static WaveOut PlayMp3Stream(Stream stream, float? volume = null, Action callback = null)
         {
-            if (!DownloadCompleteSoundEnabled)
-                return;
-            NotificationOut.Play();
+            Mp3FileReader r = new Mp3FileReader(stream);
+
+            return PlayReader(r, volume, () =>
+            {
+                r.Dispose();
+                callback?.Invoke();
+            });
         }
 
-        public static void ForceStopPreview() => PreviewOut.Stop();
-
-        public static void SetPreviewVolume(float volume)
+        public static WaveOut PlayReader(WaveStream ws, float? volume = null, Action callback = null)
         {
-            PreviewOut.Volume = volume;
+            WaveOut player = new WaveOut
+            {
+                Volume = (volume == null) ? 1.0f : (float)volume
+            };
+
+            player.Init(ws);
+            player.Play();
+
+            player.PlaybackStopped += (o, ex) =>
+            {
+                player.Dispose();
+                callback?.Invoke();
+            };
+
+            return player;
         }
     }
 }

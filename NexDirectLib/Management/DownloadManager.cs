@@ -45,7 +45,7 @@ namespace NexDirectLib.Management
             };
         }
 
-        public static async Task DownloadSet(BeatmapDownload download, bool playAudioNotif = true)
+        public static async Task DownloadSet(BeatmapDownload download)
         {
             Downloads.Add(download);
             download.SpeedTracker.Start(); // start the speed tracking
@@ -70,9 +70,6 @@ namespace NexDirectLib.Management
                 if (Downloads.Count < 1)
                     MapsManager.Reload(); // reload only when theres nothing left
             }
-                
-            if (playAudioNotif)
-                AudioManager.OnDownloadComplete();
         }
 
         public static void CancelDownload(BeatmapDownload download)

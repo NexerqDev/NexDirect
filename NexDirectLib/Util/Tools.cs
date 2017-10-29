@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace NexDirectLib.Util
 {
@@ -9,6 +10,15 @@ namespace NexDirectLib.Util
         {
             var invalids = System.IO.Path.GetInvalidFileNameChars();
             return string.Join("_", filename.Split(invalids, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
+        }
+
+        public static byte[] StreamToByteArray(Stream s)
+        {
+            using (var ms = new MemoryStream())
+            {
+                s.CopyTo(ms);
+                return ms.ToArray();
+            }
         }
     }
 }

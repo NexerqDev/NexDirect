@@ -1,5 +1,7 @@
-# Download this file using PowerShell v3 under Windows with the following comand
+# Download this file using PowerShell v3 under Windows with the following comand:
 # Invoke-WebRequest https://gist.githubusercontent.com/kmorcinek/2710267/raw/ -OutFile .gitignore
+# or wget:
+# wget --no-check-certificate http://gist.githubusercontent.com/kmorcinek/2710267/raw/.gitignore
 
 # User-specific files
 *.suo
@@ -54,9 +56,7 @@ build/
 
 # OS generated files #
 .DS_Store*
-ehthumbs.db
 Icon?
-Thumbs.db
 
 # Visual C++ cache files
 ipch/
@@ -115,7 +115,6 @@ csx
 AppPackages/
 
 # Others
-sql/
 *.Cache
 ClientBin/
 [Ss]tyle[Cc]op.*
@@ -148,6 +147,9 @@ UpgradeLog*.htm
  
 # svn
 .svn
+
+# Remainings from resolvings conflicts in Source Control
+*.orig
 
 # SQL Server files
 **/App_Data/*.mdf
@@ -183,8 +185,27 @@ $RECYCLE.BIN/
 # Visual Studio 2014 CTP
 **/*.sln.ide
 
-# =========================
-# ---- NexDirect
-# =========================
+# Visual Studio temp something
+.vs/
+
+# VS 2015+
+*.vc.vc.opendb
+*.vc.db
+
+# Rider
+.idea/
+
+# Output folder used by Webpack or other FE stuff
+**/node_modules/*
+**/wwwroot/*
+
+# SpecFlow specific
+*.feature.cs
+*.feature.xlsx.*
+*.Specs_*.html
+
+#####
+# End of core ignore list, below put you custom 'per project' settings (patterns or path)
+#####
 
 NexDirect/Resources/BuildData.txt

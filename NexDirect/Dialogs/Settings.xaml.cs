@@ -221,7 +221,6 @@ namespace NexDirect.Dialogs
 
             float v = (float)(previewVolumeSlider.Value / 100);
             SettingManager.Set("previewVolume", v);
-            AudioManager.SetPreviewVolume(v);
         }
     }
 }
