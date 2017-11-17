@@ -2,7 +2,7 @@
 // @name         NexDirect v2
 // @namespace    http://nicholastay.github.io/
 // @homepage     https://github.com/nicholastay/NexDirect
-// @version      0.2.7
+// @version      0.2.8
 // @icon         https://raw.githubusercontent.com/nicholastay/NexDirect/master/Designs/logo.png
 // @description  Adds download button to page to use NexDirect & replaces the heart button on the listings -- You must visit the Settings panel (the logo in the bottom right) and register the URI scheme before you are able to use this script.
 // @author       Nicholas Tay (Nexerq / @n2468txd) <nexerq@gmail.com>
@@ -72,7 +72,7 @@
 
             $downloadButton = $(".posttext");
             if (!$downloadButton || $downloadButton.length < 1) // it really shouldnt get here
-                return log("Still cannot find element to inject.")
+                return log("Still cannot find element to inject.");
         }
 
         if ($downloadButton.length > 1) {
@@ -135,20 +135,27 @@
     </div>
 </a>
 `;
-        
-        var $osuDirectButton = $(".beatmapset-header__buttons a:contains('osu!direct')");
-        if (!$osuDirectButton || ($osuDirectButton.length < 1)) {
-            log("No osu!direct button, probably logged out, that's ok. Injecting to mapper portion instead.");
-            
+
+        var $buttons = $(".beatmapset-header__buttons");
+        if (!$buttons || ($buttons.length < 1))
+            return log("Couldn't find buttons elem to inject.");
+        var $buttonAs = $buttons.find("a");
+
+        log("Injecting download button.");
+        if (!$buttonAs || ($buttonAs.length < 1)) {
+            // nicer to inject here if no buttons
+            log("No buttons, injecting to mapper portion instead.");
+
             // needs wrapping when injecting in this spot
             $(".beatmapset-mapping__content").after(`<div class="nexdirect--dl-wrapper" style="margin-left: 25px;">` + nexDirectInject + `</div>`);
         } else {
-            $osuDirectButton.after(nexDirectInject);
-            
-            if ($osuDirectButton.attr("href").indexOf("osu://") < 0) { // no supporter, just get rid of that obsolete button
-                log("No osu!supporter, deleting the old element...");
-                $osuDirectButton.remove();
-            }
+            $buttons.append(nexDirectInject);
+        }
+
+        var $osuDirectButton = $buttons.find("a:contains('osu!direct')");
+        if ($osuDirectButton.legnth > 0 && $osuDirectButton.attr("href").indexOf("osu://") < 0) { // no supporter, just get rid of that obsolete button
+            log("Found osu!supporter button, but user has no osu!supporter, deleting the obsolete element...");
+            $osuDirectButton.remove();
         }
 
         log("[new] Injected download button.");
