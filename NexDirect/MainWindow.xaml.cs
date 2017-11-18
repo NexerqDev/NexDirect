@@ -32,7 +32,6 @@ namespace NexDirect
         public ObservableCollection<BeatmapSet> BeatmapsCollection = new ObservableCollection<BeatmapSet>(); // ObservableCollection: will send updates to other objects when updated (will update the datagrid binding)
 
         public string osuSongsFolder => Path.Combine(SettingManager.Get("osuFolder"), "Songs");
-        public static bool firstTrayMinimize = true;
 
         private Control[] dynamicElements;
         private bool startupHide = false;
@@ -519,10 +518,10 @@ namespace NexDirect
                 {
                     Hide();
 
-                    if (firstTrayMinimize)
+                    if (SettingManager.Get("firstMinimizeToTray"))
                     {
                         TrayManager.Icon.ShowBalloonTip(1500, "NexDirect", "NexDirect has been minimized to the tray. Double click the icon in the tray to restore.", System.Windows.Forms.ToolTipIcon.Info);
-                        firstTrayMinimize = false;
+                        SettingManager.Set("firstMinimizeToTray", false);
                     }
                 }
             }
