@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("NexDirect")]
 [assembly: AssemblyDescription("A free, open-source alternative osu! beatmap downloader.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("NexerqDev")]
 [assembly: AssemblyProduct("NexDirect")]
-[assembly: AssemblyCopyright("Nicholas Tay 2016")]
+[assembly: AssemblyCopyright("© Nicholas Tay / Nexerq, 2016-2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,7 +51,7 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.2.1.0")]
-[assembly: AssemblyFileVersion("0.2.1.0")]
+[assembly: AssemblyVersion("0.3.0.0")]
+[assembly: AssemblyFileVersion("0.3.0.0")]
 [assembly: NeutralResourcesLanguage("en-US")]
 
