@@ -8,8 +8,8 @@
         mc:Ignorable="d"
         Title="Bloodcat CAPTCHA Input - NexDirect" Height="318" Width="571" ResizeMode="NoResize" Loaded="Window_Loaded">
     <Grid>
-        <WindowsFormsHost>
-            <wf:WebBrowser x:Name="formsBrowser" />
-        </WindowsFormsHost>
+        <TextBox x:Name="captchaInput" HorizontalAlignment="Left" Height="20" Margin="138,193,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="207" IsEnabled="False"/>
+        <Button x:Name="submitButton" Content="Submit" HorizontalAlignment="Left" Height="20" Margin="350,193,0,0" VerticalAlignment="Top" Width="78" Click="submitButton_Click" IsEnabled="False" IsDefault="True"/>
+        <Image x:Name="captchaImage" HorizontalAlignment="Left" Height="65" Margin="160,101,0,0" VerticalAlignment="Top" Width="240" Stretch="UniformToFill"/>
     </Grid>
 </Window>

@@ -306,8 +306,6 @@ namespace NexDirect
             catch { } // dont really care as we are just getting rid of temp files, doesnt matter if it screws up
         }
 
-        private const string osuRegKey = @"SOFTWARE\Classes\osu!";
-        private Regex osuValueRegex = new Regex(@"""(.*)\\osu!\.exe"" ""%1""");
         public void CheckOrPromptForSetup()
         {
             string osuFolder = SettingManager.Get("osuFolder");

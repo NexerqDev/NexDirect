@@ -101,7 +101,7 @@ namespace NexDirect.Management
             }
         }
 
-        public static async void DownloadBeatmapSet(BeatmapSet set)
+        public static async void DownloadBeatmapSet(BeatmapSet set, bool forceBloodcat = false)
         {
             // check for already downloading
             if (DownloadManager.Downloads.Any(b => b.Set.Id == set.Id))
@@ -120,7 +120,7 @@ namespace NexDirect.Management
                 // use mirror
                 download = DownloadMirror.PrepareDownloadSet(set, SettingManager.Get("beatmapMirror"));
             }
-            else if (!SettingManager.Get("fallbackActualOsu") && SettingManager.Get("useOfficialOsu"))
+            else if (!forceBloodcat && !SettingManager.Get("fallbackActualOsu") && SettingManager.Get("useOfficialOsu"))
             {
                 try
                 {
@@ -139,7 +139,8 @@ namespace NexDirect.Management
                         return;
                     }
 
-                    download = await Bloodcat.PrepareDownloadSet(set);
+                    DownloadBeatmapSet(set, true);
+                    return;
                 }
                 catch (Osu.CookiesExpiredException)
                 {
@@ -163,7 +164,7 @@ namespace NexDirect.Management
                     // persist those freshly baked cookies
                     SettingManager.Set("bloodcatCookies", await CookieStoreSerializer.SerializeCookies(Bloodcat.Cookies));
 
-                    DownloadBeatmapSet(set); // hard retry
+                    DownloadBeatmapSet(set, true); // hard retry
                     return;
                 }
                 
